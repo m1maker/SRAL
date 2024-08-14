@@ -12,7 +12,7 @@ endif()
 project ("SRAL")
 
 # Add source to this project's executable.
-add_executable (SRAL "Include/SRAL.h")
+add_executable (SRAL "Include/SRAL.h" "SRC/SRAL.cpp")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET SRAL PROPERTY CXX_STANDARD 20)
