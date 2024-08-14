@@ -21,8 +21,8 @@ private:
 	blastspeak* instance = nullptr;
 	ma_engine m_audioEngine;
 	ma_sound m_sound;
-	ma_decoder m_decoder;
-	bool m_decoderInitialized = false;
+	ma_audio_buffer m_buffer;
+	bool m_bufferInitialized = false;
 	bool m_soundInitialized = false;
 };
 

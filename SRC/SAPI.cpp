@@ -46,20 +46,23 @@ bool SAPI::Speak(const char* text, bool interrupt) {
 	unsigned long bytes;
 	char* audio_ptr = blastspeak_speak_to_memory(instance, &bytes, text);
 	if (audio_ptr == nullptr)return false;
-	char* final = minitrim(audio_ptr, &bytes, 16, instance->channels);
+	char* final = minitrim(audio_ptr, &bytes, instance->bits_per_sample, instance->channels);
 	if (final == nullptr) return false;
-	if (m_decoderInitialized) {
-		ma_decoder_uninit(&m_decoder);
-		m_decoderInitialized = false;
+	if (m_bufferInitialized) {
+		ma_audio_buffer_uninit(&m_buffer);
+		m_bufferInitialized = false;
 	}
-	ma_result result = ma_decoder_init_memory((const void*)final, bytes, nullptr, &m_decoder);
+	ma_audio_buffer_config bufferConfig = ma_audio_buffer_config_init(ma_format_s16, instance->channels, bytes / 2, (const void*)final, nullptr);
+	bufferConfig.sampleRate = 16000;
+	bufferConfig.channels = 1;
+	ma_result result = ma_audio_buffer_init(&bufferConfig, &m_buffer);
 	if (result != MA_SUCCESS)return false;
 	if (m_soundInitialized) {
 		ma_sound_uninit(&m_sound);
 		m_soundInitialized = false;
 	}
 
-	result = ma_sound_init_from_data_source(&m_audioEngine, &m_decoder, 0, nullptr, &m_sound);
+	result = ma_sound_init_from_data_source(&m_audioEngine, &m_buffer, 0, nullptr, &m_sound);
 	if (result != MA_SUCCESS)return false;
 	return ma_sound_start(&m_sound) == MA_SUCCESS;
 }
