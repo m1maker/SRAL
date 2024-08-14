@@ -11,6 +11,7 @@
 #define SRAL_API
 #endif
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdlib.h>
 enum SRAL_ScreenReaders {
 	SCREEN_READER_NONE = 0,
@@ -32,4 +33,8 @@ extern "C" SRAL_API int SRAL_GetCurrentScreenReader(void);
 extern "C" SRAL_API int SRAL_GetEngineFeatures(void);
 extern "C" SRAL_API bool SRAL_Initialize(const char* library_path);
 extern "C" SRAL_API void SRAL_Uninitialize(void);
+extern "C" SRAL_API bool SRAL_SetVolume(uint64_t value);
+extern "C" SRAL_API uint64_t SRAL_GetVolume(void);
+extern "C" SRAL_API bool SRAL_SetRate(uint64_t value);
+extern "C" SRAL_API uint64_t SRAL_GetRate(void);
 #endif // SRAL_H_

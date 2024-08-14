@@ -18,6 +18,10 @@ public:
 	int GetFeatures() {
 		return SUPPORTS_SPEECH | SUPPORTS_BRAILLE;
 	}
+	void SetVolume(uint64_t) { return; }
+	uint64_t GetVolume() { return 0; }
+	void SetRate(uint64_t) { return; }
+	uint64_t GetRate() { return 0; }
 private:
 	HINSTANCE lib = nullptr;
 	typedef error_status_t(__stdcall* NVDAController_speakText)(const wchar_t*);

@@ -71,3 +71,21 @@ extern "C" SRAL_API int SRAL_GetEngineFeatures(void) {
 	if (g_currentScreenReader == nullptr)return 0;
 	return g_currentScreenReader->GetFeatures();
 }
+extern "C" SRAL_API bool SRAL_SetVolume(uint64_t value) {
+	if (g_currentScreenReader == nullptr)return false;
+	g_currentScreenReader->SetVolume(value);
+	return true;
+}
+extern "C" SRAL_API uint64_t SRAL_GetVolume(void) {
+	if (g_currentScreenReader == nullptr)return false;
+	return g_currentScreenReader->GetVolume();
+}
+extern "C" SRAL_API bool SRAL_SetRate(uint64_t value) {
+	if (g_currentScreenReader == nullptr)return false;
+	g_currentScreenReader->SetRate(value);
+	return true;
+}
+extern "C" SRAL_API uint64_t SRAL_GetRate(void) {
+	if (g_currentScreenReader == nullptr)return false;
+	return g_currentScreenReader->GetRate();
+}

@@ -12,5 +12,9 @@ public:
 	virtual int GetFeatures() = 0;
 	virtual bool Initialize() = 0;
 	virtual bool Uninitialize() = 0;
+	virtual void SetVolume(uint64_t value) = 0;
+	virtual uint64_t GetVolume() = 0;
+	virtual void SetRate(uint64_t value) = 0;
+	virtual uint64_t GetRate() = 0;
 };
 #endif
