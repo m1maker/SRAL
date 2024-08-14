@@ -14,7 +14,8 @@
 #include <stdlib.h>
 enum SRAL_ScreenReaders {
 	SCREEN_READER_NONE = 0,
-	SCREEN_READER_NVDA
+	SCREEN_READER_NVDA,
+	SCREEN_READER_SAPI
 };
 extern "C" SRAL_API bool SRAL_Speak(const char* text, bool interrupt);
 extern "C" SRAL_API bool SRAL_Braille(const char* text);
