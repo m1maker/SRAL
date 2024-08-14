@@ -67,3 +67,7 @@ extern "C" SRAL_API int SRAL_GetCurrentScreenReader(void) {
 	if (g_currentScreenReader == nullptr)return SCREEN_READER_NONE;
 	return g_currentScreenReader->GetNumber();
 }
+extern "C" SRAL_API int SRAL_GetEngineFeatures(void) {
+	if (g_currentScreenReader == nullptr)return 0;
+	return g_currentScreenReader->GetFeatures();
+}

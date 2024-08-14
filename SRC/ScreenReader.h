@@ -9,6 +9,7 @@ public:
 	virtual bool StopSpeech() = 0;
 	virtual int GetNumber() = 0;
 	virtual bool GetActive() = 0;
+	virtual int GetFeatures() = 0;
 	virtual bool Initialize() = 0;
 	virtual bool Uninitialize() = 0;
 };
