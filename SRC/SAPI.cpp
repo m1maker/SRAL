@@ -57,6 +57,7 @@ bool SAPI::Speak(const char* text, bool interrupt) {
 	bufferConfig.channels = 1;
 	ma_result result = ma_audio_buffer_init(&bufferConfig, &m_buffer);
 	if (result != MA_SUCCESS)return false;
+	m_bufferInitialized = true;
 	if (m_soundInitialized) {
 		ma_sound_uninit(&m_sound);
 		m_soundInitialized = false;
@@ -64,6 +65,7 @@ bool SAPI::Speak(const char* text, bool interrupt) {
 
 	result = ma_sound_init_from_data_source(&m_audioEngine, &m_buffer, 0, nullptr, &m_sound);
 	if (result != MA_SUCCESS)return false;
+	m_soundInitialized = true;
 	return ma_sound_start(&m_sound) == MA_SUCCESS;
 }
 bool SAPI::StopSpeech() {
