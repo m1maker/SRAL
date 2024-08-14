@@ -20,6 +20,10 @@ public:
 	int GetFeatures() {
 		return SUPPORTS_SPEECH | SUPPORTS_SPEECH_RATE | SUPPORTS_SPEECH_VOLUME;
 	}
+	void SetVolume(uint64_t value);
+	uint64_t GetVolume();
+	void SetRate(uint64_t value);
+	uint64_t GetRate();
 private:
 	blastspeak* instance = nullptr;
 	ma_engine m_audioEngine;

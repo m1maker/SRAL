@@ -72,3 +72,23 @@ bool SAPI::StopSpeech() {
 	if (m_soundInitialized)
 		return ma_sound_stop(&m_sound) == MA_SUCCESS;
 }
+void SAPI::SetVolume(uint64_t value) {
+	if (instance == nullptr)return;
+	blastspeak_set_voice_volume(instance, value);
+}
+uint64_t SAPI::GetVolume() {
+	if (instance == nullptr)return 0;
+	long value;
+	blastspeak_get_voice_volume(instance, &value);
+	return value;
+}
+void SAPI::SetRate(uint64_t value) {
+	if (instance == nullptr)return;
+	blastspeak_set_voice_rate(instance, value);
+}
+uint64_t SAPI::GetRate() {
+	if (instance == nullptr)return 0;
+	long value;
+	blastspeak_get_voice_rate(instance, &value);
+	return value;
+}
