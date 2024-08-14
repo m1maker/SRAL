@@ -6,13 +6,19 @@ bool UnicodeConvert(const char* input, wchar_t* output) {
 	if (required_length <= 0) {
 		return false;
 	}
+	output = new wchar_t[required_length];
+
 	return !!MultiByteToWideChar(CP_UTF8, 0, input, -1, output, required_length);
 }
 
 bool UnicodeConvert(const wchar_t* input, char* output) {
+
 	int required_length = WideCharToMultiByte(CP_UTF8, 0, input, -1, NULL, 0, NULL, NULL);
 	if (required_length <= 0) {
 		return false;
 	}
+	output = new char[required_length];
+
 	return !!WideCharToMultiByte(CP_UTF8, 0, input, -1, output, required_length, NULL, NULL);
 }
+
