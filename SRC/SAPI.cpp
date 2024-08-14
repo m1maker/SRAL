@@ -39,7 +39,7 @@ bool SAPI::Uninitialize() {
 	return true;
 }
 bool SAPI::GetActive() {
-	return true;
+	return instance != nullptr;
 }
 bool SAPI::Speak(const char* text, bool interrupt) {
 	if (instance == nullptr)return false;
