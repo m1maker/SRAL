@@ -11,6 +11,7 @@ public:
 	virtual uint64_t GetVolume() const = 0;
 	virtual void SetRate(uint64_t value) const = 0;
 	virtual uint64_t GetRate() const = 0;
+	virtual bool GetActive() const = 0;
 private:
 	virtual bool Initialize() const = 0;
 	virtual bool Uninitialize()const = 0;
