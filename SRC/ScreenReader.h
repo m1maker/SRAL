@@ -4,12 +4,12 @@
 #include <stdint.h>
 class ScreenReader {
 public:
-	virtual bool Speak(const char* text, bool interrupt);
-	virtual bool Braille(const char* text);
-	virtual bool StopSpeech();
-	virtual int GetNumber();
-	virtual bool GetActive();
-	virtual bool Initialize();
-	virtual bool Uninitialize();
+	virtual bool Speak(const char* text, bool interrupt) = 0;
+	virtual bool Braille(const char* text) = 0;
+	virtual bool StopSpeech() = 0;
+	virtual int GetNumber() = 0;
+	virtual bool GetActive() = 0;
+	virtual bool Initialize() = 0;
+	virtual bool Uninitialize() = 0;
 };
 #endif

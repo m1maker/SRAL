@@ -27,15 +27,15 @@ bool NVDA::Speak(const char* text, bool interrupt) {
 	if (!GetActive())return false;
 	if (interrupt)
 		nvdaController_cancelSpeech();
-	wchar_t* out = nullptr;
+	std::wstring out;
 	UnicodeConvert(text, out);
-	return nvdaController_speakText(out) == 0;
+	return nvdaController_speakText(out.c_str()) == 0;
 }
 bool NVDA::Braille(const char* text) {
 	if (!GetActive())return false;
-	wchar_t* out = nullptr;
+	std::wstring out;
 	UnicodeConvert(text, out);
-	return nvdaController_speakText(out) == 0;
+	return nvdaController_speakText(out.c_str()) == 0;
 }
 bool NVDA::StopSpeech() {
 	if (!GetActive())return false;

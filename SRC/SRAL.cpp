@@ -13,25 +13,25 @@ extern "C" SRAL_API bool SRAL_Initialize(const char* library_path) {
 #endif
 	bool found = false;
 	for (uint64_t i = 0; i < g_screenReaders.size(); ++i) {
+		g_screenReaders[i]->Initialize();
 		if (g_screenReaders[i]->GetActive()) {
 			g_currentScreenReader = g_screenReaders[i];
 			found = true;
 		}
 	}
-	if (g_currentScreenReader != nullptr) {
-		bool result = g_currentScreenReader->Initialize();
-		if (!result)return result;
-	}
+	if (g_currentScreenReader == nullptr)return false;
 	return found;
 }
 extern "C" SRAL_API void SRAL_Uninitialize(void) {
+	g_currentScreenReader->Uninitialize();
 	delete g_currentScreenReader;
 	g_currentScreenReader = nullptr;
 	g_screenReaders.clear();
 }
 
 extern "C" SRAL_API bool SRAL_Speak(const char* text, bool interrupt) {
-	if (g_currentScreenReader == nullptr)return false;
+	if (g_currentScreenReader == nullptr)
+		return false;
 	return g_currentScreenReader->Speak(text, interrupt);
 }
 extern "C" SRAL_API bool SRAL_Braille(const char* text) {
