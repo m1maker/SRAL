@@ -4,6 +4,7 @@
 #ifndef _WIN32
 #error "Do not include Encoding.h in other platforms."
 #endif
-bool UnicodeConvert(const char* input, wchar_t* output);
-bool UnicodeConvert(const wchar_t* input, char* output);
+#include <string>
+bool UnicodeConvert(const std::string& input, std::wstring& output);
+bool UnicodeConvert(const std::wstring& input, std::string& output);
 #endif // ENCODING_H
