@@ -15,13 +15,21 @@
 enum SRAL_ScreenReaders {
 	SCREEN_READER_NONE = 0,
 	SCREEN_READER_NVDA,
-	SCREEN_READER_SAPI
+	SCREEN_READER_SAPI,
+	SCREEN_READER_JAWS
+};
+enum SRAL_SupportedFeatures {
+	SUPPORTS_SPEECH = 0x41e2,
+	SUPPORTS_BRAILLE = 0x41e3,
+	SUPPORTS_SPEECH_RATE = 0x1e4c2,
+	SUPPORTS_SPEECH_VOLUME = 0x1e4c3
 };
 extern "C" SRAL_API bool SRAL_Speak(const char* text, bool interrupt);
 extern "C" SRAL_API bool SRAL_Braille(const char* text);
 extern "C" SRAL_API bool SRAL_Output(const char* text, bool interrupt);
 extern "C" SRAL_API bool SRAL_StopSpeech(void);
 extern "C" SRAL_API int SRAL_GetCurrentScreenReader(void);
+extern "C" SRAL_API int SRAL_GetEngineFeatures(void);
 extern "C" SRAL_API bool SRAL_Initialize(const char* library_path);
 extern "C" SRAL_API void SRAL_Uninitialize(void);
 #endif // SRAL_H_

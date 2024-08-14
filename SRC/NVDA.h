@@ -15,6 +15,9 @@ public:
 	bool GetActive();
 	bool Initialize();
 	bool Uninitialize();
+	int GetFeatures() {
+		return SUPPORTS_SPEECH | SUPPORTS_BRAILLE;
+	}
 private:
 	HINSTANCE lib = nullptr;
 	typedef error_status_t(__stdcall* NVDAController_speakText)(const wchar_t*);
@@ -26,7 +29,6 @@ private:
 	NVDAController_brailleMessage nvdaController_brailleMessage = nullptr;
 	NVDAController_cancelSpeech nvdaController_cancelSpeech = nullptr;
 	NVDAController_testIfRunning nvdaController_testIfRunning = nullptr;
-
 };
 
 #endif

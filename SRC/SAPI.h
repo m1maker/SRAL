@@ -17,6 +17,9 @@ public:
 	bool GetActive();
 	bool Initialize();
 	bool Uninitialize();
+	int GetFeatures() {
+		return SUPPORTS_SPEECH | SUPPORTS_SPEECH_RATE | SUPPORTS_SPEECH_VOLUME;
+	}
 private:
 	blastspeak* instance = nullptr;
 	ma_engine m_audioEngine;
