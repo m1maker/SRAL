@@ -21,5 +21,6 @@ extern "C" SRAL_API bool SRAL_Braille(const char* text);
 extern "C" SRAL_API bool SRAL_Output(const char* text, bool interrupt);
 extern "C" SRAL_API bool SRAL_StopSpeech(void);
 extern "C" SRAL_API int SRAL_GetCurrentScreenReader(void);
-
+extern "C" SRAL_API bool SRAL_Initialize(const char* library_path);
+extern "C" SRAL_API void SRAL_Uninitialize(void);
 #endif // SRAL_H_

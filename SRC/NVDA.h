@@ -8,13 +8,14 @@ class NVDA : public ScreenReader {
 public:
 	bool Speak(const char* text, bool interrupt);
 	bool Braille(const char* text);
+	bool StopSpeech();
 	int GetNumber() {
 		return SCREEN_READER_NVDA;
 	}
 	bool GetActive();
-private:
 	bool Initialize();
 	bool Uninitialize();
+private:
 	HINSTANCE lib;
 	typedef error_status_t(__stdcall* NVDAController_speakText)(const wchar_t*);
 	typedef error_status_t(__stdcall* NVDAController_brailleMessage)(const wchar_t*);

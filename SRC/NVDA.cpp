@@ -37,3 +37,7 @@ bool NVDA::Braille(const char* text) {
 	UnicodeConvert(text, out);
 	return nvdaController_speakText(out) == 0;
 }
+bool NVDA::StopSpeech() {
+	if (!GetActive())return false;
+	return nvdaController_cancelSpeech() == 0;
+}

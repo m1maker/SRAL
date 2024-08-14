@@ -12,7 +12,7 @@ endif()
 project ("SRAL")
 
 # Add source to this project's executable.
-add_library(SRAL "Include/SRAL.h" "SRC/SRAL.cpp" "SRC/ScreenReader.h" "SRC/Encoding.h" "SRC/Encoding.cpp" "SRC/NVDA.h" "SRC/NVDA.cpp")
+add_library(SRAL SHARED "Include/SRAL.h" "SRC/SRAL.cpp" "SRC/ScreenReader.h" "SRC/Encoding.h" "SRC/Encoding.cpp" "SRC/NVDA.h" "SRC/NVDA.cpp")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET SRAL PROPERTY CXX_STANDARD 20)
