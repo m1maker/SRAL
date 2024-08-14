@@ -16,16 +16,16 @@ public:
 	bool Initialize();
 	bool Uninitialize();
 private:
-	HINSTANCE lib;
+	HINSTANCE lib = nullptr;
 	typedef error_status_t(__stdcall* NVDAController_speakText)(const wchar_t*);
 	typedef error_status_t(__stdcall* NVDAController_brailleMessage)(const wchar_t*);
 	typedef error_status_t(__stdcall* NVDAController_cancelSpeech)();
 	typedef error_status_t(__stdcall* NVDAController_testIfRunning)();
 
-	NVDAController_speakText nvdaController_speakText;
-	NVDAController_brailleMessage nvdaController_brailleMessage;
-	NVDAController_cancelSpeech nvdaController_cancelSpeech;
-	NVDAController_testIfRunning nvdaController_testIfRunning;
+	NVDAController_speakText nvdaController_speakText = nullptr;
+	NVDAController_brailleMessage nvdaController_brailleMessage = nullptr;
+	NVDAController_cancelSpeech nvdaController_cancelSpeech = nullptr;
+	NVDAController_testIfRunning nvdaController_testIfRunning = nullptr;
 
 };
 
