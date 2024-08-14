@@ -8,7 +8,7 @@
 #include <vector>
 ScreenReader* g_currentScreenReader = nullptr;
 std::vector<ScreenReader*> g_screenReaders;
-extern "C" SRAL_API bool SRAL_Initialize(const char* library_path) {
+extern "C" SRAL_API bool SRAL_Initialize(const char* library_path, int engines_exclude) {
 #ifdef _WIN32
 	g_screenReaders.push_back(new NVDA);
 	g_screenReaders.push_back(new SAPI);
@@ -16,7 +16,7 @@ extern "C" SRAL_API bool SRAL_Initialize(const char* library_path) {
 	bool found = false;
 	for (uint64_t i = 0; i < g_screenReaders.size(); ++i) {
 		g_screenReaders[i]->Initialize();
-		if (g_screenReaders[i]->GetActive() && !found) {
+		if (g_screenReaders[i]->GetActive() && !found && !g_screenReaders[i]->GetNumber() & engines_exclude) {
 			g_currentScreenReader = g_screenReaders[i];
 			found = true;
 		}
