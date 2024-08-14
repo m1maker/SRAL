@@ -16,10 +16,9 @@ extern "C" SRAL_API bool SRAL_Initialize(const char* library_path) {
 	bool found = false;
 	for (uint64_t i = 0; i < g_screenReaders.size(); ++i) {
 		g_screenReaders[i]->Initialize();
-		if (g_screenReaders[i]->GetActive()) {
+		if (g_screenReaders[i]->GetActive() && !found) {
 			g_currentScreenReader = g_screenReaders[i];
 			found = true;
-			break;
 		}
 	}
 	if (g_currentScreenReader == nullptr)return false;
@@ -31,24 +30,37 @@ extern "C" SRAL_API void SRAL_Uninitialize(void) {
 	g_currentScreenReader = nullptr;
 	g_screenReaders.clear();
 }
-
+static void speech_engine_update() {
+	if (!g_currentScreenReader->GetActive() || g_currentScreenReader->GetNumber() == SCREEN_READER_SAPI) {
+		for (uint64_t i = 0; i < g_screenReaders.size(); ++i) {
+			if (g_screenReaders[i]->GetActive()) {
+				g_currentScreenReader = g_screenReaders[i];
+				break;
+			}
+		}
+	}
+}
 extern "C" SRAL_API bool SRAL_Speak(const char* text, bool interrupt) {
-	if (g_currentScreenReader == nullptr)
-		return false;
+	if (g_currentScreenReader == nullptr)		return false;
+	speech_engine_update();
 	return g_currentScreenReader->Speak(text, interrupt);
 }
 extern "C" SRAL_API bool SRAL_Braille(const char* text) {
 	if (g_currentScreenReader == nullptr)return false;
+	speech_engine_update();
 	return g_currentScreenReader->Braille(text);
 
 }
 extern "C" SRAL_API bool SRAL_Output(const char* text, bool interrupt) {
+	if (g_currentScreenReader == nullptr)return false;
+	speech_engine_update();
 	const bool speech = SRAL_Speak(text, interrupt);
 	const bool braille = SRAL_Braille(text);
 	return speech || braille;
 }
 extern "C" SRAL_API bool SRAL_StopSpeech(void) {
 	if (g_currentScreenReader == nullptr)return false;
+	speech_engine_update();
 	return g_currentScreenReader->StopSpeech();
 }
 extern "C" SRAL_API int SRAL_GetCurrentScreenReader(void) {
