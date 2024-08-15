@@ -1,5 +1,6 @@
 #ifndef NVDA_H_
 #define NVDA_H_
+#ifdef _WIN32
 #pragma once
 #include "../Include/SRAL.h"
 #include "ScreenReader.h"
@@ -34,5 +35,5 @@ private:
 	NVDAController_cancelSpeech nvdaController_cancelSpeech = nullptr;
 	NVDAController_testIfRunning nvdaController_testIfRunning = nullptr;
 };
-
+#endif
 #endif

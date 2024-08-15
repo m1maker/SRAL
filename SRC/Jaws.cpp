@@ -1,3 +1,4 @@
+#ifdef _WIN32
 #include "Encoding.h"
 #include "Jaws.h"
 #include <string>
@@ -50,3 +51,4 @@ bool Jaws::StopSpeech() {
 	if (!GetActive() || !JawsAPI)return false;
 	return SUCCEEDED(JawsAPI->StopSpeech());
 }
+#endif

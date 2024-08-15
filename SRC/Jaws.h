@@ -1,5 +1,6 @@
 #ifndef JAWS_H_
 #define JAWS_H_
+#ifdef _WIN32
 #pragma once
 #include "../Dep/fsapi.h"
 #include "../Include/SRAL.h"
@@ -26,4 +27,5 @@ public:
 private:
 	IJawsApi* JawsAPI = nullptr;
 };
+#endif
 #endif
