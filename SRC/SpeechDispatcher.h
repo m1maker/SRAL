@@ -21,7 +21,7 @@
 class SpeechDispatcher : public ScreenReader {
 public:
 	bool Speak(const char* text, bool interrupt);
-	bool Braille(const char* text) { return false }
+	bool Braille(const char* text) { return false; }
 	bool StopSpeech();
 	int GetNumber() {
 		return SCREEN_READER_SPEECH_DISPATCHER;

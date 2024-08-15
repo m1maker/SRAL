@@ -1,3 +1,3 @@
-D:/projects/SRAL/out/build/x64-debug/CMakeFiles/SRAL.dir
-D:/projects/SRAL/out/build/x64-debug/CMakeFiles/edit_cache.dir
-D:/projects/SRAL/out/build/x64-debug/CMakeFiles/rebuild_cache.dir
+D:/Root/src/import/SRAL/out/build/x64-debug/CMakeFiles/SRAL.dir
+D:/Root/src/import/SRAL/out/build/x64-debug/CMakeFiles/edit_cache.dir
+D:/Root/src/import/SRAL/out/build/x64-debug/CMakeFiles/rebuild_cache.dir
