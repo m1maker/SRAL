@@ -1,5 +1,6 @@
 #ifndef SAPI_H_
 #define SAPI_H_
+#ifdef _WIN32
 #pragma once
 #define BLASTSPEAK_IMPLEMENTATION
 #include "../Dep/blastspeak.h"
@@ -32,5 +33,5 @@ private:
 	bool m_bufferInitialized = false;
 	bool m_soundInitialized = false;
 };
-
+#endif
 #endif

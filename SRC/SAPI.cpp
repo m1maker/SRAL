@@ -1,3 +1,4 @@
+#ifdef _WIN32
 #include "SAPI.h"
 #include <thread>
 // This function is taken from [NVGT](https://github.com/samtupy/nvgt)
@@ -120,3 +121,4 @@ uint64_t SAPI::GetRate() {
 	blastspeak_get_voice_rate(instance, &value);
 	return value;
 }
+#endif

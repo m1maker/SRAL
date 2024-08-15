@@ -1,3 +1,4 @@
+#ifdef _WIN32
 #include "Encoding.h"
 #include "NVDA.h"
 bool NVDA::Initialize() {
@@ -41,3 +42,4 @@ bool NVDA::StopSpeech() {
 	if (!GetActive())return false;
 	return nvdaController_cancelSpeech() == 0;
 }
+#endif

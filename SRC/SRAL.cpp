@@ -5,6 +5,8 @@
 #include "NVDA.h"
 #include "SAPI.h"
 #include "Jaws.h"
+#else
+#include "SpeechDispatcher.h"
 #endif
 #include <vector>
 #include <string>
@@ -16,6 +18,8 @@ extern "C" SRAL_API bool SRAL_Initialize(const char* library_path, int engines_e
 	g_screenReaders.push_back(new NVDA);
 	g_screenReaders.push_back(new SAPI);
 	g_screenReaders.push_back(new Jaws);
+#else
+	g_screenReaders.push_back(new SpeechDispatcher);
 #endif
 	bool found = false;
 	for (uint64_t i = 0; i < g_screenReaders.size(); ++i) {
@@ -37,7 +41,9 @@ extern "C" SRAL_API void SRAL_Uninitialize(void) {
 	g_excludes = 0;
 }
 static void speech_engine_update() {
-	if (!g_currentScreenReader->GetActive() || g_currentScreenReader->GetNumber() == SCREEN_READER_SAPI) {
+	if (g_currentScreenReader->GetActive() &&
+		(g_currentScreenReader->GetNumber() == SCREEN_READER_SAPI ||
+			g_currentScreenReader->GetNumber() == SCREEN_READER_SPEECH_DISPATCHER)) {
 		for (uint64_t i = 0; i < g_screenReaders.size(); ++i) {
 			if (g_screenReaders[i]->GetActive() && !(g_excludes & g_screenReaders[i]->GetNumber())) {
 				g_currentScreenReader = g_screenReaders[i];
