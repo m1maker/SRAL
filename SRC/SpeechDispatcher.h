@@ -3,19 +3,7 @@
 #include "../Include/SRAL.h"
 #include "ScreenReader.h"
 #if defined(__linux__) || defined(__unix__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__DragonFly__)
-#define spd_get_default_address (*spd_get_default_address)
-#define spd_open2 (*spd_open2)
-#define spd_close (*spd_close)
-#define spd_say (*spd_say)
-#define spd_stop (*spd_stop)
-#define spd_cancel (*spd_cancel)
 #include <speech-dispatcher/libspeechd.h>
-#undef spd_get_default_address
-#undef spd_open2
-#undef spd_close
-#undef spd_say
-#undef spd_stop
-#undef spd_cancel
 
 
 class SpeechDispatcher : public ScreenReader {
