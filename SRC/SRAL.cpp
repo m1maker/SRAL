@@ -6,8 +6,10 @@
 #include "SAPI.h"
 #endif
 #include <vector>
+#include <string>
 ScreenReader* g_currentScreenReader = nullptr;
 std::vector<ScreenReader*> g_screenReaders;
+int g_excludes = 0;
 extern "C" SRAL_API bool SRAL_Initialize(const char* library_path, int engines_exclude) {
 #ifdef _WIN32
 	g_screenReaders.push_back(new NVDA);
@@ -16,12 +18,13 @@ extern "C" SRAL_API bool SRAL_Initialize(const char* library_path, int engines_e
 	bool found = false;
 	for (uint64_t i = 0; i < g_screenReaders.size(); ++i) {
 		g_screenReaders[i]->Initialize();
-		if (g_screenReaders[i]->GetActive() && !found && !g_screenReaders[i]->GetNumber() & engines_exclude) {
+		if (g_screenReaders[i]->GetActive() && !found && !(engines_exclude & g_screenReaders[i]->GetNumber())) {
 			g_currentScreenReader = g_screenReaders[i];
 			found = true;
 		}
 	}
 	if (g_currentScreenReader == nullptr)return false;
+	g_excludes = engines_exclude;
 	return found;
 }
 extern "C" SRAL_API void SRAL_Uninitialize(void) {
@@ -29,11 +32,12 @@ extern "C" SRAL_API void SRAL_Uninitialize(void) {
 	delete g_currentScreenReader;
 	g_currentScreenReader = nullptr;
 	g_screenReaders.clear();
+	g_excludes = 0;
 }
 static void speech_engine_update() {
 	if (!g_currentScreenReader->GetActive() || g_currentScreenReader->GetNumber() == SCREEN_READER_SAPI) {
 		for (uint64_t i = 0; i < g_screenReaders.size(); ++i) {
-			if (g_screenReaders[i]->GetActive()) {
+			if (g_screenReaders[i]->GetActive() && !(g_excludes & g_screenReaders[i]->GetNumber())) {
 				g_currentScreenReader = g_screenReaders[i];
 				break;
 			}
