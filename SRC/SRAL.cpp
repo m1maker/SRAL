@@ -43,9 +43,7 @@ extern "C" SRAL_API void SRAL_Uninitialize(void) {
 	g_excludes = 0;
 }
 static void speech_engine_update() {
-	if (g_currentScreenReader->GetActive() &&
-		(g_currentScreenReader->GetNumber() == SCREEN_READER_SAPI ||
-			g_currentScreenReader->GetNumber() == SCREEN_READER_SPEECH_DISPATCHER)) {
+	if (!g_currentScreenReader->GetActive() || g_currentScreenReader->GetNumber() == SCREEN_READER_SAPI) {
 		for (uint64_t i = 0; i < g_screenReaders.size(); ++i) {
 			if (g_screenReaders[i]->GetActive() && !(g_excludes & g_screenReaders[i]->GetNumber())) {
 				g_currentScreenReader = g_screenReaders[i];
