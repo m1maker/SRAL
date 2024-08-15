@@ -5,6 +5,7 @@
 #include "NVDA.h"
 #include "SAPI.h"
 #include "Jaws.h"
+#include "UIA.h"
 #else
 #include "SpeechDispatcher.h"
 #endif
@@ -18,6 +19,7 @@ extern "C" SRAL_API bool SRAL_Initialize(const char* library_path, int engines_e
 	g_screenReaders.push_back(new NVDA);
 	g_screenReaders.push_back(new SAPI);
 	g_screenReaders.push_back(new Jaws);
+	g_screenReaders.push_back(new UIA);
 #else
 	g_screenReaders.push_back(new SpeechDispatcher);
 #endif
