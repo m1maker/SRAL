@@ -201,6 +201,9 @@ SRAL_BINARY_DIR:STATIC=D:/projects/SRAL/out/build/x64-debug
 //Value Computed by CMake
 SRAL_IS_TOP_LEVEL:STATIC=ON
 
+//Dependencies for the target
+SRAL_LIB_DEPENDS:STATIC=general;uiautomationcore.lib;
+
 //Value Computed by CMake
 SRAL_SOURCE_DIR:STATIC=D:/projects/SRAL
 

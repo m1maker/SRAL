@@ -21,6 +21,7 @@ public:
 	uint64_t GetVolume() { return 0; }
 	void SetRate(uint64_t) { return; }
 	uint64_t GetRate() { return 0; }
-
+private:
+	int val = 0;
 };
 #endif
