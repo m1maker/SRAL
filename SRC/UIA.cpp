@@ -2,7 +2,7 @@
 #include "Encoding.h"
 #include "UIA.h"
 #include <string>
-static void WINAPI SendNotification(const std::wstring& message, DWORD flags) {
+static void WINAPI SendNotification(const std::wstring& message, NotificationProcessing flags) {
 	CoInitialize(NULL);
 
 	IUIAutomation* pAutomation = NULL;
@@ -39,9 +39,9 @@ static void WINAPI SendNotification(const std::wstring& message, DWORD flags) {
 bool UIA::Initialize() { return true; }
 bool UIA::Uninitialize() { return true; }
 bool UIA::Speak(const char* text, bool interrupt) {
-	DWORD flags = NotificationProcessing_All;
+	NotificationProcessing flags = NotificationProcessing_All;
 	if (interrupt)
-		flags |= NotificationProcessing_ImportantAll;
+		flags = NotificationProcessing_ImportantAll;
 	std::wstring str;
 	UnicodeConvert(text, str);
 	SendNotification(str, flags);
@@ -49,5 +49,8 @@ bool UIA::Speak(const char* text, bool interrupt) {
 
 }
 bool UIA::StopSpeech() {
-	Speak("", true);
+	return Speak("", true);
+}
+bool UIA::GetActive() {
+	return true;
 }
