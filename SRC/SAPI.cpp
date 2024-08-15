@@ -98,6 +98,7 @@ bool SAPI::Speak(const char* text, bool interrupt) {
 bool SAPI::StopSpeech() {
 	if (m_soundInitialized)
 		return ma_sound_stop(&m_sound) == MA_SUCCESS;
+	return false;
 }
 void SAPI::SetVolume(uint64_t value) {
 	if (instance == nullptr)return;
