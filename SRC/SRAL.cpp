@@ -78,9 +78,24 @@ extern "C" SRAL_API int SRAL_GetCurrentScreenReader(void) {
 	if (g_currentEngine == nullptr)return ENGINE_NONE;
 	return g_currentEngine->GetNumber();
 }
-extern "C" SRAL_API int SRAL_GetEngineFeatures(void) {
-	if (g_currentEngine == nullptr)return 0;
-	return g_currentEngine->GetFeatures();
+extern "C" SRAL_API int SRAL_GetEngineFeatures(int engine) {
+	if (engine == 0) {
+		if (g_currentEngine == nullptr)return -1;
+		return g_currentEngine->GetFeatures();
+	}
+	else {
+		bool found = false;
+		uint64_t i;
+		for (i = 0; i < g_engines.size(); ++i) {
+			if (g_engines[i]->GetNumber() == engine) {
+				found = true;
+				break;
+			}
+		}
+		if (!found)return -1;
+		return g_engines[i]->GetFeatures();
+	}
+	return -1;
 }
 extern "C" SRAL_API bool SRAL_SetVolume(uint64_t value) {
 	if (g_currentEngine == nullptr)return false;
