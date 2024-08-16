@@ -4,7 +4,6 @@
 #pragma once
 #define BLASTSPEAK_IMPLEMENTATION
 #include "../Dep/blastspeak.h"
-#include "../Dep/miniaudio.h"
 #include "../Include/SRAL.h"
 #include "Engine.h"
 class SAPI : public Engine {
@@ -27,9 +26,9 @@ public:
 	uint64_t GetRate();
 private:
 	blastspeak* instance = nullptr;
-	ma_engine m_audioEngine;
-	ma_sound m_sound;
-	ma_audio_buffer m_buffer;
+	void* m_audioEngine = nullptr;
+	void* m_sound = nullptr;
+	void* m_buffer = nullptr;
 	bool m_bufferInitialized = false;
 	bool m_soundInitialized = false;
 };
