@@ -34,7 +34,7 @@ extern "C" SRAL_API bool SRAL_Braille(const char* text);
 extern "C" SRAL_API bool SRAL_Output(const char* text, bool interrupt);
 extern "C" SRAL_API bool SRAL_StopSpeech(void);
 extern "C" SRAL_API int SRAL_GetCurrentEngine(void);
-extern "C" SRAL_API int SRAL_GetEngineFeatures(void);
+extern "C" SRAL_API int SRAL_GetEngineFeatures(int engine = 0);
 extern "C" SRAL_API bool SRAL_Initialize(const char* library_path, int engines_exclude = 0);
 extern "C" SRAL_API void SRAL_Uninitialize(void);
 extern "C" SRAL_API bool SRAL_SetVolume(uint64_t value);
