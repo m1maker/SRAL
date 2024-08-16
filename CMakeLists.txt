@@ -11,12 +11,12 @@ endif()
 
 project ("SRAL")
 # Add source to this project's executable.
-add_library(SRAL SHARED "Include/SRAL.h" "SRC/SRAL.cpp" "SRC/Engine.h" "SRC/Encoding.h" "SRC/Encoding.cpp" "SRC/NVDA.h" "SRC/NVDA.cpp" "SRC/SAPI.h" "SRC/SAPI.cpp" "Dep/blastspeak.h" "Dep/blastspeak.c" "Dep/miniaudio.h" "Dep/miniaudio.c" "Dep/fsapi.h" "Dep/fsapi.c" "SRC/Jaws.h" "SRC/Jaws.cpp" "SRC/SpeechDispatcher.h" "SRC/SpeechDispatcher.cpp" "SRC/UIA.cpp" "Dep/UIAProvider.h" "Dep/UIAProvider.cpp")
+add_library(SRAL SHARED "Include/SRAL.h" "SRC/SRAL.cpp" "SRC/Engine.h" "SRC/Encoding.h" "SRC/Encoding.cpp" "SRC/NVDA.h" "SRC/NVDA.cpp" "SRC/SAPI.h" "SRC/SAPI.cpp" "Dep/blastspeak.h" "Dep/blastspeak.c" "Dep/miniaudio.h" "Dep/fsapi.h" "Dep/fsapi.c" "SRC/Jaws.h" "SRC/Jaws.cpp" "SRC/SpeechDispatcher.h" "SRC/SpeechDispatcher.cpp" "SRC/UIA.cpp" "Dep/UIAProvider.h" "Dep/UIAProvider.cpp")
 
 if (WIN32)
   target_link_libraries (SRAL "uiautomationcore.lib")
 else()
-  set_source_files_properties("SRC/Encoding.h" "SRC/Encoding.cpp" "SRC/NVDA.h" "SRC/NVDA.cpp" "SRC/SAPI.h" "SRC/SAPI.cpp" "Dep/blastspeak.h" "Dep/blastspeak.c" "Dep/miniaudio.h" "Dep/miniaudio.c" "Dep/fsapi.h" "Dep/fsapi.c" "SRC/Jaws.h" "SRC/Jaws.cpp" "SRC/UIA.cpp" "Dep/UIAProvider.h" "Dep/UIAProvider.cpp" PROPERTIES HEADER_FILE_ONLY TRUE)
+  set_source_files_properties("SRC/Encoding.h" "SRC/Encoding.cpp" "SRC/NVDA.h" "SRC/NVDA.cpp" "SRC/SAPI.h" "SRC/SAPI.cpp" "Dep/blastspeak.h" "Dep/blastspeak.c" "Dep/miniaudio.h" "Dep/fsapi.h" "Dep/fsapi.c" "SRC/Jaws.h" "SRC/Jaws.cpp" "SRC/UIA.cpp" "Dep/UIAProvider.h" "Dep/UIAProvider.cpp" PROPERTIES HEADER_FILE_ONLY TRUE)
 endif()
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
