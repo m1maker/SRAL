@@ -26,11 +26,8 @@ public:
 	uint64_t GetRate();
 private:
 	blastspeak* instance = nullptr;
-	void* m_audioEngine = nullptr;
-	void* m_sound = nullptr;
-	void* m_buffer = nullptr;
-	bool m_bufferInitialized = false;
-	bool m_soundInitialized = false;
+	void* m_audioDevice = nullptr;
+	bool m_deviceInitialized = false;
 };
 #endif
 #endif
