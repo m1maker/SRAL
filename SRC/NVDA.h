@@ -3,15 +3,15 @@
 #ifdef _WIN32
 #pragma once
 #include "../Include/SRAL.h"
-#include "ScreenReader.h"
+#include "Engine.h"
 #include <Windows.h>
-class NVDA : public ScreenReader {
+class NVDA : public Engine {
 public:
 	bool Speak(const char* text, bool interrupt);
 	bool Braille(const char* text);
 	bool StopSpeech();
 	int GetNumber() {
-		return SCREEN_READER_NVDA;
+		return ENGINE_NVDA;
 	}
 	bool GetActive();
 	bool Initialize();
