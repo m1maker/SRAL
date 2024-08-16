@@ -74,7 +74,7 @@ extern "C" SRAL_API bool SRAL_StopSpeech(void) {
 	speech_engine_update();
 	return g_currentEngine->StopSpeech();
 }
-extern "C" SRAL_API int SRAL_GetCurrentScreenReader(void) {
+extern "C" SRAL_API int SRAL_GetCurrentEngine(void) {
 	if (g_currentEngine == nullptr)return ENGINE_NONE;
 	return g_currentEngine->GetNumber();
 }

@@ -7,6 +7,7 @@
 #define MA_NO_FLAC
 #define MA_NO_WAV
 #define MA_NO_MP3
+#define MA_NO_ENGINE
 #define MA_NO_RESOURCE_MANAGER
 #define MA_NO_GENERATION
 #define MA_NO_ALSA
@@ -24,7 +25,7 @@
 #define MA_NO_NEON
 #define MINIAUDIO_IMPLEMENTATION
 #include "../Dep/miniaudio.h"
-
+#include <vector>
 #include <thread>
 // This function is taken from [NVGT](https://github.com/samtupy/nvgt)
 static char* minitrim(char* data, unsigned long* bufsize, int bitrate, int channels) {
@@ -49,12 +50,36 @@ static char* minitrim(char* data, unsigned long* bufsize, int bitrate, int chann
 	*bufsize -= (ptr - data);
 	return ptr;
 }
+std::vector<ma_audio_buffer> g_buffers;
+void device_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount) {
+	for (uint64_t i = 0; i < g_buffers.size(); ++i) {
+		ma_uint64 length;
+		ma_uint64 cursor;
+		ma_audio_buffer_get_length_in_pcm_frames(&g_buffers[i], &length);
+		ma_audio_buffer_get_cursor_in_pcm_frames(&g_buffers[i], &cursor);
+		if (cursor < length) {
+			ma_audio_buffer_read_pcm_frames(&g_buffers[i], pOutput, frameCount, MA_FALSE);
+			ma_audio_buffer_get_cursor_in_pcm_frames(&g_buffers[i], &cursor);
+		}
+		else {
+			ma_audio_buffer_uninit(&g_buffers[i]);
+			g_buffers.erase(g_buffers.begin() + i);
+		}
+	}
+	(void)pOutput;
+}
 
 
 bool SAPI::Initialize() {
-	m_audioEngine = (ma_engine*)new ma_engine;
-	ma_result result = ma_engine_init(nullptr, (ma_engine*)m_audioEngine);
-	if (result != MA_SUCCESS)return false;
+	ma_device_config conf = ma_device_config_init(ma_device_type_playback);
+	conf.playback.channels = 1;
+	conf.sampleRate = 16000;
+	conf.playback.format = ma_format_s16;
+	conf.dataCallback = device_callback;
+	m_audioDevice = (ma_device*) new ma_device;
+	ma_result res = ma_device_init(nullptr, &conf, (ma_device*)m_audioDevice);
+	if (res != MA_SUCCESS)return false;
+	m_deviceInitialized = true;
 	instance = new blastspeak;
 	return blastspeak_initialize(instance) == 0;
 }
@@ -63,9 +88,11 @@ bool SAPI::Uninitialize() {
 	blastspeak_destroy(instance);
 	delete instance;
 	instance = nullptr;
-	ma_engine_uninit((ma_engine*)m_audioEngine);
-	delete m_audioEngine;
-	m_audioEngine = nullptr;
+	if (m_audioDevice == nullptr)return false;
+	ma_device_uninit((ma_device*)m_audioDevice);
+	delete m_audioDevice;
+	m_audioDevice = nullptr;
+	m_deviceInitialized = false;
 	return true;
 }
 bool SAPI::GetActive() {
@@ -74,7 +101,8 @@ bool SAPI::GetActive() {
 bool SAPI::Speak(const char* text, bool interrupt) {
 	if (instance == nullptr)
 		return false;
-
+	if (interrupt)
+		StopSpeech();
 	unsigned long bytes;
 	char* audio_ptr = blastspeak_speak_to_memory(instance, &bytes, text);
 	if (audio_ptr == nullptr)
@@ -83,53 +111,26 @@ bool SAPI::Speak(const char* text, bool interrupt) {
 	char* final = minitrim(audio_ptr, &bytes, instance->bits_per_sample, instance->channels);
 	if (final == nullptr)
 		return false;
-
-	if (m_bufferInitialized) {
-		ma_audio_buffer_uninit((ma_audio_buffer*)m_buffer);
-		m_bufferInitialized = false;
-	}
-
+	ma_audio_buffer buffer;
 	ma_audio_buffer_config bufferConfig = ma_audio_buffer_config_init(ma_format_s16, instance->channels, bytes / 2, (const void*)final, nullptr);
-	bufferConfig.sampleRate = 16000;
-	bufferConfig.channels = 1;
-	m_buffer = (ma_audio_buffer*) new ma_audio_buffer;
-	ma_result result = ma_audio_buffer_init(&bufferConfig, (ma_audio_buffer*)m_buffer);
+	bufferConfig.sampleRate = instance->sample_rate;
+	bufferConfig.channels = instance->channels;
+	ma_result result = ma_audio_buffer_init(&bufferConfig, &buffer);
 	if (result != MA_SUCCESS)
 		return false;
-	m_bufferInitialized = true;
-
-	std::unique_ptr<std::thread> t(new std::thread([this, interrupt]() {
-		if (!interrupt) {
-			if (m_soundInitialized) {
-				while (ma_sound_is_playing((ma_sound*)m_sound) == MA_TRUE) {
-				}
-				ma_sound_uninit((ma_sound*)m_sound);
-				m_soundInitialized = false;
-			}
-		}
-		else {
-			if (m_soundInitialized) {
-				ma_sound_uninit((ma_sound*)m_sound);
-				m_soundInitialized = false;
-			}
-
-		}
-		m_sound = (ma_sound*) new ma_sound;
-		ma_result res = ma_sound_init_from_data_source((ma_engine*)m_audioEngine, (ma_audio_buffer*)m_buffer, 0, nullptr, (ma_sound*)m_sound);
-		if (res != MA_SUCCESS)
-			return;
-		m_soundInitialized = true;
-		ma_sound_start((ma_sound*)m_sound);
-		}));
-
-	t->join();
+	if (interrupt || ma_device_is_started((ma_device*)m_audioDevice) == MA_FALSE)ma_device_start((ma_device*)m_audioDevice);
+	g_buffers.push_back(buffer);
 	return true;
 }
 
 bool SAPI::StopSpeech() {
-	if (m_soundInitialized)
-		return ma_sound_stop((ma_sound*)m_sound) == MA_SUCCESS;
-	return false;
+	if (!m_deviceInitialized)return false;
+	ma_device_stop((ma_device*)m_audioDevice);
+	for (uint64_t i = 0; i < g_buffers.size(); ++i) {
+		ma_audio_buffer_uninit(&g_buffers[i]);
+	}
+	g_buffers.clear();
+	return true;
 }
 void SAPI::SetVolume(uint64_t value) {
 	if (instance == nullptr)return;
