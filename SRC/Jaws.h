@@ -4,15 +4,15 @@
 #pragma once
 #include "../Dep/fsapi.h"
 #include "../Include/SRAL.h"
-#include "ScreenReader.h"
+#include "Engine.h"
 #include <Windows.h>
-class Jaws : public ScreenReader {
+class Jaws : public Engine {
 public:
 	bool Speak(const char* text, bool interrupt);
 	bool Braille(const char* text);
 	bool StopSpeech();
 	int GetNumber() {
-		return SCREEN_READER_JAWS;
+		return ENGINE_JAWS;
 	}
 	bool GetActive();
 	bool Initialize();

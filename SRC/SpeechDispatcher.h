@@ -1,18 +1,18 @@
 #ifndef SPEECHDISPATCHER_H_
 #define SPEECHDISPATCHER_H_
 #include "../Include/SRAL.h"
-#include "ScreenReader.h"
+#include "Engine.h"
 #if defined(__linux__) || defined(__unix__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__DragonFly__)
 #include <speech-dispatcher/libspeechd.h>
 
 
-class SpeechDispatcher : public ScreenReader {
+class SpeechDispatcher : public Engine {
 public:
 	bool Speak(const char* text, bool interrupt);
 	bool Braille(const char* text) { return false; }
 	bool StopSpeech();
 	int GetNumber() {
-		return SCREEN_READER_SPEECH_DISPATCHER;
+		return ENGINE_SPEECH_DISPATCHER;
 	}
 	bool GetActive();
 	bool Initialize();

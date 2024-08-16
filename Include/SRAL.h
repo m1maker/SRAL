@@ -13,13 +13,13 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-enum SRAL_ScreenReaders {
-	SCREEN_READER_NONE = 0,
-	SCREEN_READER_NVDA = 2,
-	SCREEN_READER_SAPI = 4,
-	SCREEN_READER_JAWS = 8,
-	SCREEN_READER_SPEECH_DISPATCHER = 16,
-	SCREEN_READER_UIA = 32
+enum SRAL_Engines {
+	ENGINE_NONE = 0,
+	ENGINE_NVDA = 2,
+	ENGINE_SAPI = 4,
+	ENGINE_JAWS = 8,
+	ENGINE_SPEECH_DISPATCHER = 16,
+	ENGINE_UIA = 32
 };
 enum SRAL_SupportedFeatures {
 	SUPPORTS_SPEECH = 128,
@@ -27,11 +27,13 @@ enum SRAL_SupportedFeatures {
 	SUPPORTS_SPEECH_RATE = 512,
 	SUPPORTS_SPEECH_VOLUME = 1024
 };
+
+
 extern "C" SRAL_API bool SRAL_Speak(const char* text, bool interrupt);
 extern "C" SRAL_API bool SRAL_Braille(const char* text);
 extern "C" SRAL_API bool SRAL_Output(const char* text, bool interrupt);
 extern "C" SRAL_API bool SRAL_StopSpeech(void);
-extern "C" SRAL_API int SRAL_GetCurrentScreenReader(void);
+extern "C" SRAL_API int SRAL_GetCurrentEngine(void);
 extern "C" SRAL_API int SRAL_GetEngineFeatures(void);
 extern "C" SRAL_API bool SRAL_Initialize(const char* library_path, int engines_exclude = 0);
 extern "C" SRAL_API void SRAL_Uninitialize(void);

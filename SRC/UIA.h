@@ -2,14 +2,14 @@
 #define UIA_H_
 #pragma once
 #include "../Include/SRAL.h"
-#include "ScreenReader.h"
-class UIA : public ScreenReader {
+#include "Engine.h"
+class UIA : public Engine {
 public:
 	bool Speak(const char* text, bool interrupt);
 	bool Braille(const char* text) { return false; }
 	bool StopSpeech();
 	int GetNumber() {
-		return SCREEN_READER_UIA;
+		return ENGINE_UIA;
 	}
 	bool GetActive();
 	bool Initialize();

@@ -6,14 +6,14 @@
 #include "../Dep/blastspeak.h"
 #include "../Dep/miniaudio.h"
 #include "../Include/SRAL.h"
-#include "ScreenReader.h"
-class SAPI : public ScreenReader {
+#include "Engine.h"
+class SAPI : public Engine {
 public:
 	bool Speak(const char* text, bool interrupt);
 	bool Braille(const char* text) { return false; }
 	bool StopSpeech();
 	int GetNumber() {
-		return SCREEN_READER_SAPI;
+		return ENGINE_SAPI;
 	}
 	bool GetActive();
 	bool Initialize();
