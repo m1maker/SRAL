@@ -27,7 +27,7 @@ bool SpeechDispatcher::Initialize() {
 	*(void**)&spd_say = dlsym(Lib, "spd_say");
 	*(void**)&spd_stop = dlsym(Lib, "spd_stop");
 	*(void**)&spd_cancel = dlsym(Lib, "spd_cancel");
-	auto const* address = spd_get_default_address(nullptr);
+	const auto * address = spd_get_default_address(nullptr);
 	if (address == nullptr) {
 		return false;
 	}
@@ -47,6 +47,7 @@ bool SpeechDispatcher::Uninitialize() {
 	Speech = nullptr;
 	dlclose(Lib);
 	Lib = nullptr;
+	return true;
 }
 bool SpeechDispatcher::Speak(const char* text, bool interrupt) {
 	if (Speech == nullptr)return false;
