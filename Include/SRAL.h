@@ -10,6 +10,9 @@
 #else
 #define SRAL_API
 #endif
+#ifdef SRAL_STATIC
+#define SRAL_API
+#endif
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
