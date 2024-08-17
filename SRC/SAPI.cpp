@@ -51,6 +51,8 @@ static char* minitrim(char* data, unsigned long* bufsize, int bitrate, int chann
 	return ptr;
 }
 std::vector<ma_audio_buffer> g_buffers;
+bool g_playing = false;
+ma_audio_buffer g_nextBuffer;
 void device_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount) {
 	for (uint64_t i = 0; i < g_buffers.size(); ++i) {
 		ma_uint64 length;
@@ -58,13 +60,21 @@ void device_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_u
 		ma_audio_buffer_get_length_in_pcm_frames(&g_buffers[i], &length);
 		ma_audio_buffer_get_cursor_in_pcm_frames(&g_buffers[i], &cursor);
 		if (cursor < length) {
+			g_playing = true;
 			ma_audio_buffer_read_pcm_frames(&g_buffers[i], pOutput, frameCount, MA_FALSE);
 			ma_audio_buffer_get_cursor_in_pcm_frames(&g_buffers[i], &cursor);
 		}
 		else {
+			g_playing = false;
 			ma_audio_buffer_uninit(&g_buffers[i]);
 			g_buffers.erase(g_buffers.begin() + i);
+			g_buffers.push_back(g_nextBuffer);
+			g_nextBuffer = {};
+			cursor = 0;
+			length = 0;
+			g_playing = true;
 		}
+
 	}
 	(void)pOutput;
 }
@@ -76,6 +86,7 @@ bool SAPI::Initialize() {
 	conf.sampleRate = 16000;
 	conf.playback.format = ma_format_s16;
 	conf.dataCallback = device_callback;
+	conf.pUserData = this;
 	m_audioDevice = (ma_device*) new ma_device;
 	ma_result res = ma_device_init(nullptr, &conf, (ma_device*)m_audioDevice);
 	if (res != MA_SUCCESS)return false;
@@ -119,7 +130,12 @@ bool SAPI::Speak(const char* text, bool interrupt) {
 	if (result != MA_SUCCESS)
 		return false;
 	if (interrupt || ma_device_is_started((ma_device*)m_audioDevice) == MA_FALSE)ma_device_start((ma_device*)m_audioDevice);
-	g_buffers.push_back(buffer);
+	if (!interrupt && g_playing) {
+		g_nextBuffer = buffer;
+	}
+	else {
+		g_buffers.push_back(buffer);
+	}
 	return true;
 }
 
