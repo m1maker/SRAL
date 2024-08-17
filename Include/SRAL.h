@@ -4,13 +4,12 @@
 #ifdef _WIN32
 #if defined SRAL_EXPORT
 #define SRAL_API __declspec(dllexport)
+#elif defined (SRAL_STATIC)
+#define SRAL_API
 #else
 #define SRAL_API __declspec(dllimport)
 #endif
 #else
-#define SRAL_API
-#endif
-#ifdef SRAL_STATIC
 #define SRAL_API
 #endif
 #include <stdbool.h>
