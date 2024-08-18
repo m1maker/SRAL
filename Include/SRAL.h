@@ -46,6 +46,14 @@ extern "C" {
 	SRAL_API uint64_t SRAL_GetVolume(void);
 	SRAL_API bool SRAL_SetRate(uint64_t value);
 	SRAL_API uint64_t SRAL_GetRate(void);
+
+
+	SRAL_API bool SRAL_SpeakExtended(int engine, const char* text, bool interrupt);
+	SRAL_API bool SRAL_BrailleExtended(int engine, const char* text);
+	SRAL_API bool SRAL_OutputExtended(int engine, const char* text, bool interrupt);
+	SRAL_API bool SRAL_StopSpeechExtended(int engine);
+
+
 #ifdef __cplusplus
 }// extern "C"
 #endif
