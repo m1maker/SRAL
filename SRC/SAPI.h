@@ -26,8 +26,9 @@ public:
 	uint64_t GetRate();
 private:
 	blastspeak* instance = nullptr;
-	void* m_audioDevice = nullptr;
-	bool m_deviceInitialized = false;
+	WAVEFORMATEX wfx;
+	WAVEHDR wh;
+	HWAVEOUT hWaveOut;
 };
 #endif
 #endif

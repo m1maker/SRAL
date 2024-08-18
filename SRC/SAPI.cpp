@@ -1,32 +1,5 @@
 #ifdef _WIN32
 #include "SAPI.h"
-#define MA_NO_DSOUND
-#define MA_NO_WINMM
-#define MA_ENABLE_WASAPI
-#define MA_NO_ENCODING
-#define MA_NO_FLAC
-#define MA_NO_WAV
-#define MA_NO_MP3
-#define MA_NO_ENGINE
-#define MA_NO_RESOURCE_MANAGER
-#define MA_NO_GENERATION
-#define MA_NO_ALSA
-#define MA_NO_JACK
-#define MA_NO_COREAUDIO
-#define MA_NO_SNDIO
-#define MA_NO_AUDIO4
-#define MA_NO_OSS
-#define MA_NO_AAUDIO
-#define MA_NO_OPENSL
-#define MA_NO_WEBAUDIO
-#define MA_ENABLE_ONLY_SPECIFIC_BACKENDS
-#define MA_NO_SSE2
-#define MA_NO_AVX2
-#define MA_NO_NEON
-#define MINIAUDIO_IMPLEMENTATION
-#include "../Dep/miniaudio.h"
-#include <vector>
-#include <thread>
 // This function is taken from [NVGT](https://github.com/samtupy/nvgt)
 static char* minitrim(char* data, unsigned long* bufsize, int bitrate, int channels) {
 	char* ptr = data;
@@ -50,47 +23,29 @@ static char* minitrim(char* data, unsigned long* bufsize, int bitrate, int chann
 	*bufsize -= (ptr - data);
 	return ptr;
 }
-std::vector<ma_audio_buffer> g_buffers;
-bool g_playing = false;
-ma_audio_buffer g_nextBuffer;
-void device_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount) {
-	for (uint64_t i = 0; i < g_buffers.size(); ++i) {
-		ma_uint64 length;
-		ma_uint64 cursor;
-		ma_audio_buffer_get_length_in_pcm_frames(&g_buffers[i], &length);
-		ma_audio_buffer_get_cursor_in_pcm_frames(&g_buffers[i], &cursor);
-		if (cursor < length) {
-			g_playing = true;
-			ma_audio_buffer_read_pcm_frames(&g_buffers[i], pOutput, frameCount, MA_FALSE);
-			ma_audio_buffer_get_cursor_in_pcm_frames(&g_buffers[i], &cursor);
-		}
-		else {
-			g_playing = false;
-			ma_audio_buffer_uninit(&g_buffers[i]);
-			g_buffers.erase(g_buffers.begin() + i);
-			g_buffers.push_back(g_nextBuffer);
-			g_nextBuffer = {};
-			cursor = 0;
-			length = 0;
-			g_playing = true;
-		}
+/*
+Attention!
+Here I'm using WaveOut, which is not the best solution today.
+I haven't been able to find a solution on how to quickly and fail-free playback PCM data via Wasapi.
+Please, if you have a solution, you can contribute to the project. In any case, I will try to fix it.
+*/
 
-	}
-	(void)pOutput;
-}
 
 
 bool SAPI::Initialize() {
-	ma_device_config conf = ma_device_config_init(ma_device_type_playback);
-	conf.playback.channels = 1;
-	conf.sampleRate = 16000;
-	conf.playback.format = ma_format_s16;
-	conf.dataCallback = device_callback;
-	conf.pUserData = this;
-	m_audioDevice = (ma_device*) new ma_device;
-	ma_result res = ma_device_init(nullptr, &conf, (ma_device*)m_audioDevice);
-	if (res != MA_SUCCESS)return false;
-	m_deviceInitialized = true;
+	wfx.wFormatTag = WAVE_FORMAT_PCM;
+	wfx.nChannels = 1;
+	wfx.nSamplesPerSec = 16000;
+	wfx.wBitsPerSample = 16;
+	wfx.nBlockAlign = (wfx.nChannels * wfx.wBitsPerSample) / 8;
+	wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
+	wfx.cbSize = 0;
+	if (waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, WAVE_FORMAT_DIRECT) != MMSYSERR_NOERROR) {
+		return false;
+	}
+
+
+
 	instance = new blastspeak;
 	return blastspeak_initialize(instance) == 0;
 }
@@ -99,11 +54,8 @@ bool SAPI::Uninitialize() {
 	blastspeak_destroy(instance);
 	delete instance;
 	instance = nullptr;
-	if (m_audioDevice == nullptr)return false;
-	ma_device_uninit((ma_device*)m_audioDevice);
-	delete m_audioDevice;
-	m_audioDevice = nullptr;
-	m_deviceInitialized = false;
+	StopSpeech();
+	waveOutClose(hWaveOut);
 	return true;
 }
 bool SAPI::GetActive() {
@@ -112,8 +64,11 @@ bool SAPI::GetActive() {
 bool SAPI::Speak(const char* text, bool interrupt) {
 	if (instance == nullptr)
 		return false;
-	if (interrupt)
+	if (interrupt) {
 		StopSpeech();
+		waveOutRestart(hWaveOut);
+
+	}
 	unsigned long bytes;
 	char* audio_ptr = blastspeak_speak_to_memory(instance, &bytes, text);
 	if (audio_ptr == nullptr)
@@ -122,34 +77,35 @@ bool SAPI::Speak(const char* text, bool interrupt) {
 	char* final = minitrim(audio_ptr, &bytes, instance->bits_per_sample, instance->channels);
 	if (final == nullptr)
 		return false;
-	ma_audio_buffer buffer;
-	ma_audio_buffer_config bufferConfig = ma_audio_buffer_config_init(ma_format_s16, instance->channels, bytes / 2, (const void*)final, nullptr);
-	bufferConfig.sampleRate = instance->sample_rate;
-	bufferConfig.channels = instance->channels;
-	ma_result result = ma_audio_buffer_init(&bufferConfig, &buffer);
-	if (result != MA_SUCCESS)
+	memset(&wh, 0, sizeof(WAVEHDR));
+	wh.lpData = final;
+	wh.dwBufferLength = bytes;
+	wh.dwFlags = 0;
+
+	if (waveOutPrepareHeader(hWaveOut, &wh, sizeof(WAVEHDR)) != MMSYSERR_NOERROR) {
 		return false;
-	if (interrupt || ma_device_is_started((ma_device*)m_audioDevice) == MA_FALSE)ma_device_start((ma_device*)m_audioDevice);
-	if (!interrupt && g_playing) {
-		g_nextBuffer = buffer;
 	}
-	else {
-		g_buffers.push_back(buffer);
+
+
+	if (waveOutWrite(hWaveOut, &wh, sizeof(WAVEHDR)) != MMSYSERR_NOERROR) {
+		waveOutUnprepareHeader(hWaveOut, &wh, sizeof(WAVEHDR));
+		return false;
 	}
+
+
 	return true;
 }
 
 bool SAPI::StopSpeech() {
-	if (!m_deviceInitialized)return false;
-	ma_device_stop((ma_device*)m_audioDevice);
-	for (uint64_t i = 0; i < g_buffers.size(); ++i) {
-		ma_audio_buffer_uninit(&g_buffers[i]);
-	}
-	g_buffers.clear();
+	waveOutReset(hWaveOut);
+
+	waveOutUnprepareHeader(hWaveOut, &wh, sizeof(WAVEHDR));
 	return true;
 }
 void SAPI::SetVolume(uint64_t value) {
 	if (instance == nullptr)return;
+	this->Uninitialize();
+	this->Initialize();
 	blastspeak_set_voice_volume(instance, value);
 }
 uint64_t SAPI::GetVolume() {
@@ -160,6 +116,8 @@ uint64_t SAPI::GetVolume() {
 }
 void SAPI::SetRate(uint64_t value) {
 	if (instance == nullptr)return;
+	this->Uninitialize();
+	this->Initialize();
 	blastspeak_set_voice_rate(instance, value);
 }
 uint64_t SAPI::GetRate() {
