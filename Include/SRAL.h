@@ -54,6 +54,10 @@ extern "C" {
 	SRAL_API bool SRAL_StopSpeechExtended(int engine);
 
 
+
+	SRAL_API bool SRAL_Initialized(void);
+
+
 #ifdef __cplusplus
 }// extern "C"
 #endif
