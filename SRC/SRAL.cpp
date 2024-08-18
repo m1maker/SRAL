@@ -11,10 +11,16 @@
 #endif
 #include <vector>
 #include <string>
+
+
 Engine* g_currentEngine = nullptr;
 std::vector<Engine*> g_engines;
 int g_excludes = 0;
+bool g_initialized = false;
+
+
 extern "C" SRAL_API bool SRAL_Initialize(const char* library_path, int engines_exclude) {
+	if (g_initialized)return true;
 #ifdef _WIN32
 	g_engines.push_back(new NVDA);
 	g_engines.push_back(new SAPI);
@@ -33,14 +39,17 @@ extern "C" SRAL_API bool SRAL_Initialize(const char* library_path, int engines_e
 	}
 	if (g_currentEngine == nullptr)return false;
 	g_excludes = engines_exclude;
+	g_initialized = found;
 	return found;
 }
 extern "C" SRAL_API void SRAL_Uninitialize(void) {
+	if (!g_initialized)return;
 	g_currentEngine->Uninitialize();
 	delete g_currentEngine;
 	g_currentEngine = nullptr;
 	g_engines.clear();
 	g_excludes = 0;
+	g_initialized = false;
 }
 static void speech_engine_update() {
 	if (!g_currentEngine->GetActive() || g_currentEngine->GetNumber() == ENGINE_SAPI) {
@@ -144,3 +153,7 @@ extern "C" SRAL_API bool SRAL_StopSpeechExtended(int engine) {
 }
 
 
+
+extern "C" SRAL_API bool SRAL_Initialized(void) {
+	return g_initialized;
+}
