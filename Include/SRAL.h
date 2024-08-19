@@ -40,7 +40,7 @@ extern "C" {
 	SRAL_API bool SRAL_StopSpeech(void);
 	SRAL_API int SRAL_GetCurrentEngine(void);
 	SRAL_API int SRAL_GetEngineFeatures(int engine = 0);
-	SRAL_API bool SRAL_Initialize(const char* library_path, int engines_exclude = 0);
+	SRAL_API bool SRAL_Initialize(int engines_exclude = 0);
 	SRAL_API void SRAL_Uninitialize(void);
 	SRAL_API bool SRAL_SetVolume(uint64_t value);
 	SRAL_API uint64_t SRAL_GetVolume(void);

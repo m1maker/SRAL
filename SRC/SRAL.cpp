@@ -19,7 +19,7 @@ int g_excludes = 0;
 bool g_initialized = false;
 
 
-extern "C" SRAL_API bool SRAL_Initialize(const char* library_path, int engines_exclude) {
+extern "C" SRAL_API bool SRAL_Initialize(int engines_exclude) {
 	if (g_initialized)return true;
 #ifdef _WIN32
 	g_engines.push_back(new NVDA);
