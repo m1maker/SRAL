@@ -1,5 +1,7 @@
 #ifdef _WIN32
 #include "SAPI.h"
+#include <cstdio>
+#include<string>
 // This function is taken from [NVGT](https://github.com/samtupy/nvgt)
 static char* minitrim(char* data, unsigned long* bufsize, int bitrate, int channels) {
 	char* ptr = data;
@@ -33,21 +35,19 @@ Please, if you have a solution, you can contribute to the project. In any case, 
 
 
 bool SAPI::Initialize() {
+	instance = new blastspeak;
+	blastspeak_initialize(instance) == 0;
 	wfx.wFormatTag = WAVE_FORMAT_PCM;
-	wfx.nChannels = 1;
-	wfx.nSamplesPerSec = 16000;
-	wfx.wBitsPerSample = 16;
+	wfx.nChannels = instance->channels;
+	wfx.nSamplesPerSec = instance->sample_rate;
+	wfx.wBitsPerSample = instance->bits_per_sample;
 	wfx.nBlockAlign = (wfx.nChannels * wfx.wBitsPerSample) / 8;
 	wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
 	wfx.cbSize = 0;
 	if (waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, WAVE_FORMAT_DIRECT) != MMSYSERR_NOERROR) {
 		return false;
 	}
-
-
-
-	instance = new blastspeak;
-	return blastspeak_initialize(instance) == 0;
+	return true;
 }
 bool SAPI::Uninitialize() {
 	if (instance == nullptr)return false;

@@ -129,24 +129,26 @@ extern "C" SRAL_API uint64_t SRAL_GetRate(void) {
 	if (g_currentEngine == nullptr)return false;
 	return g_currentEngine->GetRate();
 }
-extern "C" SRAL_API bool SRAL_SpeakExtended(int engine, const char* text, bool interrupt) {
+
+
+extern "C" SRAL_API bool SRAL_SpeakEx(int engine, const char* text, bool interrupt) {
 	Engine* e = get_engine(engine);
 	if (e == nullptr)return false;
 	return e->Speak(text, interrupt);
 }
-extern "C" SRAL_API bool SRAL_BrailleExtended(int engine, const char* text) {
+extern "C" SRAL_API bool SRAL_BrailleEx(int engine, const char* text) {
 	Engine* e = get_engine(engine);
 	if (e == nullptr)return false;
 	return e->Braille(text);
 }
-extern "C" SRAL_API bool SRAL_OutputExtended(int engine, const char* text, bool interrupt) {
+extern "C" SRAL_API bool SRAL_OutputEx(int engine, const char* text, bool interrupt) {
 	Engine* e = get_engine(engine);
 	if (e == nullptr)return false;
 	const bool speech = e->Speak(text, interrupt);
 	const bool braille = e->Braille(text);
 	return speech || braille;
 }
-extern "C" SRAL_API bool SRAL_StopSpeechExtended(int engine) {
+extern "C" SRAL_API bool SRAL_StopSpeechEx(int engine) {
 	Engine* e = get_engine(engine);
 	if (e == nullptr)return false;
 	return e->StopSpeech();
@@ -154,6 +156,6 @@ extern "C" SRAL_API bool SRAL_StopSpeechExtended(int engine) {
 
 
 
-extern "C" SRAL_API bool SRAL_Initialized(void) {
+extern "C" SRAL_API bool SRAL_IsInitialized(void) {
 	return g_initialized;
 }
