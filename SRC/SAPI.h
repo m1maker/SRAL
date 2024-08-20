@@ -4,6 +4,7 @@
 #pragma once
 #define BLASTSPEAK_IMPLEMENTATION
 #include "../Dep/blastspeak.h"
+#include "../Dep/wasapi.h"
 #include "../Include/SRAL.h"
 #include "Engine.h"
 class SAPI : public Engine {
@@ -26,9 +27,8 @@ public:
 	uint64_t GetRate()override;
 private:
 	blastspeak* instance = nullptr;
+	WasapiPlayer* player = nullptr;
 	WAVEFORMATEX wfx;
-	WAVEHDR wh;
-	HWAVEOUT hWaveOut;
 };
 #endif
 #endif

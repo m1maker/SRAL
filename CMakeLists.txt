@@ -2,6 +2,8 @@
 # project specific logic here.
 #
 cmake_minimum_required (VERSION 3.20)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 # Enable Hot Reload for MSVC compilers if supported.
 if (POLICY CMP0141)
@@ -10,19 +12,38 @@ if (POLICY CMP0141)
 endif()
 
 project ("SRAL")
-add_library(${CMAKE_PROJECT_NAME}_obj OBJECT  "Include/SRAL.h" "SRC/SRAL.cpp" "SRC/Engine.h" "SRC/Encoding.h" "SRC/Encoding.cpp" "SRC/NVDA.h" "SRC/NVDA.cpp" "SRC/SAPI.h" "SRC/SAPI.cpp" "Dep/blastspeak.h" "Dep/blastspeak.c" "Dep/fsapi.h" "Dep/fsapi.c" "SRC/Jaws.h" "SRC/Jaws.cpp" "SRC/SpeechDispatcher.h" "SRC/SpeechDispatcher.cpp" "SRC/UIA.cpp" "Dep/UIAProvider.h" "Dep/UIAProvider.cpp")
-set_property(TARGET ${CMAKE_PROJECT_NAME}_obj PROPERTY POSITION_INDEPENDENT_CODE 1)
-set_property(TARGET ${CMAKE_PROJECT_NAME}_obj PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+add_library(${PROJECT_NAME}_obj OBJECT 
+  "Include/SRAL.h" "SRC/SRAL.cpp" "SRC/Engine.h" "SRC/Encoding.h" "SRC/Encoding.cpp"
+  "SRC/NVDA.h" "SRC/NVDA.cpp" "SRC/SAPI.h" "SRC/SAPI.cpp"
+  "Dep/blastspeak.h" "Dep/blastspeak.c" "Dep/fsapi.h" "Dep/fsapi.c"
+  "SRC/Jaws.h" "SRC/Jaws.cpp" "SRC/SpeechDispatcher.h" "SRC/SpeechDispatcher.cpp" "SRC/UIA.cpp"
+  "Dep/UIAProvider.h" "Dep/UIAProvider.cpp" "Dep/wasapi.h" "Dep/wasapi.cpp")
+set_property(TARGET ${PROJECT_NAME}_obj
+  PROPERTY PUBLIC_HEADER "Include/SRAL.h")
+set_property(TARGET ${PROJECT_NAME}_obj
+  PROPERTY POSITION_INDEPENDENT_CODE on)
 
-add_library(${CMAKE_PROJECT_NAME}_static STATIC $<TARGET_OBJECTS:${CMAKE_PROJECT_NAME}_obj>)
-add_library(${CMAKE_PROJECT_NAME} SHARED $<TARGET_OBJECTS:${CMAKE_PROJECT_NAME}_obj>)
+add_library(${PROJECT_NAME} SHARED
+  $<TARGET_OBJECTS:${PROJECT_NAME}_obj>)
+add_library(${PROJECT_NAME}_static STATIC
+  $<TARGET_OBJECTS:${PROJECT_NAME}_obj>)
+
+install(TARGETS ${PROJECT_NAME}_obj
+  PUBLIC_HEADER DESTINATION "include/${PROJECT_NAME}"
+  INCLUDES DESTINATION "include/${PROJECT_NAME}")
+
+install(TARGETS ${PROJECT_NAME}
+  RUNTIME DESTINATION "bin"
+  LIBRARY DESTINATION "lib"
+  ARCHIVE DESTINATION "lib")
+install(TARGETS ${PROJECT_NAME}_static DESTINATION "lib")
 
 if (WIN32)
-  target_link_libraries(${CMAKE_PROJECT_NAME} "uiautomationcore.lib" "winmm.lib")
+  target_link_libraries(${PROJECT_NAME} "uiautomationcore.lib")
 else()
-  set_source_files_properties("SRC/Encoding.h" "SRC/Encoding.cpp" "SRC/NVDA.h" "SRC/NVDA.cpp" "SRC/SAPI.h" "SRC/SAPI.cpp" "Dep/blastspeak.h" "Dep/blastspeak.c" "Dep/fsapi.h" "Dep/fsapi.c" "SRC/Jaws.h" "SRC/Jaws.cpp" "SRC/UIA.cpp" "Dep/UIAProvider.h" "Dep/UIAProvider.cpp" PROPERTIES HEADER_FILE_ONLY TRUE)
-endif()
-
-if (CMAKE_VERSION VERSION_GREATER 3.12)
-  set_property(TARGET ${CMAKE_PROJECT_NAME} PROPERTY CXX_STANDARD 20)
+  set_source_files_properties(
+    "SRC/Encoding.h" "SRC/Encoding.cpp" "SRC/NVDA.h" "SRC/NVDA.cpp" "SRC/SAPI.h" "SRC/SAPI.cpp"
+    "Dep/blastspeak.h" "Dep/blastspeak.c" "Dep/fsapi.h" "Dep/fsapi.c"
+    "SRC/Jaws.h" "SRC/Jaws.cpp" "SRC/UIA.cpp" "Dep/UIAProvider.h" "Dep/UIAProvider.cpp" "Dep/wasapi.h" "Dep/wasapi.cpp"
+    PROPERTIES HEADER_FILE_ONLY TRUE)
 endif()

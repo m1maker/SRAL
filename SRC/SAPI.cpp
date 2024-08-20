@@ -2,6 +2,7 @@
 #include "SAPI.h"
 #include <cstdio>
 #include<string>
+#include<thread>
 // This function is taken from [NVGT](https://github.com/samtupy/nvgt)
 static char* minitrim(char* data, unsigned long* bufsize, int bitrate, int channels) {
 	char* ptr = data;
@@ -25,18 +26,42 @@ static char* minitrim(char* data, unsigned long* bufsize, int bitrate, int chann
 	*bufsize -= (ptr - data);
 	return ptr;
 }
-/*
-Attention!
-Here I'm using WaveOut, which is not the best solution today.
-I haven't been able to find a solution on how to quickly and fail-free playback PCM data via Wasapi.
-Please, if you have a solution, you can contribute to the project. In any case, I will try to fix it.
-*/
 
+struct PCMData {
+	unsigned char* data;
+	unsigned long size;
+};
 
+std::vector<PCMData> g_dataQueue;
+bool g_threadStarted = false;
+static void sapi_thread(WasapiPlayer* player) {
+	if (player == nullptr) {
+		g_threadStarted = false;
+	}
+	HRESULT hr;
+	while (g_threadStarted) {
+		Sleep(1);
+		for (uint64_t i = 0; i < g_dataQueue.size(); ++i) {
 
+			hr = player->feed(g_dataQueue[i].data, g_dataQueue[i].size, nullptr);
+			if (FAILED(hr))continue;
+			hr = player->sync();
+			if (FAILED(hr))continue;
+		}
+		if (g_dataQueue.size() > 0)		g_dataQueue.clear();
+	}
+}
 bool SAPI::Initialize() {
 	instance = new blastspeak;
-	blastspeak_initialize(instance);
+	if (blastspeak_initialize(instance) == 0) {
+		delete instance;
+		instance = nullptr;
+		return false;
+	}
+	CoInitialize(nullptr);
+	wchar_t device[] = L"";
+	WasapiPlayer::ChunkCompletedCallback callback = nullptr;
+
 	wfx.wFormatTag = WAVE_FORMAT_PCM;
 	wfx.nChannels = instance->channels;
 	wfx.nSamplesPerSec = instance->sample_rate;
@@ -44,29 +69,37 @@ bool SAPI::Initialize() {
 	wfx.nBlockAlign = (wfx.nChannels * wfx.wBitsPerSample) / 8;
 	wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
 	wfx.cbSize = 0;
-	if (waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, 0, 0, WAVE_FORMAT_DIRECT) != MMSYSERR_NOERROR) {
+	player = new WasapiPlayer(device, wfx, callback);
+	HRESULT hr = player->open();
+	if (FAILED(hr)) {
+		delete player;
+		player = nullptr;
 		return false;
 	}
+	g_threadStarted = true;
+	std::thread t(sapi_thread, player);
+	t.detach();
 	return true;
 }
 bool SAPI::Uninitialize() {
-	if (instance == nullptr)return false;
+	if (instance == nullptr || player == nullptr)return false;
+	g_threadStarted = false;
 	blastspeak_destroy(instance);
 	delete instance;
 	instance = nullptr;
 	StopSpeech();
-	waveOutClose(hWaveOut);
+	delete player;
+	player = nullptr;
 	return true;
 }
 bool SAPI::GetActive() {
 	return instance != nullptr;
 }
 bool SAPI::Speak(const char* text, bool interrupt) {
-	if (instance == nullptr)
+	if (instance == nullptr || player == nullptr)
 		return false;
 	if (interrupt) {
 		StopSpeech();
-		waveOutRestart(hWaveOut);
 
 	}
 	unsigned long bytes;
@@ -77,29 +110,17 @@ bool SAPI::Speak(const char* text, bool interrupt) {
 	char* final = minitrim(audio_ptr, &bytes, instance->bits_per_sample, instance->channels);
 	if (final == nullptr)
 		return false;
-	memset(&wh, 0, sizeof(WAVEHDR));
-	wh.lpData = final;
-	wh.dwBufferLength = bytes;
-	wh.dwFlags = 0;
-
-	if (waveOutPrepareHeader(hWaveOut, &wh, sizeof(WAVEHDR)) != MMSYSERR_NOERROR) {
-		return false;
-	}
-
-
-	if (waveOutWrite(hWaveOut, &wh, sizeof(WAVEHDR)) != MMSYSERR_NOERROR) {
-		waveOutUnprepareHeader(hWaveOut, &wh, sizeof(WAVEHDR));
-		return false;
-	}
-
-
+	PCMData dat = { 0, 0 };
+	dat.data = (unsigned char*)final;
+	dat.size = bytes;
+	g_dataQueue.push_back(dat);
 	return true;
 }
 
 bool SAPI::StopSpeech() {
-	waveOutReset(hWaveOut);
-
-	waveOutUnprepareHeader(hWaveOut, &wh, sizeof(WAVEHDR));
+	if (player == nullptr)return false;
+	g_dataQueue.clear();
+	player->stop();
 	return true;
 }
 void SAPI::SetVolume(uint64_t value) {
@@ -126,4 +147,22 @@ uint64_t SAPI::GetRate() {
 	blastspeak_get_voice_rate(instance, &value);
 	return value;
 }
+/*
+void testMethod(unsigned char* data, unsigned int size) {
+	WAVEFORMATEX format;
+	format.wFormatTag = WAVE_FORMAT_PCM;
+	format.nChannels = 1;
+	format.nSamplesPerSec = 44100;
+	format.wBitsPerSample = 16;
+	format.nBlockAlign = format.nChannels * format.wBitsPerSample / 8;
+		format.nAvgBytesPerSec = format.nSamplesPerSec * format.nBlockAlign;
+		format.cbSize = 0;
+		WasapiPlayer* player = new WasapiPlayer(device, format, callback);
+	player->open();
+	delete player;
+	CoUninitialize();
+}
+
+
+*/
 #endif
