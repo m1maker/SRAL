@@ -19,12 +19,16 @@ public:
 	bool Initialize()override;
 	bool Uninitialize()override;
 	int GetFeatures()override {
-		return SUPPORTS_SPEECH | SUPPORTS_SPEECH_RATE | SUPPORTS_SPEECH_VOLUME;
+		return SUPPORTS_SPEECH | SUPPORTS_SPEECH_RATE | SUPPORTS_SPEECH_VOLUME | SUPPORTS_SELECT_VOICE;
 	}
 	void SetVolume(uint64_t value)override;
 	uint64_t GetVolume()override;
 	void SetRate(uint64_t value)override;
 	uint64_t GetRate()override;
+	uint64_t GetVoiceCount()override;
+	const char* GetVoiceName(uint64_t index)override;
+	bool SetVoice(uint64_t index)override;
+
 private:
 	blastspeak* instance = nullptr;
 	WasapiPlayer* player = nullptr;

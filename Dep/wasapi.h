@@ -132,6 +132,8 @@ public:
 	HRESULT resume();
 	HRESULT setChannelVolume(unsigned int channel, float level);
 
+	WAVEFORMATEX format;
+
 private:
 	void maybeFireCallback();
 	void completeStop();
@@ -156,7 +158,6 @@ private:
 	CComPtr<IAudioClock> clock;
 	UINT32 bufferFrames;
 	std::wstring deviceName;
-	WAVEFORMATEX format;
 	ChunkCompletedCallback callback;
 	PlayState playState = PlayState::stopped;
 	std::vector<std::pair<unsigned int, UINT64>> feedEnds;

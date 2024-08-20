@@ -17,5 +17,8 @@ public:
 	virtual uint64_t GetVolume() = 0;
 	virtual void SetRate(uint64_t value) = 0;
 	virtual uint64_t GetRate() = 0;
+	virtual uint64_t GetVoiceCount() = 0;
+	virtual const char* GetVoiceName(uint64_t index) = 0;
+	virtual bool SetVoice(uint64_t index) = 0;
 };
 #endif

@@ -30,7 +30,9 @@ extern "C" {
 		SUPPORTS_SPEECH = 128,
 		SUPPORTS_BRAILLE = 256,
 		SUPPORTS_SPEECH_RATE = 512,
-		SUPPORTS_SPEECH_VOLUME = 1024
+		SUPPORTS_SPEECH_VOLUME = 1024,
+		SUPPORTS_SELECT_VOICE = 2048
+
 	};
 
 
@@ -47,11 +49,23 @@ extern "C" {
 	SRAL_API bool SRAL_SetRate(uint64_t value);
 	SRAL_API uint64_t SRAL_GetRate(void);
 
+	SRAL_API uint64_t SRAL_GetVoiceCount(void);
+	SRAL_API const char* SRAL_GetVoiceName(uint64_t index);
+	SRAL_API bool SRAL_SetVoice(uint64_t index);
 
 	SRAL_API bool SRAL_SpeakEx(int engine, const char* text, bool interrupt);
 	SRAL_API bool SRAL_BrailleEx(int engine, const char* text);
 	SRAL_API bool SRAL_OutputEx(int engine, const char* text, bool interrupt);
 	SRAL_API bool SRAL_StopSpeechEx(int engine);
+
+	SRAL_API bool SRAL_SetVolumeEx(int engine, uint64_t value);
+	SRAL_API uint64_t SRAL_GetVolumeEx(int engine);
+	SRAL_API bool SRAL_SetRateEx(int engine, uint64_t value);
+	SRAL_API uint64_t SRAL_GetRateEx(int engine);
+
+	SRAL_API uint64_t SRAL_GetVoiceCountEx(int engine);
+	SRAL_API const char* SRAL_GetVoiceNameEx(int engine, uint64_t index);
+	SRAL_API bool SRAL_SetVoiceEx(int engine, uint64_t index);
 
 
 
