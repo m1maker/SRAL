@@ -24,6 +24,16 @@ public:
 	uint64_t GetVolume()override { return 0; }
 	void SetRate(uint64_t)override { return; }
 	uint64_t GetRate()override { return 0; }
+	uint64_t GetVoiceCount()override {
+		return 0;
+	}
+	const char* GetVoiceName(uint64_t index)override {
+		return nullptr;
+	}
+	bool SetVoice(uint64_t index)override {
+		return false;
+	}
+
 private:
 	SPDConnection* Speech = nullptr;
 	void* Lib = nullptr;

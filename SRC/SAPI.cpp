@@ -3,29 +3,49 @@
 #include <cstdio>
 #include<string>
 #include<thread>
-// This function is taken from [NVGT](https://github.com/samtupy/nvgt)
-static char* minitrim(char* data, unsigned long* bufsize, int bitrate, int channels) {
-	char* ptr = data;
-	if (!ptr || !bufsize || *bufsize % 2 != 0 || *bufsize < 1) return ptr;
-	short a = 3072;
-	while (bitrate == 16 && (ptr - data) < *bufsize) {
-		if (channels == 2) {
-			short l = (((short)*ptr) << 8) | *(ptr + 1);
-			short r = (((short)*(ptr + 2)) << 8) | *(ptr + 3);
-			if (l > -a && l < a && r > -a && r < a)
-				ptr += 4;
-			else break;
+static char* trim(char* data, unsigned long* size, WAVEFORMATEX* wfx, int threshold) {
+	int channels = wfx->nChannels;
+	int bytesPerSample = wfx->wBitsPerSample / 8;
+	int samplesPerFrame = channels * bytesPerSample;
+	int numSamples = *size / samplesPerFrame;
+	int startIndex = 0;
+	int endIndex = numSamples - 1;
+
+	for (int i = 0; i < numSamples; i++) {
+		int maxAbsValue = 0;
+		for (int j = 0; j < channels; j++) {
+			int absValue = abs(static_cast<int>(data[i * samplesPerFrame + j]));
+			if (absValue > maxAbsValue) {
+				maxAbsValue = absValue;
+			}
 		}
-		else if (channels == 1) {
-			short s = (((short)*ptr) << 8) | *(ptr + 1);
-			if (s > -a && s < a)
-				ptr += 2;
-			else break;
+		if (maxAbsValue >= threshold) {
+			startIndex = i;
+			break;
 		}
 	}
-	*bufsize -= (ptr - data);
-	return ptr;
+
+	for (int i = numSamples - 1; i >= 0; i--) {
+		int maxAbsValue = 0;
+		for (int j = 0; j < channels; j++) {
+			int absValue = abs(static_cast<int>(data[i * samplesPerFrame + j]));
+			if (absValue > maxAbsValue) {
+				maxAbsValue = absValue;
+			}
+		}
+		if (maxAbsValue >= threshold) {
+			endIndex = i;
+			break;
+		}
+	}
+
+	int trimmedSize = (endIndex - startIndex + 1) * samplesPerFrame;
+	char* trimmedData = new char[trimmedSize];
+	memcpy(trimmedData, data + startIndex * samplesPerFrame, trimmedSize);
+	*size = trimmedSize;
+	return trimmedData;
 }
+
 
 struct PCMData {
 	unsigned char* data;
@@ -53,6 +73,7 @@ static void sapi_thread(WasapiPlayer* player) {
 }
 bool SAPI::Initialize() {
 	instance = new blastspeak;
+
 	if (blastspeak_initialize(instance) == 0) {
 		delete instance;
 		instance = nullptr;
@@ -102,12 +123,20 @@ bool SAPI::Speak(const char* text, bool interrupt) {
 		StopSpeech();
 
 	}
+	if (wfx.nChannels != instance->channels || wfx.nSamplesPerSec != instance->sample_rate || wfx.wBitsPerSample != instance->bits_per_sample) {
+		wfx.nChannels = instance->channels;
+		wfx.nSamplesPerSec = instance->sample_rate;
+		wfx.wBitsPerSample = instance->bits_per_sample;
+		player->format = wfx;
+		player->open(true);
+	}
+
 	unsigned long bytes;
 	char* audio_ptr = blastspeak_speak_to_memory(instance, &bytes, text);
 	if (audio_ptr == nullptr)
 		return false;
 
-	char* final = minitrim(audio_ptr, &bytes, instance->bits_per_sample, instance->channels);
+	char* final = trim(audio_ptr, &bytes, &wfx, 20);
 	if (final == nullptr)
 		return false;
 	PCMData dat = { 0, 0 };
@@ -147,22 +176,21 @@ uint64_t SAPI::GetRate() {
 	blastspeak_get_voice_rate(instance, &value);
 	return value;
 }
-/*
-void testMethod(unsigned char* data, unsigned int size) {
-	WAVEFORMATEX format;
-	format.wFormatTag = WAVE_FORMAT_PCM;
-	format.nChannels = 1;
-	format.nSamplesPerSec = 44100;
-	format.wBitsPerSample = 16;
-	format.nBlockAlign = format.nChannels * format.wBitsPerSample / 8;
-		format.nAvgBytesPerSec = format.nSamplesPerSec * format.nBlockAlign;
-		format.cbSize = 0;
-		WasapiPlayer* player = new WasapiPlayer(device, format, callback);
-	player->open();
-	delete player;
-	CoUninitialize();
+uint64_t SAPI::GetVoiceCount() {
+	if (instance == nullptr)return 0;
+	return instance->voice_count;
+}
+const char* SAPI::GetVoiceName(uint64_t index) {
+	if (instance == nullptr)return nullptr;
+	return blastspeak_get_voice_description(instance, index);
+}
+bool SAPI::SetVoice(uint64_t index) {
+	if (instance == nullptr)return false;
+	this->Uninitialize();
+	this->Initialize();
+	return blastspeak_set_voice(instance, index);
 }
 
 
-*/
+
 #endif

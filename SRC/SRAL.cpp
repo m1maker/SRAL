@@ -130,6 +130,61 @@ extern "C" SRAL_API uint64_t SRAL_GetRate(void) {
 	return g_currentEngine->GetRate();
 }
 
+extern "C" SRAL_API uint64_t SRAL_GetVoiceCount(void) {
+	if (g_currentEngine == nullptr)return false;
+	return g_currentEngine->GetVoiceCount();
+}
+extern "C" SRAL_API const char* SRAL_GetVoiceName(uint64_t index) {
+	if (g_currentEngine == nullptr)return nullptr;
+	return g_currentEngine->GetVoiceName(index);
+}
+extern "C" SRAL_API bool SRAL_SetVoice(uint64_t index) {
+	if (g_currentEngine == nullptr)return false;
+	return g_currentEngine->SetVoice(index);
+}
+
+extern "C" SRAL_API bool SRAL_SetVolumeEx(int engine, uint64_t value) {
+	Engine* e = get_engine(engine);
+	if (e == nullptr)return false;
+	e->SetVolume(value);
+	return true;
+}
+extern "C" SRAL_API uint64_t SRAL_GetVolumeEx(int engine) {
+	Engine* e = get_engine(engine);
+	if (e == nullptr)return false;
+	return e->GetVolume();
+}
+extern "C" SRAL_API bool SRAL_SetRateEx(int engine, uint64_t value) {
+	Engine* e = get_engine(engine);
+	if (e == nullptr)return false;
+	e->SetRate(value);
+	return true;
+}
+extern "C" SRAL_API uint64_t SRAL_GetRateEx(int engine) {
+	Engine* e = get_engine(engine);
+	if (e == nullptr)return false;
+	return e->GetRate();
+}
+
+extern "C" SRAL_API uint64_t SRAL_GetVoiceCountEx(int engine) {
+	Engine* e = get_engine(engine);
+	if (e == nullptr)return false;
+	return e->GetVoiceCount();
+}
+extern "C" SRAL_API const char* SRAL_GetVoiceNameEx(int engine, uint64_t index) {
+	Engine* e = get_engine(engine);
+	if (e == nullptr)return nullptr;
+	return e->GetVoiceName(index);
+}
+extern "C" SRAL_API bool SRAL_SetVoiceEx(int engine, uint64_t index) {
+	Engine* e = get_engine(engine);
+	if (e == nullptr)return false;
+	return e->SetVoice(index);
+}
+
+
+
+
 
 extern "C" SRAL_API bool SRAL_SpeakEx(int engine, const char* text, bool interrupt) {
 	Engine* e = get_engine(engine);
