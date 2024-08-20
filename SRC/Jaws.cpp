@@ -3,9 +3,11 @@
 #include "Jaws.h"
 #include <string>
 bool Jaws::Initialize() {
-	if (JawsAPI || FAILED(CoCreateInstance(CLSID_JawsApi, NULL, CLSCTX_INPROC_SERVER, IID_IJawsApi, (void**)&JawsAPI))) {
-		return true;
+	HRESULT hr = CoCreateInstance(CLSID_JawsApi, NULL, CLSCTX_INPROC_SERVER, IID_IJawsApi, (void**)&JawsAPI);
+	if (JawsAPI || FAILED(hr)) {
+		return false;
 	}
+	return true;
 }
 bool Jaws::Uninitialize() {
 	if (JawsAPI != nullptr) {

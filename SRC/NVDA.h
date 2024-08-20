@@ -7,22 +7,22 @@
 #include <Windows.h>
 class NVDA : public Engine {
 public:
-	bool Speak(const char* text, bool interrupt);
-	bool Braille(const char* text);
-	bool StopSpeech();
-	int GetNumber() {
+	bool Speak(const char* text, bool interrupt)override;
+	bool Braille(const char* text)override;
+	bool StopSpeech()override;
+	int GetNumber()override {
 		return ENGINE_NVDA;
 	}
-	bool GetActive();
-	bool Initialize();
-	bool Uninitialize();
-	int GetFeatures() {
+	bool GetActive()override;
+	bool Initialize()override;
+	bool Uninitialize()override;
+	int GetFeatures()override {
 		return SUPPORTS_SPEECH | SUPPORTS_BRAILLE;
 	}
-	void SetVolume(uint64_t) { return; }
-	uint64_t GetVolume() { return 0; }
-	void SetRate(uint64_t) { return; }
-	uint64_t GetRate() { return 0; }
+	void SetVolume(uint64_t)override { return; }
+	uint64_t GetVolume()override { return 0; }
+	void SetRate(uint64_t)override { return; }
+	uint64_t GetRate()override { return 0; }
 private:
 	HINSTANCE lib = nullptr;
 	typedef error_status_t(__stdcall* NVDAController_speakText)(const wchar_t*);

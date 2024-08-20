@@ -36,7 +36,7 @@ Please, if you have a solution, you can contribute to the project. In any case, 
 
 bool SAPI::Initialize() {
 	instance = new blastspeak;
-	blastspeak_initialize(instance) == 0;
+	blastspeak_initialize(instance);
 	wfx.wFormatTag = WAVE_FORMAT_PCM;
 	wfx.nChannels = instance->channels;
 	wfx.nSamplesPerSec = instance->sample_rate;

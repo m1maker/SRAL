@@ -5,8 +5,11 @@
 
 
 bool UIA::Initialize() {
-	CoInitialize(NULL);
-	HRESULT hr = CoCreateInstance(CLSID_CUIAutomation, NULL, CLSCTX_INPROC_SERVER, IID_IUIAutomation, (void**)&pAutomation);
+	HRESULT hr = CoInitialize(NULL);
+	if (FAILED(hr)) {
+		return false;
+	}
+	hr = CoCreateInstance(CLSID_CUIAutomation, NULL, CLSCTX_INPROC_SERVER, IID_IUIAutomation, (void**)&pAutomation);
 	if (FAILED(hr)) {
 		return false;
 	}
@@ -15,6 +18,7 @@ bool UIA::Initialize() {
 	varName.bstrVal = SysAllocString(L"");
 	hr = pAutomation->CreatePropertyConditionEx(UIA_NamePropertyId, varName, PropertyConditionFlags_None, &pCondition);
 	if (FAILED(hr)) {
+		SysFreeString(varName.bstrVal);
 		return false;
 	}
 	return true;
@@ -22,6 +26,8 @@ bool UIA::Initialize() {
 
 bool UIA::Uninitialize() {
 	pProvider->Release();
+
+	SysFreeString(varName.bstrVal);
 
 	pCondition->Release();
 
@@ -41,11 +47,16 @@ bool UIA::Speak(const char* text, bool interrupt) {
 	if (FAILED(hr)) {
 		return false;
 	}
-	hr = UiaRaiseNotificationEvent(pProvider, NotificationKind_ActionCompleted, flags, SysAllocString(str.c_str()), SysAllocString(L""));
+	const BSTR string = SysAllocString(str.c_str());
+	const BSTR stringUnused = SysAllocString(L"");
+	hr = UiaRaiseNotificationEvent(pProvider, NotificationKind_ActionCompleted, flags, string, stringUnused);
 	if (FAILED(hr)) {
+		SysFreeString(string);
+		SysFreeString(stringUnused);
 		return false;
 	}
-
+	SysFreeString(string);
+	SysFreeString(stringUnused);
 	return true;
 
 }
