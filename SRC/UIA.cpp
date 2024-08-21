@@ -1,24 +1,20 @@
 #include "Encoding.h"
 #include "UIA.h"
+#include<atlbase.h>
 #include <string>
 
 
-
 bool UIA::Initialize() {
-	HRESULT hr = CoInitialize(NULL);
-	if (FAILED(hr)) {
-		return false;
-	}
-	hr = CoCreateInstance(CLSID_CUIAutomation, NULL, CLSCTX_INPROC_SERVER, IID_IUIAutomation, (void**)&pAutomation);
+	CoInitialize(NULL);
+	HRESULT hr = CoCreateInstance(CLSID_CUIAutomation, NULL, CLSCTX_INPROC_SERVER, IID_IUIAutomation, (void**)&pAutomation);
 	if (FAILED(hr)) {
 		return false;
 	}
 
 	varName.vt = VT_BSTR;
-	varName.bstrVal = SysAllocString(L"");
+	varName.bstrVal = CComBSTR(L"");
 	hr = pAutomation->CreatePropertyConditionEx(UIA_NamePropertyId, varName, PropertyConditionFlags_None, &pCondition);
 	if (FAILED(hr)) {
-		SysFreeString(varName.bstrVal);
 		return false;
 	}
 	return true;
@@ -26,8 +22,6 @@ bool UIA::Initialize() {
 
 bool UIA::Uninitialize() {
 	pProvider->Release();
-
-	SysFreeString(varName.bstrVal);
 
 	pCondition->Release();
 
@@ -47,16 +41,11 @@ bool UIA::Speak(const char* text, bool interrupt) {
 	if (FAILED(hr)) {
 		return false;
 	}
-	const BSTR string = SysAllocString(str.c_str());
-	const BSTR stringUnused = SysAllocString(L"");
-	hr = UiaRaiseNotificationEvent(pProvider, NotificationKind_ActionCompleted, flags, string, stringUnused);
+	hr = UiaRaiseNotificationEvent(pProvider, NotificationKind_ActionCompleted, flags, CComBSTR(str.c_str()), CComBSTR(L""));
 	if (FAILED(hr)) {
-		SysFreeString(string);
-		SysFreeString(stringUnused);
 		return false;
 	}
-	SysFreeString(string);
-	SysFreeString(stringUnused);
+
 	return true;
 
 }
