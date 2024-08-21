@@ -1,18 +1,21 @@
 #include "Encoding.h"
 #include "UIA.h"
-#include<atlbase.h>
+#include<comdef.h>
 #include <string>
 
 
 bool UIA::Initialize() {
-	CoInitialize(NULL);
-	HRESULT hr = CoCreateInstance(CLSID_CUIAutomation, NULL, CLSCTX_INPROC_SERVER, IID_IUIAutomation, (void**)&pAutomation);
+	HRESULT hr = CoInitialize(NULL);
+	if (FAILED(hr)) {
+		return false;
+	}
+	hr = CoCreateInstance(CLSID_CUIAutomation, NULL, CLSCTX_INPROC_SERVER, IID_IUIAutomation, (void**)&pAutomation);
 	if (FAILED(hr)) {
 		return false;
 	}
 
 	varName.vt = VT_BSTR;
-	varName.bstrVal = CComBSTR(L"");
+	varName.bstrVal = _bstr_t(L"");
 	hr = pAutomation->CreatePropertyConditionEx(UIA_NamePropertyId, varName, PropertyConditionFlags_None, &pCondition);
 	if (FAILED(hr)) {
 		return false;
@@ -41,7 +44,7 @@ bool UIA::Speak(const char* text, bool interrupt) {
 	if (FAILED(hr)) {
 		return false;
 	}
-	hr = UiaRaiseNotificationEvent(pProvider, NotificationKind_ActionCompleted, flags, CComBSTR(str.c_str()), CComBSTR(L""));
+	hr = UiaRaiseNotificationEvent(pProvider, NotificationKind_ActionCompleted, flags, _bstr_t(str.c_str()), _bstr_t(L""));
 	if (FAILED(hr)) {
 		return false;
 	}

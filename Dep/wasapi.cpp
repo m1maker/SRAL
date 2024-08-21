@@ -1,34 +1,36 @@
 #define NOMINMAX
 #include "wasapi.h"
-#include <algorithm>
-#include <atlbase.h>
-#include <atlcomcli.h>
-#include <audioclient.h>
-#include <audiopolicy.h>
 #include <functiondiscoverykeys.h>
 #include <Functiondiscoverykeys_devpkey.h>
-#include <mmdeviceapi.h>
-#include <string>
-#include <vector>
-#include <windows.h>
+
+#ifndef PKEY_Device_FriendlyName
+#undef DEFINE_PROPERTYKEY
+#define DEFINE_PROPERTYKEY(id, a, b, c, d, e, f, g, h, i, j, k, l) \
+	const PROPERTYKEY id = { { a, b, c, { d, e, f, g, h, i, j, k, } }, l };
+DEFINE_PROPERTYKEY(PKEY_Device_FriendlyName, 0xa45c254e, 0xdf1c, 0x4efd, 0x80, 0x20, 0x67, 0xd1, 0x46, 0xa8, 0x50, 0xe0, 14);
+#endif
+
 
 constexpr REFERENCE_TIME REFTIMES_PER_MILLISEC = 10000;
 constexpr REFERENCE_TIME BUFFER_SIZE = 400 * REFTIMES_PER_MILLISEC;
 
 const CLSID CLSID_MMDeviceEnumerator = __uuidof(MMDeviceEnumerator);
+const IID IID_IMMDevice = __uuidof(IMMDevice);
+const IID IID_IMMDeviceCollection = __uuidof(IMMDeviceCollection);
 const IID IID_IMMDeviceEnumerator = __uuidof(IMMDeviceEnumerator);
 const IID IID_IAudioClient = __uuidof(IAudioClient);
 const IID IID_IAudioRenderClient = __uuidof(IAudioRenderClient);
 const IID IID_IAudioClock = __uuidof(IAudioClock);
 const IID IID_IMMNotificationClient = __uuidof(IMMNotificationClient);
 const IID IID_IAudioStreamVolume = __uuidof(IAudioStreamVolume);
-CComPtr<NotificationClient> notificationClient;
+const IID IID_IPropertyStore = __uuidof(IPropertyStore);
+NotificationClientPtr notificationClient;
 
 WasapiPlayer::WasapiPlayer(wchar_t* deviceName, WAVEFORMATEX format, ChunkCompletedCallback callback)
 	: deviceName(deviceName), format(format), callback(callback) {
 	wakeEvent = CreateEvent(nullptr, false, false, nullptr);
-	CComPtr<IMMDeviceEnumerator> enumerator;
-	HRESULT hr = enumerator.CoCreateInstance(CLSID_MMDeviceEnumerator);
+	IMMDeviceEnumeratorPtr enumerator;
+	HRESULT hr = enumerator.CreateInstance(CLSID_MMDeviceEnumerator);
 	notificationClient = new NotificationClient();
 	enumerator->RegisterEndpointNotificationCallback(notificationClient);
 
@@ -40,12 +42,12 @@ HRESULT WasapiPlayer::open(bool force) {
 	}
 	defaultDeviceChangeCount = notificationClient->getDefaultDeviceChangeCount();
 	deviceStateChangeCount = notificationClient->getDeviceStateChangeCount();
-	CComPtr<IMMDeviceEnumerator> enumerator;
-	HRESULT hr = enumerator.CoCreateInstance(CLSID_MMDeviceEnumerator);
+	IMMDeviceEnumeratorPtr enumerator;
+	HRESULT hr = enumerator.CreateInstance(CLSID_MMDeviceEnumerator);
 	if (FAILED(hr)) {
 		return hr;
 	}
-	CComPtr<IMMDevice> device;
+	IMMDevicePtr device;
 	isUsingPreferredDevice = false;
 	if (deviceName.empty()) {
 		hr = enumerator->GetDefaultAudioEndpoint(eRender, eConsole, &device);
@@ -225,13 +227,13 @@ void WasapiPlayer::waitUntilNeeded(UINT64 maxWait) {
 	WaitForSingleObject(wakeEvent, (DWORD)maxWait);
 }
 
-HRESULT WasapiPlayer::getPreferredDevice(CComPtr<IMMDevice>& preferredDevice) {
-	CComPtr<IMMDeviceEnumerator> enumerator;
-	HRESULT hr = enumerator.CoCreateInstance(CLSID_MMDeviceEnumerator);
+HRESULT WasapiPlayer::getPreferredDevice(IMMDevicePtr& preferredDevice) {
+	IMMDeviceEnumeratorPtr enumerator;
+	HRESULT hr = enumerator.CreateInstance(CLSID_MMDeviceEnumerator);
 	if (FAILED(hr)) {
 		return hr;
 	}
-	CComPtr<IMMDeviceCollection> devices;
+	IMMDeviceCollectionPtr devices;
 	hr = enumerator->EnumAudioEndpoints(eRender, DEVICE_STATE_ACTIVE, &devices);
 	if (FAILED(hr)) {
 		return hr;
@@ -239,12 +241,12 @@ HRESULT WasapiPlayer::getPreferredDevice(CComPtr<IMMDevice>& preferredDevice) {
 	UINT count = 0;
 	devices->GetCount(&count);
 	for (UINT d = 0; d < count; ++d) {
-		CComPtr<IMMDevice> device;
+		IMMDevicePtr device;
 		hr = devices->Item(d, &device);
 		if (FAILED(hr)) {
 			return hr;
 		}
-		CComPtr<IPropertyStore> props;
+		IPropertyStorePtr props;
 		hr = device->OpenPropertyStore(STGM_READ, &props);
 		if (FAILED(hr)) {
 			return hr;
@@ -273,7 +275,7 @@ bool WasapiPlayer::didPreferredDeviceBecomeAvailable() {
 		) {
 		return false;
 	}
-	CComPtr<IMMDevice> device;
+	IMMDevicePtr device;
 	return SUCCEEDED(getPreferredDevice(device));
 }
 
@@ -355,7 +357,7 @@ HRESULT WasapiPlayer::resume() {
 }
 
 HRESULT WasapiPlayer::setChannelVolume(unsigned int channel, float level) {
-	CComPtr<IAudioStreamVolume> volume;
+	IAudioStreamVolumePtr volume;
 	HRESULT hr = client->GetService(IID_IAudioStreamVolume, (void**)&volume);
 	if (hr == AUDCLNT_E_DEVICE_INVALIDATED) {
 		hr = open(true);

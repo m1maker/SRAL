@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef WASAPI_HPP
-#define WASAPI_HPP
+#ifndef WASAPI_H_
+#define WASAPI_H_
 
 #if defined(_WIN32)
 #ifdef WASAPI_EXPORTS
@@ -14,16 +14,23 @@
 #endif
 
 #include <algorithm>
-#include <atlbase.h>
-#include <atlcomcli.h>
 #include <audioclient.h>
 #include <audiopolicy.h>
-#include <functiondiscoverykeys.h>
-#include <Functiondiscoverykeys_devpkey.h>
+#include <comdef.h>
 #include <mmdeviceapi.h>
 #include <string>
 #include <vector>
 #include <windows.h>
+
+
+_COM_SMARTPTR_TYPEDEF(IMMDevice, IID_IMMDevice);
+_COM_SMARTPTR_TYPEDEF(IMMDeviceCollection, IID_IMMDeviceCollection);
+_COM_SMARTPTR_TYPEDEF(IMMDeviceEnumerator, IID_IMMDeviceEnumerator);
+_COM_SMARTPTR_TYPEDEF(IAudioClient, IID_IAudioClient);
+_COM_SMARTPTR_TYPEDEF(IAudioRenderClient, IID_IAudioRenderClient);
+_COM_SMARTPTR_TYPEDEF(IAudioClock, IID_IAudioClock);
+_COM_SMARTPTR_TYPEDEF(IAudioStreamVolume, IID_IAudioStreamVolume);
+_COM_SMARTPTR_TYPEDEF(IPropertyStore, IID_IPropertyStore);
 
 class AutoHandle {
 public:
@@ -116,7 +123,7 @@ private:
 	unsigned int defaultDeviceChangeCount = 0;
 	unsigned int deviceStateChangeCount = 0;
 };
-
+_COM_SMARTPTR_TYPEDEF(NotificationClient, IID_IMMNotificationClient);
 
 class WasapiPlayer {
 public:
@@ -144,7 +151,7 @@ private:
 
 	UINT64 getPlayPos();
 	void waitUntilNeeded(UINT64 maxWait = INFINITE);
-	HRESULT getPreferredDevice(CComPtr<IMMDevice>& preferredDevice);
+	HRESULT getPreferredDevice(IMMDevicePtr& preferredDevice);
 	bool didPreferredDeviceBecomeAvailable();
 
 	enum class PlayState {
@@ -153,9 +160,9 @@ private:
 		stopping,
 	};
 
-	CComPtr<IAudioClient> client;
-	CComPtr<IAudioRenderClient> render;
-	CComPtr<IAudioClock> clock;
+	IAudioClientPtr client;
+	IAudioRenderClientPtr render;
+	IAudioClockPtr clock;
 	UINT32 bufferFrames;
 	std::wstring deviceName;
 	ChunkCompletedCallback callback;
