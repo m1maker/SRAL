@@ -124,11 +124,9 @@ bool SAPI::Speak(const char* text, bool interrupt) {
 
 	}
 	if (wfx.nChannels != instance->channels || wfx.nSamplesPerSec != instance->sample_rate || wfx.wBitsPerSample != instance->bits_per_sample) {
-		wfx.nChannels = instance->channels;
-		wfx.nSamplesPerSec = instance->sample_rate;
-		wfx.wBitsPerSample = instance->bits_per_sample;
-		player->format = wfx;
-		player->open(true);
+
+		this->Uninitialize();
+		this->Initialize();
 	}
 
 	unsigned long bytes;
