@@ -13,12 +13,12 @@ endif()
 
 project ("SRAL")
 add_library(${PROJECT_NAME}_obj OBJECT 
-  "Include/SRAL.h" "SRC/SRAL.cpp" "SRC/Engine.h" "SRC/Encoding.h" "SRC/Encoding.cpp"
-  "SRC/NVDA.h" "SRC/NVDA.cpp" "SRC/SAPI.h" "SRC/SAPI.cpp"
+  "include/SRAL.h" "src/SRAL.cpp" "src/Engine.h" "src/Encoding.h" "src/Encoding.cpp"
+  "src/NVDA.h" "src/NVDA.cpp" "src/SAPI.h" "src/SAPI.cpp"
   "Dep/blastspeak.h" "Dep/blastspeak.c" "Dep/fsapi.h" "Dep/fsapi.c"
-  "SRC/Jaws.h" "SRC/Jaws.cpp" "SRC/SpeechDispatcher.h" "SRC/SpeechDispatcher.cpp" "SRC/UIA.cpp"
+  "src/Jaws.h" "src/Jaws.cpp" "src/SpeechDispatcher.h" "src/SpeechDispatcher.cpp" "src/UIA.cpp"
   "Dep/UIAProvider.h" "Dep/UIAProvider.cpp" "Dep/wasapi.h" "Dep/wasapi.cpp")
-set(INCLUDES "Include")
+set(INCLUDES "include")
 set_property(TARGET ${PROJECT_NAME}_obj
   PROPERTY PUBLIC_HEADER "${INCLUDES}/SRAL.h")
 set_property(TARGET ${PROJECT_NAME}_obj
@@ -33,8 +33,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDES})
 target_include_directories(${PROJECT_NAME}_static PUBLIC ${INCLUDES})
 
 install(TARGETS ${PROJECT_NAME}_obj
-  PUBLIC_HEADER DESTINATION "include/${PROJECT_NAME}"
-  INCLUDES DESTINATION "include/${PROJECT_NAME}")
+  PUBLIC_HEADER DESTINATION "include"
+  INCLUDES DESTINATION "include")
 
 install(TARGETS ${PROJECT_NAME}
   RUNTIME DESTINATION "bin"
@@ -48,8 +48,8 @@ if (WIN32)
   target_link_libraries(${PROJECT_NAME}_static ${LIBS})
 else()
   set_source_files_properties(
-    "SRC/Encoding.h" "SRC/Encoding.cpp" "SRC/NVDA.h" "SRC/NVDA.cpp" "SRC/SAPI.h" "SRC/SAPI.cpp"
+    "src/Encoding.h" "src/Encoding.cpp" "src/NVDA.h" "src/NVDA.cpp" "src/SAPI.h" "src/SAPI.cpp"
     "Dep/blastspeak.h" "Dep/blastspeak.c" "Dep/fsapi.h" "Dep/fsapi.c"
-    "SRC/Jaws.h" "SRC/Jaws.cpp" "SRC/UIA.cpp" "Dep/UIAProvider.h" "Dep/UIAProvider.cpp" "Dep/wasapi.h" "Dep/wasapi.cpp"
+    "src/Jaws.h" "src/Jaws.cpp" "src/UIA.cpp" "Dep/UIAProvider.h" "Dep/UIAProvider.cpp" "Dep/wasapi.h" "Dep/wasapi.cpp"
     PROPERTIES HEADER_FILE_ONLY TRUE)
 endif()
