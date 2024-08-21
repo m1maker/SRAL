@@ -18,8 +18,9 @@ add_library(${PROJECT_NAME}_obj OBJECT
   "Dep/blastspeak.h" "Dep/blastspeak.c" "Dep/fsapi.h" "Dep/fsapi.c"
   "SRC/Jaws.h" "SRC/Jaws.cpp" "SRC/SpeechDispatcher.h" "SRC/SpeechDispatcher.cpp" "SRC/UIA.cpp"
   "Dep/UIAProvider.h" "Dep/UIAProvider.cpp" "Dep/wasapi.h" "Dep/wasapi.cpp")
+set(INCLUDES "Include")
 set_property(TARGET ${PROJECT_NAME}_obj
-  PROPERTY PUBLIC_HEADER "Include/SRAL.h")
+  PROPERTY PUBLIC_HEADER "${INCLUDES}/SRAL.h")
 set_property(TARGET ${PROJECT_NAME}_obj
   PROPERTY POSITION_INDEPENDENT_CODE on)
 
@@ -27,6 +28,9 @@ add_library(${PROJECT_NAME} SHARED
   $<TARGET_OBJECTS:${PROJECT_NAME}_obj>)
 add_library(${PROJECT_NAME}_static STATIC
   $<TARGET_OBJECTS:${PROJECT_NAME}_obj>)
+
+target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDES})
+target_include_directories(${PROJECT_NAME}_static PUBLIC ${INCLUDES})
 
 install(TARGETS ${PROJECT_NAME}_obj
   PUBLIC_HEADER DESTINATION "include/${PROJECT_NAME}"
@@ -39,7 +43,9 @@ install(TARGETS ${PROJECT_NAME}
 install(TARGETS ${PROJECT_NAME}_static DESTINATION "lib")
 
 if (WIN32)
-  target_link_libraries(${PROJECT_NAME} "uiautomationcore.lib")
+  set(LIBS "uiautomationcore.lib")
+  target_link_libraries(${PROJECT_NAME} ${LIBS})
+  target_link_libraries(${PROJECT_NAME}_static ${LIBS})
 else()
   set_source_files_properties(
     "SRC/Encoding.h" "SRC/Encoding.cpp" "SRC/NVDA.h" "SRC/NVDA.cpp" "SRC/SAPI.h" "SRC/SAPI.cpp"
