@@ -105,7 +105,7 @@ extern "C" {
  */
 
 
-	SRAL_API int SRAL_GetEngineFeatures(int engine = 0);
+	SRAL_API int SRAL_GetEngineFeatures(int engine);
 
 
 
@@ -116,7 +116,7 @@ extern "C" {
  */
 
 
-	SRAL_API bool SRAL_Initialize(int engines_exclude = 0);
+	SRAL_API bool SRAL_Initialize(int engines_exclude);
 
 	/**
  * @brief Uninitialize the library, freeing resources.
