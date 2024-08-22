@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <SRAL.h>
 
-int main() {
+int main(void) {
     // Initialize the SRAL library
     if (!SRAL_Initialize(0)) {
         printf("Failed to initialize SRAL library.\n");
