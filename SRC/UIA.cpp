@@ -6,9 +6,6 @@
 
 bool UIA::Initialize() {
 	HRESULT hr = CoInitialize(NULL);
-	if (FAILED(hr)) {
-		return false;
-	}
 	hr = CoCreateInstance(CLSID_CUIAutomation, NULL, CLSCTX_INPROC_SERVER, IID_IUIAutomation, (void**)&pAutomation);
 	if (FAILED(hr)) {
 		return false;
@@ -39,6 +36,8 @@ bool UIA::Speak(const char* text, bool interrupt) {
 	std::wstring str;
 	UnicodeConvert(text, str);
 	pProvider = new Provider(GetForegroundWindow());
+	printf("Test");
+
 	HRESULT hr = pAutomation->ElementFromHandle(GetForegroundWindow(), &pElement);
 
 	if (FAILED(hr)) {
