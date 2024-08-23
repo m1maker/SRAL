@@ -44,8 +44,8 @@ bool Jaws::Braille(const char* text) {
 	wstr.append(L"\")");
 	const BSTR bstr = SysAllocString(wstr.c_str());
 	VARIANT_BOOL result = VARIANT_FALSE;
-	const bool succeeded = SUCCEEDED(JawsAPI->RunFunction(bstr, &result));
 	SysFreeString(bstr);
+	const bool succeeded = SUCCEEDED(JawsAPI->RunFunction(bstr, &result));
 	return (succeeded && result == VARIANT_TRUE);
 }
 
