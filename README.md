@@ -147,3 +147,6 @@ int main(void) {
 }
 
 ```
+
+## Additional info
+For [NVDA](https://github.com/nvaccess/nvda) screen reader, you need to download the [Controller Client](https://www.nvaccess.org/files/nvda/releases/stable/) for this.
