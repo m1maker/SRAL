@@ -11,6 +11,28 @@
 #endif
 #include <vector>
 #include <string>
+#include <chrono>
+#include <thread>
+
+class Timer {
+public:
+	Timer() {
+		restart();
+	}
+
+	uint64_t elapsed() {
+		auto now = std::chrono::high_resolution_clock::now();
+		return std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time).count();
+	}
+
+	void restart() {
+		start_time = std::chrono::high_resolution_clock::now();
+	}
+
+private:
+	std::chrono::time_point<std::chrono::high_resolution_clock> start_time;
+};
+
 
 
 Engine* g_currentEngine = nullptr;
@@ -18,6 +40,45 @@ std::vector<Engine*> g_engines;
 int g_excludes = 0;
 bool g_initialized = false;
 
+struct QueuedOutput {
+	const char* text;
+	bool interrupt;
+	bool braille;
+	bool speak;
+	int time;
+	Engine* engine;
+};
+
+std::vector<QueuedOutput> g_delayedOutputs;
+bool g_delayOperation = false;
+bool g_outputThreadRunning = false;
+
+
+uint64_t g_lastDelayTime = 0;
+
+
+static void output_thread() {
+	g_outputThreadRunning = true;
+	Timer t;
+	while (g_delayOperation && g_delayedOutputs.size() != 0) {
+		for (uint64_t i = 0; i < g_delayedOutputs.size(); ++i) {
+			t.restart();
+			while (t.elapsed() < g_delayedOutputs[i].time && g_delayOperation) {
+				std::this_thread::sleep_for(std::chrono::milliseconds(5));
+			}
+			if (g_delayedOutputs[i].speak)
+				g_delayedOutputs[i].engine->Speak(g_delayedOutputs[i].text, g_delayedOutputs[i].interrupt);
+			else if (g_delayedOutputs[i].braille)
+				g_delayedOutputs[i].engine->Braille(g_delayedOutputs[i].text);
+		}
+		if (g_delayedOutputs.size() != 0) {
+			g_delayedOutputs.clear();
+			g_delayOperation = false;
+			break;
+		}
+	}
+	g_outputThreadRunning = false;
+}
 
 extern "C" SRAL_API bool SRAL_Initialize(int engines_exclude) {
 	if (g_initialized)return true;
@@ -76,7 +137,24 @@ static Engine* get_engine(int engine) {
 extern "C" SRAL_API bool SRAL_Speak(const char* text, bool interrupt) {
 	if (g_currentEngine == nullptr)		return false;
 	speech_engine_update();
-	return g_currentEngine->Speak(text, interrupt);
+	if (!g_delayOperation)
+		return g_currentEngine->Speak(text, interrupt);
+	else {
+		QueuedOutput qout;
+		qout.text = text;
+		qout.interrupt = interrupt;
+		qout.braille = false;
+		qout.speak = true;
+		qout.engine = g_currentEngine;
+		qout.time = g_lastDelayTime;
+		g_delayedOutputs.push_back(qout);
+		if (!g_outputThreadRunning) {
+			std::thread t(output_thread);
+			t.detach();
+		}
+		return true;
+	}
+	return false;
 }
 extern "C" SRAL_API bool SRAL_Braille(const char* text) {
 	if (g_currentEngine == nullptr)return false;
@@ -93,6 +171,10 @@ extern "C" SRAL_API bool SRAL_Output(const char* text, bool interrupt) {
 extern "C" SRAL_API bool SRAL_StopSpeech(void) {
 	if (g_currentEngine == nullptr)return false;
 	speech_engine_update();
+	if (g_delayOperation) {
+		g_delayedOutputs.clear();
+		g_delayOperation = false;
+	}
 	return g_currentEngine->StopSpeech();
 }
 extern "C" SRAL_API int SRAL_GetCurrentEngine(void) {
@@ -189,7 +271,24 @@ extern "C" SRAL_API bool SRAL_SetVoiceEx(int engine, uint64_t index) {
 extern "C" SRAL_API bool SRAL_SpeakEx(int engine, const char* text, bool interrupt) {
 	Engine* e = get_engine(engine);
 	if (e == nullptr)return false;
-	return e->Speak(text, interrupt);
+	if (!g_delayOperation)
+		return e->Speak(text, interrupt);
+	else {
+		QueuedOutput qout;
+		qout.text = text;
+		qout.interrupt = interrupt;
+		qout.braille = false;
+		qout.speak = true;
+		qout.engine = e;
+		qout.time = g_lastDelayTime;
+		g_delayedOutputs.push_back(qout);
+		if (!g_outputThreadRunning) {
+			std::thread t(output_thread);
+			t.detach();
+		}
+		return true;
+	}
+	return false;
 }
 extern "C" SRAL_API bool SRAL_BrailleEx(int engine, const char* text) {
 	Engine* e = get_engine(engine);
@@ -206,6 +305,10 @@ extern "C" SRAL_API bool SRAL_OutputEx(int engine, const char* text, bool interr
 extern "C" SRAL_API bool SRAL_StopSpeechEx(int engine) {
 	Engine* e = get_engine(engine);
 	if (e == nullptr)return false;
+	if (g_delayOperation) {
+		g_delayedOutputs.clear();
+		g_delayOperation = false;
+	}
 	return e->StopSpeech();
 }
 
@@ -213,4 +316,11 @@ extern "C" SRAL_API bool SRAL_StopSpeechEx(int engine) {
 
 extern "C" SRAL_API bool SRAL_IsInitialized(void) {
 	return g_initialized;
+}
+
+
+
+extern "C" SRAL_API void SRAL_Delay(int time) {
+	g_lastDelayTime = time;
+	g_delayOperation = true;
 }

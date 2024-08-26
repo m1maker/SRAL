@@ -110,3 +110,6 @@ class Sral:
     def is_initialized(self):
         return self.lib.SRAL_IsInitialized()
 
+    def delay(self, time):
+        return self.lib.SRAL_Delay(c_int(time))
+
