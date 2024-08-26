@@ -301,6 +301,16 @@ extern "C" {
 
 	SRAL_API bool SRAL_IsInitialized(void);
 
+	/**
+
+		// *@brief Delayes the next speech or output operation by a given time.
+			* @param time A value in milliseconds.
+
+
+			*/
+
+
+	SRAL_API void SRAL_Delay(int time);
 
 
 

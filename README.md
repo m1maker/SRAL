@@ -116,6 +116,9 @@ The library also provides extended functions to perform operations with specific
 - **Description**: Checks if the library has been initialized.
 - **Return Value**: `true` if the library is initialized, `false` otherwise.
 
+### `SRAL_Delay(int time)`
+- **Description**: Delayes the next speech or output operation by a given time.
+
 
 ## Example
 C
