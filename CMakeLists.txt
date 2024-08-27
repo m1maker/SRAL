@@ -29,6 +29,11 @@ if(WIN32)
     "SRC/Jaws.h" "SRC/Jaws.cpp" "SRC/UIA.cpp"
     "Dep/UIAProvider.h" "Dep/UIAProvider.cpp" "Dep/wasapi.h" "Dep/wasapi.cpp")
 elseif(APPLE)
+  set_target_properties(
+    ${PROJECT_NAME}_obj
+    PROPERTIES
+    LANGUAGE Objective-CXX
+  )
   target_sources(${PROJECT_NAME}_obj PRIVATE
     "SRC/AVSpeech.h" "SRC/AVSpeech.mm")
   set_source_files_properties(
