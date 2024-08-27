@@ -3,6 +3,7 @@
 #
 cmake_minimum_required (VERSION 3.25)
 set(CMAKE_CXX_STANDARD 20)
+
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 set(INCLUDES "Include")
 
@@ -59,4 +60,7 @@ if (WIN32)
   set(LIBS "uiautomationcore.lib")
   target_link_libraries(${PROJECT_NAME} ${LIBS})
   target_link_libraries(${PROJECT_NAME}_static ${LIBS})
+elseif (APPLE)
+  enable_language(OBJCXX)
+  target_link_libraries("-framework Foundation")
 endif()
