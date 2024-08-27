@@ -1,9 +1,10 @@
 ﻿# CMakeList.txt : CMake project for SRAL, include source and define
 # project specific logic here.
 #
-cmake_minimum_required (VERSION 3.20)
+cmake_minimum_required (VERSION 3.25)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+set(INCLUDES "Include")
 
 # Enable Hot Reload for MSVC compilers if supported.
 if (POLICY CMP0141)
@@ -12,15 +13,25 @@ if (POLICY CMP0141)
 endif()
 
 project ("SRAL")
-add_library(${PROJECT_NAME}_obj OBJECT 
-  "Include/SRAL.h" "SRC/SRAL.cpp" "SRC/Engine.h" "SRC/Encoding.h" "SRC/Encoding.cpp"
-  "SRC/NVDA.h" "SRC/NVDA.cpp" "SRC/SAPI.h" "SRC/SAPI.cpp"
-  "Dep/blastspeak.h" "Dep/blastspeak.c" "Dep/fsapi.h" "Dep/fsapi.c"
-  "SRC/Jaws.h" "SRC/Jaws.cpp" "SRC/SpeechDispatcher.h" "SRC/SpeechDispatcher.cpp" "SRC/UIA.cpp"
-  "Dep/UIAProvider.h" "Dep/UIAProvider.cpp" "Dep/wasapi.h" "Dep/wasapi.cpp")
-set(INCLUDES "Include")
-set_property(TARGET ${PROJECT_NAME}_obj
-  PROPERTY PUBLIC_HEADER "${INCLUDES}/SRAL.h")
+add_library(${PROJECT_NAME}_obj OBJECT)
+target_sources(${PROJECT_NAME}_obj PRIVATE
+  "SRC/SRAL.cpp" "SRC/Engine.h")
+target_sources(${PROJECT_NAME}_obj PUBLIC
+  FILE_SET HEADERS
+  BASE_DIRS "${INCLUDES}"
+  FILES "${INCLUDES}/SRAL.h")
+if(WIN32)
+  target_sources(${PROJECT_NAME}_obj PRIVATE
+    "SRC/Encoding.h" "SRC/Encoding.cpp"
+    "SRC/NVDA.h" "SRC/NVDA.cpp" "SRC/SAPI.h" "SRC/SAPI.cpp"
+    "Dep/blastspeak.h" "Dep/blastspeak.c" "Dep/fsapi.h" "Dep/fsapi.c"
+    "SRC/Jaws.h" "SRC/Jaws.cpp" "SRC/UIA.cpp"
+    "Dep/UIAProvider.h" "Dep/UIAProvider.cpp" "Dep/wasapi.h" "Dep/wasapi.cpp")
+else()
+  target_sources(${PROJECT_NAME}_obj PRIVATE
+    "SRC/SpeechDispatcher.h" "SRC/SpeechDispatcher.cpp")
+endif()
+
 set_property(TARGET ${PROJECT_NAME}_obj
   PROPERTY POSITION_INDEPENDENT_CODE on)
 
@@ -32,8 +43,7 @@ add_library(${PROJECT_NAME}_static STATIC
 target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDES})
 target_include_directories(${PROJECT_NAME}_static PUBLIC ${INCLUDES})
 
-install(TARGETS ${PROJECT_NAME}_obj
-  PUBLIC_HEADER DESTINATION "include"
+install(TARGETS ${PROJECT_NAME}_obj FILE_SET HEADERS
   INCLUDES DESTINATION "include")
 
 install(TARGETS ${PROJECT_NAME}
@@ -46,10 +56,4 @@ if (WIN32)
   set(LIBS "uiautomationcore.lib")
   target_link_libraries(${PROJECT_NAME} ${LIBS})
   target_link_libraries(${PROJECT_NAME}_static ${LIBS})
-else()
-  set_source_files_properties(
-    "SRC/Encoding.h" "SRC/Encoding.cpp" "SRC/NVDA.h" "SRC/NVDA.cpp" "SRC/SAPI.h" "SRC/SAPI.cpp"
-    "Dep/blastspeak.h" "Dep/blastspeak.c" "Dep/fsapi.h" "Dep/fsapi.c"
-    "SRC/Jaws.h" "SRC/Jaws.cpp" "SRC/UIA.cpp" "Dep/UIAProvider.h" "Dep/UIAProvider.cpp" "Dep/wasapi.h" "Dep/wasapi.cpp"
-    PROPERTIES HEADER_FILE_ONLY TRUE)
 endif()
