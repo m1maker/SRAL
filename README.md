@@ -18,7 +18,7 @@ This enumeration defines the available speech engines supported by the SRAL libr
 - `ENGINE_JAWS = 8`: Jaws screen reader.
 - `ENGINE_SPEECH_DISPATCHER = 16`: Speech Dispatcher engine.
 - `ENGINE_UIA = 32`: Microsoft UI Automation provider.
-- `ENGINE_SPEECH_DISPATCHER = 64`: AVSpeech engine.
+- `ENGINE_AV_SPEECH = 64`: AVSpeech engine.
 
 
 ### `SRAL_SupportedFeatures`
