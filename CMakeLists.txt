@@ -31,6 +31,12 @@ if(WIN32)
 elseif(APPLE)
   target_sources(${PROJECT_NAME}_obj PRIVATE
     "SRC/AVSpeech.h" "SRC/AVSpeech.mm")
+  set_source_files_properties(
+    "SRC/AVSpeech.h"
+    "SRC/AVSpeech.mm"
+    PROPERTIES
+    LANGUAGE Objective-CXX
+  )
 else()
   target_sources(${PROJECT_NAME}_obj PRIVATE
     "SRC/SpeechDispatcher.h" "SRC/SpeechDispatcher.cpp")
