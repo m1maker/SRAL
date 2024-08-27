@@ -23,7 +23,11 @@ jobs:
           cmake-version: '3.25.0'
 
       - name: Install packages
-        run: sudo apt-get install libspeechd-dev
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libspeechd-dev
+
 
 
       - name: Configure CMake
