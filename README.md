@@ -1,10 +1,10 @@
 # SRAL
 Screen Reader Abstraction Library
 ## Description
-SRAL is a cross-platform library for output text using speech engines, such as screen readers or SAPI for Windows or Speech Dispatcher for Linux.
+SRAL is a cross-platform library for output text using speech engines.
 
 ## Platforms
-SRAL is supported on Windows and Linux platforms.
+SRAL is supported on Windows, MacOS and Linux platforms.
 
 
 
@@ -18,6 +18,8 @@ This enumeration defines the available speech engines supported by the SRAL libr
 - `ENGINE_JAWS = 8`: Jaws screen reader.
 - `ENGINE_SPEECH_DISPATCHER = 16`: Speech Dispatcher engine.
 - `ENGINE_UIA = 32`: Microsoft UI Automation provider.
+- `ENGINE_SPEECH_DISPATCHER = 64`: AVSpeech engine.
+
 
 ### `SRAL_SupportedFeatures`
 This enumeration defines the features supported by the various speech engines. The values are:
