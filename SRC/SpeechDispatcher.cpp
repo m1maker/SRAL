@@ -1,4 +1,3 @@
-#if defined(__linux__) || defined(__unix__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__DragonFly__)
 #define spd_get_default_address (*spd_get_default_address)
 #define spd_open2 (*spd_open2)
 #define spd_close (*spd_close)
@@ -27,7 +26,7 @@ bool SpeechDispatcher::Initialize() {
 	*(void**)&spd_say = dlsym(Lib, "spd_say");
 	*(void**)&spd_stop = dlsym(Lib, "spd_stop");
 	*(void**)&spd_cancel = dlsym(Lib, "spd_cancel");
-	const auto * address = spd_get_default_address(nullptr);
+	const auto* address = spd_get_default_address(nullptr);
 	if (address == nullptr) {
 		return false;
 	}
@@ -63,4 +62,3 @@ bool SpeechDispatcher::StopSpeech() {
 	spd_cancel(Speech);
 	return true;
 }
-#endif

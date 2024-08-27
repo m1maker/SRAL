@@ -1,11 +1,13 @@
 #define SRAL_EXPORT
 #include "../Include/SRAL.h"
 #include "Engine.h"
-#ifdef _WIN32
+#if defined(_WIN32)
 #include "NVDA.h"
 #include "SAPI.h"
 #include "Jaws.h"
 #include "UIA.h"
+#elif defined(__APPLE__)
+#include "AVSpeech.h"
 #else
 #include "SpeechDispatcher.h"
 #endif
@@ -82,11 +84,13 @@ static void output_thread() {
 
 extern "C" SRAL_API bool SRAL_Initialize(int engines_exclude) {
 	if (g_initialized)return true;
-#ifdef _WIN32
+#if defined(_WIN32)
 	g_engines.push_back(new NVDA);
 	g_engines.push_back(new SAPI);
 	g_engines.push_back(new Jaws);
 	g_engines.push_back(new UIA);
+#elif defined(__APPLE__)
+	g_engines.push_back(new AVSpeech);
 #else
 	g_engines.push_back(new SpeechDispatcher);
 #endif

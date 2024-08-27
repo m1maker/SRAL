@@ -27,6 +27,9 @@ if(WIN32)
     "Dep/blastspeak.h" "Dep/blastspeak.c" "Dep/fsapi.h" "Dep/fsapi.c"
     "SRC/Jaws.h" "SRC/Jaws.cpp" "SRC/UIA.cpp"
     "Dep/UIAProvider.h" "Dep/UIAProvider.cpp" "Dep/wasapi.h" "Dep/wasapi.cpp")
+elseif(APPLE)
+  target_sources(${PROJECT_NAME}_obj PRIVATE
+    "SRC/AVSpeech.h" "SRC/AVSpeech.mm")
 else()
   target_sources(${PROJECT_NAME}_obj PRIVATE
     "SRC/SpeechDispatcher.h" "SRC/SpeechDispatcher.cpp")

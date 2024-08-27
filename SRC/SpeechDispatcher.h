@@ -2,7 +2,6 @@
 #define SPEECHDISPATCHER_H_
 #include "../Include/SRAL.h"
 #include "Engine.h"
-#if defined(__linux__) || defined(__unix__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__DragonFly__)
 #include <speech-dispatcher/libspeechd.h>
 
 
@@ -39,5 +38,4 @@ private:
 	void* Lib = nullptr;
 };
 
-#endif
 #endif
