@@ -1,18 +1,19 @@
-#ifndef SAPI_H_
-#define SAPI_H_
+/*
+Thanks Gruia for implementing AVSpeech.
+*/
 #pragma once
-#define BLASTSPEAK_IMPLEMENTATION
-#include "../Dep/blastspeak.h"
-#include "../Dep/wasapi.h"
 #include "../Include/SRAL.h"
 #include "Engine.h"
-class SAPI : public Engine {
+#include <string>
+#import <AVFoundation/AVFoundation.h>
+#import <Foundation/Foundation.h>
+class AVSpeech : public Engine {
 public:
 	bool Speak(const char* text, bool interrupt)override;
 	bool Braille(const char* text)override { return false; }
 	bool StopSpeech()override;
 	int GetNumber()override {
-		return ENGINE_SAPI;
+		return ENGINE_AV_SPEECH;
 	}
 	bool GetActive()override;
 	bool Initialize()override;
@@ -27,10 +28,18 @@ public:
 	uint64_t GetVoiceCount()override;
 	const char* GetVoiceName(uint64_t index)override;
 	bool SetVoice(uint64_t index)override;
-
 private:
-	blastspeak* instance = nullptr;
-	WasapiPlayer* player = nullptr;
-	WAVEFORMATEX wfx;
+	float rate;
+	float volume;
+	AVSpeechSynthesizer* synth;
+	AVSpeechSynthesisVoice* currentVoice;
+	AVSpeechUtterance* utterance;
+	AVSpeechSynthesisVoice* getVoiceObject(NSString* name) {
+		NSArray<AVSpeechSynthesisVoice*>* voices = [AVSpeechSynthesisVoice speechVoices];
+		for (AVSpeechSynthesisVoice* v in voices) {
+			if ([v.name isEqualToString : name]) return v;
+		}
+		return nil;
+	}
+
 };
-#endif

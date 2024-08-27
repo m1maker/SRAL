@@ -33,7 +33,8 @@ extern "C" {
 		ENGINE_SAPI = 4,
 		ENGINE_JAWS = 8,
 		ENGINE_SPEECH_DISPATCHER = 16,
-		ENGINE_UIA = 32
+		ENGINE_UIA = 32,
+		ENGINE_AV_SPEECH = 64
 	};
 
 	/**
