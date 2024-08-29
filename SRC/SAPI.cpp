@@ -152,8 +152,6 @@ bool SAPI::StopSpeech() {
 }
 void SAPI::SetVolume(uint64_t value) {
 	if (instance == nullptr)return;
-	this->Uninitialize();
-	this->Initialize();
 	blastspeak_set_voice_volume(instance, value);
 }
 uint64_t SAPI::GetVolume() {
@@ -164,8 +162,6 @@ uint64_t SAPI::GetVolume() {
 }
 void SAPI::SetRate(uint64_t value) {
 	if (instance == nullptr)return;
-	this->Uninitialize();
-	this->Initialize();
 	blastspeak_set_voice_rate(instance, value);
 }
 uint64_t SAPI::GetRate() {
@@ -184,8 +180,6 @@ const char* SAPI::GetVoiceName(uint64_t index) {
 }
 bool SAPI::SetVoice(uint64_t index) {
 	if (instance == nullptr)return false;
-	this->Uninitialize();
-	this->Initialize();
 	return blastspeak_set_voice(instance, index);
 }
 
