@@ -12,96 +12,78 @@ public:
     AVSpeechUtterance* utterance;
 
     AVSpeechSynthesizerWrapper() : rate(0), volume(1), synth(nullptr), currentVoice(nullptr), utterance(nullptr) {}
-
-    AVSpeechSynthesisVoice* getVoiceObject(NSString* name) {
-        NSArray<AVSpeechSynthesisVoice*>* voices = [AVSpeechSynthesisVoice speechVoices];
-        for (AVSpeechSynthesisVoice* v in voices) {
-            if ([v.name isEqualToString:name]) return v;
-        }
-        return nil;
-    }
-
-    bool Initialize() {
-        currentVoice = [AVSpeechSynthesisVoice voiceWithLanguage:@"en-US"];
-        utterance = [[AVSpeechUtterance alloc] initWithString:@""];
-        rate = utterance.rate;
-        volume = utterance.volume;
-        synth = [[AVSpeechSynthesizer alloc] init];
-        return true;
-    }
-
-    bool Uninitialize() {
-        // Clean up if necessary
-        return true;
-    }
-
-bool Speak(const char* text, bool interrupt) {
-    if (interrupt && [synth isSpeaking]) {
-        [synth stopSpeakingAtBoundary:AVSpeechBoundaryImmediate];
-    }
-    NSString *nstext = [NSString stringWithUTF8String:text]; // Correct variable name
-    AVSpeechUtterance *utterance = [[AVSpeechUtterance alloc] initWithString:ntext];
-    utterance.rate = rate;
-    utterance.volume = volume;
-    utterance.voice = currentVoice;
-    this->utterance = utterance;
-    [synth speakUtterance:this->utterance];
-    return [synth isSpeaking];
+AVSpeechSynthesisVoice* getVoiceObject(NSString* name){
+ NSArray<AVSpeechSynthesisVoice*>* voices = [AVSpeechSynthesisVoice speechVoices];
+ for (AVSpeechSynthesisVoice* v in voices) {
+  if ([v.name isEqualToString : name]) return v;
+ }
+ return nil;
 }
 
-    bool StopSpeech() {
-        if ([synth isSpeaking]) {
-            [synth stopSpeakingAtBoundary:AVSpeechBoundaryImmediate];
-            return true;
-        }
-        return false;
-    }
-
-    bool GetActive() {
-        return synth != nil;
-    }
-
-    void SetVolume(uint64_t value) {
-        this->volume = static_cast<float>(value);
-    }
-
-    uint64_t GetVolume() {
-        return static_cast<uint64_t>(this->volume);
-    }
-
-    void SetRate(uint64_t value) {
-        this->rate = static_cast<float>(value);
-    }
-
-    uint64_t GetRate() {
-        return static_cast<uint64_t>(this->rate);
-    }
-
-    uint64_t GetVoiceCount() {
-        NSArray<AVSpeechSynthesisVoice *> *voices = [AVSpeechSynthesisVoice speechVoices];
-        return voices.count;
-    }
-
-    const char* GetVoiceName(uint64_t index) {
-        NSArray<AVSpeechSynthesisVoice *> *voices = [AVSpeechSynthesisVoice speechVoices];
-        @try {
-            return [[voices objectAtIndex:index].name UTF8String];
-        } @catch (NSException *exception) {
-            return "";
-        }
-    }
-
-    bool SetVoice(uint64_t index) {
-                NSArray<AVSpeechSynthesisVoice *> *voices = [AVSpeechSynthesisVoice speechVoices];
-        AVSpeechSynthesisVoice *oldVoice = currentVoice;
-        @try {
-            currentVoice = [voices objectAtIndex:index];
-            return true;
-        } @catch (NSException *exception) {
-            currentVoice = oldVoice;
-            return false;
-        }
-    }
+bool Initialize() {
+ currentVoice = [AVSpeechSynthesisVoice voiceWithLanguage:@"en-US"]; //choosing english as a default language
+ utterance = [[AVSpeechUtterance alloc] initWithString:@""];
+ rate = utterance.rate;
+ volume = utterance.volume;
+ synth = [[AVSpeechSynthesizer alloc] init];
+ return true;
+}
+bool Uninitialize(){
+ return true;
+}
+bool Speak(const char* text, bool interrupt){
+ if (interrupt && synth.isSpeaking)[synth stopSpeakingAtBoundary:AVSpeechBoundaryImmediate];
+ NSString *nstext = [NSString stringWithUTF8String:text];
+ AVSpeechUtterance *utterance = [[AVSpeechUtterance alloc] initWithString:nstext];
+ utterance.rate = rate;
+ utterance.volume = volume;
+ utterance.voice = currentVoice;
+ this->utterance = utterance;
+ [synth speakUtterance:this->utterance];
+ return synth.isSpeaking;
+}
+bool StopSpeech(){
+ if (synth.isSpeaking) return [synth stopSpeakingAtBoundary:AVSpeechBoundaryImmediate];
+ return false;
+}
+bool GetActive(){
+ return synth != nil;
+}
+void SetVolume(uint64_t value){
+ this->volume = value;
+}
+uint64_t GetVolume(){
+ return this->volume;
+}
+void SetRate(uint64_t value){
+ this->rate = value;
+}
+uint64_t GetRate(){
+ return this->rate;
+}
+uint64_t GetVoiceCount(){
+ NSArray<AVSpeechSynthesisVoice *> *voices = [AVSpeechSynthesisVoice speechVoices];
+ return voices.count;
+}
+const char* GetVoiceName(uint64_t index){
+ NSArray<AVSpeechSynthesisVoice *> *voices = [AVSpeechSynthesisVoice speechVoices];
+ @try {
+  return [[voices objectAtIndex:index].name UTF8String];
+ } @catch (NSException *exception) {
+  return "";
+ }
+}
+bool SetVoice(uint64_t index){
+ NSArray<AVSpeechSynthesisVoice *> *voices = [AVSpeechSynthesisVoice speechVoices];
+ AVSpeechSynthesisVoice *oldVoice = currentVoice;
+ @try {
+  currentVoice = [voices objectAtIndex:index];
+  return true;
+ } @catch (NSException *exception) {
+  currentVoice = oldVoice;
+  return false;
+ }
+}
 };
 
 bool AVSpeech::Initialize() {
