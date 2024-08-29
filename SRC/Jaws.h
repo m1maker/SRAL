@@ -11,6 +11,8 @@ public:
 	bool Speak(const char* text, bool interrupt)override;
 	bool Braille(const char* text)override;
 	bool StopSpeech()override;
+	bool PauseSpeech()override { return false; }
+	bool ResumeSpeech()override { return false; }
 	int GetNumber()override {
 		return ENGINE_JAWS;
 	}

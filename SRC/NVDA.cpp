@@ -1,6 +1,9 @@
 #ifdef _WIN32
 #include "Encoding.h"
 #include "NVDA.h"
+#include<Windows.h>
+
+
 bool NVDA::Initialize() {
 	lib = LoadLibraryW(L"nvdaControllerClient.dll");
 	if (lib == nullptr)return false;
@@ -41,5 +44,24 @@ bool NVDA::Braille(const char* text) {
 bool NVDA::StopSpeech() {
 	if (!GetActive())return false;
 	return nvdaController_cancelSpeech() == 0;
+}
+bool NVDA::PauseSpeech() {
+	if (!GetActive())return false;
+	INPUT input[2] = {};
+
+	input[0].type = INPUT_KEYBOARD;
+	input[0].ki.wVk = VK_SHIFT;
+	input[0].ki.dwFlags = 0;
+
+	input[1].type = INPUT_KEYBOARD;
+	input[1].ki.wVk = VK_SHIFT;
+	input[1].ki.dwFlags = KEYEVENTF_KEYUP;
+
+	SendInput(2, input, sizeof(INPUT));
+
+	return true;
+}
+bool NVDA::ResumeSpeech() {
+	return PauseSpeech(); // Don't know how to do it
 }
 #endif

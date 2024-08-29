@@ -19,6 +19,8 @@ This enumeration defines the available speech engines supported by the SRAL libr
 - `ENGINE_SPEECH_DISPATCHER = 16`: Speech Dispatcher engine.
 - `ENGINE_UIA = 32`: Microsoft UI Automation provider.
 - `ENGINE_AV_SPEECH = 64`: AVSpeech engine.
+- `ENGINE_NARRATOR = 128`: Windows Narrator to UIAutomation redirector, if running.
+
 
 
 ### `SRAL_SupportedFeatures`
@@ -28,6 +30,8 @@ This enumeration defines the features supported by the various speech engines. T
 - `SUPPORTS_SPEECH_RATE = 512`: The engine supports setting the speech rate.
 - `SUPPORTS_SPEECH_VOLUME = 1024`: The engine supports setting the speech volume.
 - `SUPPORTS_SELECT_VOICE = 2048`: The engine supports selecting a specific voice.
+- `SUPPORTS_PAUSE_SPEECH = 4096`: The engine supports pause and resume speech.
+
 
 ## Functions
 
@@ -54,6 +58,15 @@ This enumeration defines the features supported by the various speech engines. T
 ### `SRAL_StopSpeech(void)`
 - **Description**: Stops speech if it is active.
 - **Return Value**: `true` if speech was stopped successfully, `false` otherwise.
+
+### `SRAL_PauseSpeech(void)`
+- **Description**: Pause speech if it is active and the current engine supports this.
+- **Return Value**: `true` if speech was paused successfully, `false` otherwise.
+
+### `SRAL_ResumeSpeech(void)`
+- **Description**: Resume speech if it was paused.
+- **Return Value**: `true` if speech was resumed successfully, `false` otherwise.
+
 
 ### `SRAL_GetCurrentEngine(void)`
 - **Description**: Gets the current speech engine in use.

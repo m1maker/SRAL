@@ -34,7 +34,8 @@ extern "C" {
 		ENGINE_JAWS = 8,
 		ENGINE_SPEECH_DISPATCHER = 16,
 		ENGINE_UIA = 32,
-		ENGINE_AV_SPEECH = 64
+		ENGINE_AV_SPEECH = 64,
+		ENGINE_NARRATOR = 128
 	};
 
 	/**
@@ -49,8 +50,8 @@ extern "C" {
 		SUPPORTS_BRAILLE = 256,
 		SUPPORTS_SPEECH_RATE = 512,
 		SUPPORTS_SPEECH_VOLUME = 1024,
-		SUPPORTS_SELECT_VOICE = 2048
-
+		SUPPORTS_SELECT_VOICE = 2048,
+		SUPPORTS_PAUSE_SPEECH = 4096
 	};
 
 	/**
@@ -90,6 +91,26 @@ extern "C" {
 
 
 	SRAL_API bool SRAL_StopSpeech(void);
+
+	/**
+* @brief Pause speech if it is active and the current speech engine supports this.
+* @return true if speech was paused successfully, false otherwise.
+*/
+
+
+	SRAL_API bool SRAL_PauseSpeech(void);
+
+
+	/**
+* @brief Resume speech if it was active and the current speech engine supports this.
+* @return true if speech was resumed successfully, false otherwise.
+*/
+
+
+	SRAL_API bool SRAL_ResumeSpeech(void);
+
+
+
 
 	/**
  * @brief Get the current speech engine in use.
@@ -230,6 +251,29 @@ extern "C" {
 
 
 	SRAL_API bool SRAL_StopSpeechEx(int engine);
+
+
+	/**
+* @brief Pause speech for the specified engine.
+* @param engine The engine to pause speech for.
+* @return true if speech was paused successfully, false otherwise.
+*/
+
+
+	SRAL_API bool SRAL_PauseSpeechEx(int engine);
+
+
+	/**
+* @brief Resume speech for the specified engine.
+* @param engine The engine to resume speech for.
+* @return true if speech was resumed successfully, false otherwise.
+*/
+
+
+
+	SRAL_API bool SRAL_ResumeSpeechEx(int engine);
+
+
 
 	/**
  * @brief Set the volume level for the specified speech engine.
