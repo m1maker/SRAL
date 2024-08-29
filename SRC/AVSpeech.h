@@ -5,7 +5,7 @@ Thanks Gruia for implementing AVSpeech.
 #include "../Include/SRAL.h"
 #include "Engine.h"
 #include <string>
-class object;
+class AVSpeechSynthesizerWrapper;
 
 class AVSpeech : public Engine {
 public:
@@ -29,5 +29,5 @@ public:
 	const char* GetVoiceName(uint64_t index)override;
 	bool SetVoice(uint64_t index)override;
 private:
-	object* obj;
+	AVSpeechSynthesizerWrapper* obj;
 };
