@@ -34,6 +34,12 @@ class Sral:
     def stop_speech(self):
         return self.lib.SRAL_StopSpeech()
 
+    def pause_speech(self):
+        return self.lib.SRAL_PauseSpeech()
+
+    def resume_speech(self):
+        return self.lib.SRAL_ResumeSpeech()
+
     def get_current_engine(self):
         return self.lib.SRAL_GetCurrentEngine()
 
@@ -78,6 +84,12 @@ class Sral:
 
     def stop_speech_ex(self, engine):
         return self.lib.SRAL_StopSpeechEx(c_int(engine))
+
+    def pause_speech_ex(self, engine):
+        return self.lib.SRAL_PauseSpeechEx(c_int(engine))
+
+    def resume_speech_ex(self, engine):
+        return self.lib.SRAL_ResumeSpeechEx(c_int(engine))
 
     def set_volume_ex(self, engine, value):
         return self.lib.SRAL_SetVolumeEx(c_int(engine), c_uint64(value))

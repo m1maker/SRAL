@@ -8,6 +8,8 @@ public:
 
 	virtual bool Braille(const char* text) = 0;
 	virtual bool StopSpeech() = 0;
+	virtual bool PauseSpeech() = 0;
+	virtual bool ResumeSpeech() = 0;
 	virtual int GetNumber() = 0;
 	virtual bool GetActive() = 0;
 	virtual int GetFeatures() = 0;

@@ -150,6 +150,12 @@ bool SAPI::StopSpeech() {
 	player->stop();
 	return true;
 }
+bool SAPI::PauseSpeech() {
+	return SUCCEEDED(player->pause());
+}
+bool SAPI::ResumeSpeech() {
+	return SUCCEEDED(player->resume());
+}
 void SAPI::SetVolume(uint64_t value) {
 	if (instance == nullptr)return;
 	blastspeak_set_voice_volume(instance, value);

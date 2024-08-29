@@ -2,10 +2,13 @@
 #include "../Include/SRAL.h"
 #include "Engine.h"
 #if defined(_WIN32)
+#define UNICODE
 #include "NVDA.h"
 #include "SAPI.h"
 #include "Jaws.h"
 #include "UIA.h"
+#include <Windows.h>
+#include <tlhelp32.h>
 #elif defined(__APPLE__)
 #include "AVSpeech.h"
 #else
@@ -116,17 +119,66 @@ extern "C" SRAL_API void SRAL_Uninitialize(void) {
 	g_excludes = 0;
 	g_initialized = false;
 }
+#ifdef _WIN32
+// This is used for find the Windows Narrator process
+BOOL FindProcess(const wchar_t* name) {
+	HANDLE hProcessSnap;
+	PROCESSENTRY32 pe32;
+
+	// Take a snapshot of all processes in the system.
+	hProcessSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	if (hProcessSnap == INVALID_HANDLE_VALUE) {
+		return FALSE; // Snapshot failed
+	}
+
+	pe32.dwSize = sizeof(PROCESSENTRY32);
+
+	// Retrieve information about the first process.
+	if (!Process32First(hProcessSnap, &pe32)) {
+		CloseHandle(hProcessSnap); // Clean up the snapshot object
+		return FALSE; // Unable to retrieve process information
+	}
+
+	// Now walk the snapshot of processes
+	do {
+		// Compare the process name with the input name
+		if (_wcsicmp(pe32.szExeFile, name) == 0) {
+			CloseHandle(hProcessSnap); // Clean up the snapshot object
+			return TRUE; // Process found
+		}
+	} while (Process32Next(hProcessSnap, &pe32));
+
+	CloseHandle(hProcessSnap); // Clean up the snapshot object
+	return FALSE; // Process not found
+}
+
+
+#endif
+static Engine* get_engine(int);
 static void speech_engine_update() {
 	if (!g_currentEngine->GetActive() || g_currentEngine->GetNumber() == ENGINE_SAPI) {
-		for (uint64_t i = 0; i < g_engines.size(); ++i) {
-			if (g_engines[i]->GetActive() && !(g_excludes & g_engines[i]->GetNumber())) {
-				g_currentEngine = g_engines[i];
-				break;
+#ifdef _WIN32
+		if (FindProcess(L"narrator.exe") == TRUE) {
+			g_currentEngine = get_engine(ENGINE_UIA);
+			return;
+		}
+		else {
+#endif
+			for (uint64_t i = 0; i < g_engines.size(); ++i) {
+				if (g_engines[i]->GetActive() && !(g_excludes & g_engines[i]->GetNumber())) {
+					g_currentEngine = g_engines[i];
+					break;
+				}
 			}
 		}
+#ifdef _WIN32
 	}
+#endif
 }
 static Engine* get_engine(int engine) {
+#ifdef _WIN32
+	if (engine == ENGINE_NARRATOR)return get_engine(ENGINE_UIA);
+#endif
 	bool found = false;
 	uint64_t i;
 	for (i = 0; i < g_engines.size(); ++i) {
@@ -181,6 +233,28 @@ extern "C" SRAL_API bool SRAL_StopSpeech(void) {
 	}
 	return g_currentEngine->StopSpeech();
 }
+extern "C" SRAL_API bool SRAL_PauseSpeech(void) {
+	if (g_currentEngine == nullptr)return false;
+	speech_engine_update();
+	if (g_delayOperation) {
+		// Just stop the thread. Don't clear the queue
+		g_delayOperation = false;
+	}
+	return g_currentEngine->PauseSpeech();
+}
+extern "C" SRAL_API bool SRAL_ResumeSpeech(void) {
+	if (g_currentEngine == nullptr)return false;
+	speech_engine_update();
+	if (g_delayedOutputs.size() != 0) {
+		g_delayOperation = true;
+		if (!g_outputThreadRunning) {
+			std::thread t(output_thread);
+			t.detach();
+		}
+	}
+	return g_currentEngine->ResumeSpeech();
+}
+
 extern "C" SRAL_API int SRAL_GetCurrentEngine(void) {
 	if (g_currentEngine == nullptr)return ENGINE_NONE;
 	return g_currentEngine->GetNumber();
@@ -316,6 +390,30 @@ extern "C" SRAL_API bool SRAL_StopSpeechEx(int engine) {
 	return e->StopSpeech();
 }
 
+
+extern "C" SRAL_API bool SRAL_PauseSpeechEx(int engine) {
+	Engine* e = get_engine(engine);
+	if (e == nullptr)return false;
+	if (g_delayOperation) {
+		g_delayOperation = false;
+	}
+	return e->PauseSpeech();
+}
+
+
+
+extern "C" SRAL_API bool SRAL_ResumeSpeechEx(int engine) {
+	Engine* e = get_engine(engine);
+	if (e == nullptr)return false;
+	if (g_delayedOutputs.size() != 0) {
+		g_delayOperation = true;
+		if (!g_outputThreadRunning) {
+			std::thread t(output_thread);
+			t.detach();
+		}
+	}
+	return e->ResumeSpeech();
+}
 
 
 extern "C" SRAL_API bool SRAL_IsInitialized(void) {
