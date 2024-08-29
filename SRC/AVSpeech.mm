@@ -1,5 +1,8 @@
 #include "AVSpeech.h"
 #include <stdint.h>
+#import <Foundation/Foundation.h>
+#import <AVFoundation/AVFoundation.h>
+
 AVSpeechSynthesisVoice* AVSpeech::getVoiceObject(NSString* name){
 	NSArray<AVSpeechSynthesisVoice*>* voices = [AVSpeechSynthesisVoice speechVoices];
 	for (AVSpeechSynthesisVoice* v in voices) {
