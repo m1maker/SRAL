@@ -1,5 +1,13 @@
 #include "AVSpeech.h"
 #include <stdint.h>
+AVSpeechSynthesisVoice* AVSpeech::getVoiceObject(NSString* name){
+	NSArray<AVSpeechSynthesisVoice*>* voices = [AVSpeechSynthesisVoice speechVoices];
+	for (AVSpeechSynthesisVoice* v in voices) {
+		if ([v.name isEqualToString : name]) return v;
+	}
+	return nil;
+}
+
 bool AVSpeech::Initialize() {
 	currentVoice = [AVSpeechSynthesisVoice voiceWithLanguage:@"en-US"]; //choosing english as a default language
 	utterance = [[AVSpeechUtterance alloc] initWithString:@""];

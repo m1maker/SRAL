@@ -32,15 +32,12 @@ public:
 private:
 	float rate;
 	float volume;
+	class AVSpeechSynthesizer;
 	AVSpeechSynthesizer* synth;
+	class AVSpeechSynthesisVoice;
 	AVSpeechSynthesisVoice* currentVoice;
+	class AVSpeechUtterance;
 	AVSpeechUtterance* utterance;
-	AVSpeechSynthesisVoice* getVoiceObject(NSString* name) {
-		NSArray<AVSpeechSynthesisVoice*>* voices = [AVSpeechSynthesisVoice speechVoices];
-		for (AVSpeechSynthesisVoice* v in voices) {
-			if ([v.name isEqualToString : name]) return v;
-		}
-		return nil;
-	}
-
+	class NSString;
+	AVSpeechSynthesisVoice* getVoiceObject(NSString* name);
 };
