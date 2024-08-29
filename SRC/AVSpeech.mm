@@ -35,19 +35,19 @@ public:
         return true;
     }
 
-    bool Speak(const char* text, bool interrupt) {
-        if (interrupt && [synth isSpeaking]) {
-            [synth stopSpeakingAtBoundary:AVSpeechBoundaryImmediate];
-        }
-        NSString *nstext = [NSString stringWithUTF8String:text];
-        AVSpeechUtterance *utterance = [[AVSpeechUtterance alloc] initWithString:ntext];
-        utterance.rate = rate;
-        utterance.volume = volume;
-        utterance.voice = currentVoice;
-        this->utterance = utterance;
-        [synth speakUtterance:this->utterance];
-        return [synth isSpeaking];
+bool Speak(const char* text, bool interrupt) {
+    if (interrupt && [synth isSpeaking]) {
+        [synth stopSpeakingAtBoundary:AVSpeechBoundaryImmediate];
     }
+    NSString *nstext = [NSString stringWithUTF8String:text]; // Correct variable name
+    AVSpeechUtterance *utterance = [[AVSpeechUtterance alloc] initWithString:ntext];
+    utterance.rate = rate;
+    utterance.volume = volume;
+    utterance.voice = currentVoice;
+    this->utterance = utterance;
+    [synth speakUtterance:this->utterance];
+    return [synth isSpeaking];
+}
 
     bool StopSpeech() {
         if ([synth isSpeaking]) {
