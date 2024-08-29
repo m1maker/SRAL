@@ -5,8 +5,6 @@ Thanks Gruia for implementing AVSpeech.
 #include "../Include/SRAL.h"
 #include "Engine.h"
 #include <string>
-#import <Foundation/Foundation.h>
-#import <AVFoundation/AVFoundation.h>
 
 class AVSpeech : public Engine {
 public:
