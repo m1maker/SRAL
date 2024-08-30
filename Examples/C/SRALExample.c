@@ -46,6 +46,7 @@ int main(void) {
 	SRAL_Output("Press enter to continue", false);
 	scanf("%s", text);
 
+	SRAL_StopSpeech(); // Stops the delay thread
 	// Speech rate
 	if (SRAL_GetEngineFeatures(0) & SUPPORTS_SPEECH_RATE) {
 
