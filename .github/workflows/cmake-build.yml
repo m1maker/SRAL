@@ -12,13 +12,16 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: macos-latest
+            arch: x86_64
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
       - name: Set up CMake
-        uses: jwlawson/actions-setup-cmake@v1
+        uses: jwlawson/actions-setup-cmake@v2
         with:
           cmake-version: '3.25.0'
 
@@ -28,20 +31,21 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libspeechd-dev
 
-
-
       - name: Configure CMake
-        run: cmake . -B build
+        run: |
+          if [ "${{ matrix.arch }}" == "x86_64" ]; then
+            cmake . -B build -DCMAKE_OSX_ARCHITECTURES=x86_64
+          else
+            cmake . -B build
+          fi
 
       - name: Build with CMake
         run: cmake --build build --config Release
 
-
-
       - name: Archive artifact
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ matrix.os }}-build
+          name: ${{ matrix.os }}-${{ matrix.arch }}-build
           path: build
 
 
