@@ -20,12 +20,12 @@ public:
 	bool Initialize()override;
 	bool Uninitialize()override;
 	int GetFeatures()override {
-		return SUPPORTS_SPEECH;
+		return SUPPORTS_SPEECH | SUPPORTS_SPEECH_RATE | SUPPORTS_SPEECH_VOLUME;
 	}
-	void SetVolume(uint64_t)override { return; }
-	uint64_t GetVolume()override { return 0; }
-	void SetRate(uint64_t)override { return; }
-	uint64_t GetRate()override { return 0; }
+	void SetVolume(uint64_t)override;
+	uint64_t GetVolume()override;
+	void SetRate(uint64_t)override;
+	uint64_t GetRate()override;
 	uint64_t GetVoiceCount()override {
 		return 0;
 	}

@@ -4,7 +4,10 @@
 #define spd_say (*spd_say)
 #define spd_stop (*spd_stop)
 #define spd_cancel (*spd_cancel)
-
+#define spd_set_voice_rate (*spd_set_voice_rate)
+#define spd_get_voice_rate (*spd_get_voice_rate)
+#define spd_set_volume (*spd_set_volume)
+#define spd_get_volume (*spd_get_volume)
 #include "SpeechDispatcher.h"
 #undef spd_get_default_address
 #undef spd_open2
@@ -12,6 +15,11 @@
 #undef spd_say
 #undef spd_stop
 #undef spd_cancel
+#undef spd_set_voice_rate
+#undef spd_get_voice_rate
+#undef spd_set_volume
+#undef spd_get_volume
+
 
 #include <dlfcn.h> // For dlopen, dlsym, dlclose
 bool SpeechDispatcher::Initialize() {
@@ -26,6 +34,11 @@ bool SpeechDispatcher::Initialize() {
 	*(void**)&spd_say = dlsym(Lib, "spd_say");
 	*(void**)&spd_stop = dlsym(Lib, "spd_stop");
 	*(void**)&spd_cancel = dlsym(Lib, "spd_cancel");
+	*(void**)&spd_set_voice_rate = dlsym(Lib, "spd_set_voice_rate");
+	*(void**)&spd_get_voice_rate = dlsym(Lib, "spd_get_voice_rate");
+	*(void**)&spd_set_volume = dlsym(Lib, "spd_set_volume");
+	*(void**)&spd_get_volume = dlsym(Lib, "spd_get_volume");
+
 	const auto* address = spd_get_default_address(nullptr);
 	if (address == nullptr) {
 		return false;
@@ -61,4 +74,20 @@ bool SpeechDispatcher::StopSpeech() {
 	spd_stop(Speech);
 	spd_cancel(Speech);
 	return true;
+}
+void SpeechDispatcher::SetVolume(uint64_t value) {
+	if (!GetActive())return;
+	spd_set_volume(Speech, value);
+}
+uint64_t SpeechDispatcher::GetVolume() {
+	if (!GetActive())return 0;
+	return spd_get_volume(Speech);
+}
+void SpeechDispatcher::SetRate(uint64_t value) {
+	if (!GetActive())return;
+	spd_set_voice_rate(Speech, value);
+}
+uint64_t SpeechDispatcher::GetRate() {
+	if (!GetActive())return 0;
+	return spd_get_voice_rate(Speech);
 }
