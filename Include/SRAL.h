@@ -61,7 +61,6 @@ extern "C" {
  * @return true if speaking was successful, false otherwise.
  */
 
-
 	SRAL_API bool SRAL_Speak(const char* text, bool interrupt);
 
 

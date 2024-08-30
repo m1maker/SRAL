@@ -66,3 +66,8 @@ elseif (APPLE)
   set(CMAKE_CXX_COMPILER clang++)
   target_link_libraries(${PROJECT_NAME} "-framework Foundation" "-framework AVFoundation")
 endif()
+
+
+add_executable(${PROJECT_NAME}_test "Examples/C/SRALExample.c" "Include/SRAL.h")
+target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME}_static)
+
