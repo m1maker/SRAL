@@ -310,7 +310,7 @@ static void speech_engine_update() {
 					break;
 				}
 			}
-	}
+		}
 #ifdef _WIN32
 	}
 #endif

@@ -78,7 +78,7 @@ bool SpeechDispatcher::Speak(const char* text, bool interrupt) {
 		this->paused = false;
 
 	}
-	return spd_say(Speech, interrupt ? SPD_IMPORTANT : SPD_TEXT, text);
+	return spd_say(Speech, SPD_IMPORTANT, text);
 }
 bool SpeechDispatcher::StopSpeech() {
 	if (Speech == nullptr)return false;
