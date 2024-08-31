@@ -36,6 +36,9 @@ public:
 	bool SetVoice(uint64_t index)override {
 		return false;
 	}
+	int GetKeyFlags()override {
+		return HANDLE_NONE;
+	}
 
 private:
 	IUIAutomation* pAutomation = nullptr;

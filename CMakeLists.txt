@@ -70,6 +70,11 @@ elseif (APPLE)
   set(CMAKE_CXX_COMPILER clang++)
   target_link_libraries(${PROJECT_NAME} "-framework Foundation" "-framework AVFoundation")
   target_link_libraries(${PROJECT_NAME}_test "-framework Foundation" "-framework AVFoundation")
+else()
+  find_package(X11 REQUIRED)
+  target_link_libraries(${PROJECT_NAME} ${X11_LIBRARIES})
+  target_link_libraries(${PROJECT_NAME}_test ${X11_LIBRARIES})
+
 endif()
 
 

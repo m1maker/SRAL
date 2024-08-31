@@ -30,6 +30,10 @@ public:
 	uint64_t GetVoiceCount()override;
 	const char* GetVoiceName(uint64_t index)override;
 	bool SetVoice(uint64_t index)override;
+	int GetKeyFlags()override {
+		return HANDLE_NONE;
+	}
+
 private:
 	AVSpeechSynthesizerWrapper* obj;
 };

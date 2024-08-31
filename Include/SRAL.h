@@ -358,9 +358,18 @@ extern "C" {
 
 
 
+	SRAL_API bool SRAL_RegisterKeyboardHooks(void);
+
+
+
+
+	SRAL_API void SRAL_UnregisterKeyboardHooks(void);
+
+
+
+
 #ifdef __cplusplus
 }// extern "C"
 #endif
-
 
 #endif // SRAL_H_

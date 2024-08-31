@@ -10,8 +10,8 @@ public:
 	bool Speak(const char* text, bool interrupt)override;
 	bool Braille(const char* text)override { return false; }
 	bool StopSpeech()override;
-	bool PauseSpeech()override { return false; }
-	bool ResumeSpeech()override { return false; }
+	bool PauseSpeech()override;
+	bool ResumeSpeech()override;
 
 	int GetNumber()override {
 		return ENGINE_SPEECH_DISPATCHER;
@@ -20,7 +20,7 @@ public:
 	bool Initialize()override;
 	bool Uninitialize()override;
 	int GetFeatures()override {
-		return SUPPORTS_SPEECH | SUPPORTS_SPEECH_RATE | SUPPORTS_SPEECH_VOLUME;
+		return SUPPORTS_SPEECH | SUPPORTS_SPEECH_RATE | SUPPORTS_SPEECH_VOLUME | SUPPORTS_PAUSE_SPEECH;
 	}
 	void SetVolume(uint64_t)override;
 	uint64_t GetVolume()override;
@@ -34,6 +34,9 @@ public:
 	}
 	bool SetVoice(uint64_t index)override {
 		return false;
+	}
+	int GetKeyFlags()override {
+		return HANDLE_INTERRUPT | HANDLE_PAUSE_RESUME;
 	}
 
 private:

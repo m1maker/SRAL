@@ -24,7 +24,7 @@ int main(void) {
 		printf("Failed to initialize SRAL library.\n");
 		return 1;
 	}
-
+	SRAL_RegisterKeyboardHooks();
 	// Speak some text
 	if (SRAL_GetEngineFeatures(0) & SUPPORTS_SPEECH) {
 		printf("Enter the text you want to be spoken:\n");
