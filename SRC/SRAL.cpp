@@ -15,6 +15,7 @@
 #include "SpeechDispatcher.h"
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <X11/keysym.h>
 #endif
 #include <vector>
 #include <string>
@@ -89,9 +90,10 @@ static void output_thread() {
 
 
 bool g_keyboardHookThread = false;
+bool g_shiftPressed = false;
+
 #if defined(_WIN32)
 static HHOOK g_keyboardHook;
-bool g_shiftPressed = false;
 static LRESULT CALLBACK KeyboardHookProc(int nCode, WPARAM wParam, LPARAM lParam) {
 	if (nCode >= 0) {
 		KBDLLHOOKSTRUCT* pKeyInfo = (KBDLLHOOKSTRUCT*)lParam;
@@ -165,28 +167,35 @@ static void hook_thread() {
 	g_display = XOpenDisplay(nullptr);
 
 	if (g_display == nullptr)return;
-	int num_screens = ScreenCount(g_display);
-	for (int screen = 0; screen < num_screens; ++screen) {
-		Window root = RootWindow(g_display, screen);
-		XSelectInput(g_display, root, KeyPressMask | KeyReleaseMask);
-		XGrabKeyboard(g_display, root, False, GrabModeAsync, GrabModeAsync, CurrentTime);
-	}
-	while (g_keyboardHookThread) {
-		XEvent event;
+	XGrabKeyboard(g_display, DefaultRootWindow(g_display), True, GrabModeAsync, GrabModeAsync, CurrentTime);
+	XEvent event;
 
-		XNextEvent(g_display, &event);
-		for (uint64_t i = false; i < g_engines.size(); i += true) {
+	while (g_keyboardHookThread) {
+		if (XPending(g_display)) {
+			XNextEvent(g_display, &event);
+		}
+		for (uint64_t i = 0; i < g_engines.size(); ++i) {
 			if (g_engines[i] == nullptr || !g_engines[i]->GetActive()) continue;
 
 			if (event.type == KeyPress) {
-				if ((event.xkey.keycode == XK_Control_L || event.xkey.keycode == XK_Control_R) && g_engines[i]->GetKeyFlags() & HANDLE_INTERRUPT) {
+				KeySym key = XLookupKeysym(&event.xkey, 0);
+
+				if ((key == XK_Control_L || key == XK_Control_R) && g_engines[i]->GetKeyFlags() & HANDLE_INTERRUPT) {
 					g_engines[i]->StopSpeech();
 				}
-				else if ((event.xkey.keycode == XK_Shift_L || event.xkey.keycode == XK_Shift_R) && g_engines[i]->GetKeyFlags() & HANDLE_PAUSE_RESUME) {
+				else if ((key == XK_Shift_L || key == XK_Shift_R) && g_engines[i]->GetKeyFlags() & HANDLE_PAUSE_RESUME && g_shiftPressed == false) {
 					if (g_engines[i]->paused)
 						g_engines[i]->ResumeSpeech();
 					else
 						g_engines[i]->PauseSpeech();
+					g_shiftPressed = true;
+				}
+			}
+			else if (event.type == KeyRelease) {
+				KeySym key = XLookupKeysym(&event.xkey, 0);
+
+				if ((key == XK_Shift_L || key == XK_Shift_R) && g_shiftPressed) {
+					g_shiftPressed = false;
 				}
 			}
 		}
@@ -301,7 +310,7 @@ static void speech_engine_update() {
 					break;
 				}
 			}
-		}
+	}
 #ifdef _WIN32
 	}
 #endif

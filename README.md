@@ -134,6 +134,13 @@ The library also provides extended functions to perform operations with specific
 ### `SRAL_Delay(int time)`
 - **Description**: Delayes the next speech or output operation by a given time.
 
+### `SRAL_RegisterKeyboardHooks(void)`
+- **Description**: Install speech interruption and pause keyboard hooks for speech engines other than screen readers, such as Microsoft SAPI 5 or SpeechDispatcher.
+- **Return Value**: `true` if the hooks are successfully installed, `false` otherwise.
+
+### `SRAL_UnregisterKeyboardHooks(void)`
+- **Description**: Uninstall speech interruption and pause keyboard hooks.
+
 
 ## Example
 C

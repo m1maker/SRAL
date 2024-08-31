@@ -358,9 +358,19 @@ extern "C" {
 
 
 
+
+	/**
+		*@brief Install speech interruption and pause keyboard hooks for speech engines other than screen readers, such as Microsoft SAPI 5 or SpeechDispatcher.
+		* These hooks work globally in any window.
+		* Ctrl - Interrupt, Shift - Pause.
+			* @return true if the hooks are successfully installed, false otherwise.
+			*/
+
 	SRAL_API bool SRAL_RegisterKeyboardHooks(void);
 
-
+	/**
+		*@brief Uninstall speech interruption and pause keyboard hooks.
+*/
 
 
 	SRAL_API void SRAL_UnregisterKeyboardHooks(void);
