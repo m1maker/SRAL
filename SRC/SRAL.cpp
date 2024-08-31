@@ -13,6 +13,8 @@
 #include "AVSpeech.h"
 #else
 #include "SpeechDispatcher.h"
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
 #endif
 #include <vector>
 #include <string>
@@ -53,7 +55,6 @@ struct QueuedOutput {
 	int time;
 	Engine* engine;
 };
-
 std::vector<QueuedOutput> g_delayedOutputs;
 bool g_delayOperation = false;
 bool g_outputThreadRunning = false;
@@ -84,6 +85,136 @@ static void output_thread() {
 	}
 	g_outputThreadRunning = false;
 }
+
+
+
+bool g_keyboardHookThread = false;
+#if defined(_WIN32)
+static HHOOK g_keyboardHook;
+bool g_shiftPressed = false;
+static LRESULT CALLBACK KeyboardHookProc(int nCode, WPARAM wParam, LPARAM lParam) {
+	if (nCode >= 0) {
+		KBDLLHOOKSTRUCT* pKeyInfo = (KBDLLHOOKSTRUCT*)lParam;
+		for (uint64_t i = 0; i < g_engines.size(); ++i) {
+			if (g_engines[i] == nullptr || !g_engines[i]->GetActive()) continue;
+
+			if (wParam == WM_KEYDOWN) {
+				if ((pKeyInfo->vkCode == VK_LCONTROL || pKeyInfo->vkCode == VK_RCONTROL) && g_engines[i]->GetKeyFlags() & HANDLE_INTERRUPT) {
+					g_engines[i]->StopSpeech();
+				}
+				else if ((pKeyInfo->vkCode == VK_LSHIFT || pKeyInfo->vkCode == VK_RSHIFT) && g_engines[i]->GetKeyFlags() & HANDLE_PAUSE_RESUME && g_shiftPressed == false) {
+					if (g_engines[i]->paused)
+						g_engines[i]->ResumeSpeech();
+					else
+						g_engines[i]->PauseSpeech();
+					g_shiftPressed = true;
+				}
+			}
+			else if (wParam == WM_KEYUP) {
+				if (pKeyInfo->vkCode == VK_LSHIFT || pKeyInfo->vkCode == VK_RSHIFT) {
+					g_shiftPressed = false;
+				}
+			}
+		}
+	}
+	return CallNextHookEx(g_keyboardHook, nCode, wParam, lParam);
+}
+static void hook_thread() {
+	g_keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardHookProc, GetModuleHandle(NULL), 0);
+	if (g_keyboardHook == nullptr)return;
+	MSG msg;
+
+	while (g_keyboardHookThread) {
+		if (GetMessageW(&msg, nullptr, 0, 0)) {
+			DispatchMessageW(&msg);
+			TranslateMessage(&msg);
+		}
+	}
+	UnhookWindowsHookEx(g_keyboardHook);
+}
+extern "C" SRAL_API bool SRAL_RegisterKeyboardHooks(void) {
+	if (g_keyboardHookThread)return g_keyboardHookThread;
+	g_keyboardHookThread = true;
+	std::thread t(hook_thread);
+	t.detach();
+	Timer timer;
+	while (timer.elapsed() < 3000) {
+		Sleep(5);
+		if (g_keyboardHook != nullptr) {
+			return true;
+		}
+	}
+	return false; // Timeout: Hook is not set
+}
+
+extern "C" SRAL_API void SRAL_UnregisterKeyboardHooks(void) {
+	PostMessage(0, WM_KEYUP, 0, 0);
+	g_keyboardHookThread = false;
+}
+#elif defined(__APPLE__)
+extern "C" SRAL_API bool SRAL_RegisterKeyboardHooks(void) {
+	return false;
+}
+extern "C" SRAL_API void SRAL_UnregisterKeyboardHooks(void) {
+	return;
+}
+#else
+Display* g_display = nullptr;
+static void hook_thread() {
+
+	g_display = XOpenDisplay(nullptr);
+
+	if (g_display == nullptr)return;
+	int num_screens = ScreenCount(g_display);
+	for (int screen = 0; screen < num_screens; ++screen) {
+		Window root = RootWindow(g_display, screen);
+		XSelectInput(g_display, root, KeyPressMask | KeyReleaseMask);
+		XGrabKeyboard(g_display, root, False, GrabModeAsync, GrabModeAsync, CurrentTime);
+	}
+	while (g_keyboardHookThread) {
+		XEvent event;
+
+		XNextEvent(g_display, &event);
+		for (uint64_t i = false; i < g_engines.size(); i += true) {
+			if (g_engines[i] == nullptr || !g_engines[i]->GetActive()) continue;
+
+			if (event.type == KeyPress) {
+				if ((event.xkey.keycode == XK_Control_L || event.xkey.keycode == XK_Control_R) && g_engines[i]->GetKeyFlags() & HANDLE_INTERRUPT) {
+					g_engines[i]->StopSpeech();
+				}
+				else if ((event.xkey.keycode == XK_Shift_L || event.xkey.keycode == XK_Shift_R) && g_engines[i]->GetKeyFlags() & HANDLE_PAUSE_RESUME) {
+					if (g_engines[i]->paused)
+						g_engines[i]->ResumeSpeech();
+					else
+						g_engines[i]->PauseSpeech();
+				}
+			}
+		}
+	}
+	XCloseDisplay(g_display);
+}
+extern "C" SRAL_API bool SRAL_RegisterKeyboardHooks(void) {
+	if (g_keyboardHookThread)return g_keyboardHookThread;
+	g_keyboardHookThread = true;
+	std::thread t(hook_thread);
+	t.detach();
+	Timer timer;
+	while (timer.elapsed() < 3000) {
+		usleep(5000);
+		if (g_display != nullptr) {
+			return true;
+		}
+	}
+	return false; // Timeout: Hook is not set
+}
+
+extern "C" SRAL_API void SRAL_UnregisterKeyboardHooks(void) {
+	g_keyboardHookThread = false;
+}
+
+#endif
+
+
 
 extern "C" SRAL_API bool SRAL_Initialize(int engines_exclude) {
 	if (g_initialized)return true;
@@ -170,7 +301,7 @@ static void speech_engine_update() {
 					break;
 				}
 			}
-		}
+	}
 #ifdef _WIN32
 	}
 #endif

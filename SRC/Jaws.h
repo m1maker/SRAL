@@ -1,6 +1,5 @@
 #ifndef JAWS_H_
 #define JAWS_H_
-#ifdef _WIN32
 #pragma once
 #include "../Dep/fsapi.h"
 #include "../Include/SRAL.h"
@@ -35,9 +34,11 @@ public:
 	bool SetVoice(uint64_t index)override {
 		return false;
 	}
+	int GetKeyFlags()override {
+		return HANDLE_NONE;
+	}
 
 private:
 	IJawsApi* JawsAPI = nullptr;
 };
-#endif
 #endif

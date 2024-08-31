@@ -2,6 +2,12 @@
 #define SCREENREADER_H_
 #pragma once
 #include <stdint.h>
+enum KeyboardFlags {
+	HANDLE_NONE = 0,
+	HANDLE_INTERRUPT = 2,
+	HANDLE_PAUSE_RESUME = 4
+};
+
 class Engine {
 public:
 	virtual bool Speak(const char* text, bool interrupt) = 0;
@@ -22,5 +28,7 @@ public:
 	virtual uint64_t GetVoiceCount() = 0;
 	virtual const char* GetVoiceName(uint64_t index) = 0;
 	virtual bool SetVoice(uint64_t index) = 0;
+	virtual int GetKeyFlags() = 0;
+	bool paused;
 };
 #endif

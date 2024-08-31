@@ -35,6 +35,10 @@ public:
 		return false;
 	}
 
+	int GetKeyFlags()override {
+		return HANDLE_NONE;
+	}
+
 private:
 	HINSTANCE lib = nullptr;
 	typedef error_status_t(__stdcall* NVDAController_speakText)(const wchar_t*);

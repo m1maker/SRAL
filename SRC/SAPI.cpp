@@ -140,6 +140,11 @@ bool SAPI::Speak(const char* text, bool interrupt) {
 	PCMData dat = { 0, 0 };
 	dat.data = (unsigned char*)final;
 	dat.size = bytes;
+	if (this->paused) {
+		this->paused = false;
+		if (!interrupt)
+			player->resume();
+	}
 	g_dataQueue.push_back(dat);
 	return true;
 }
@@ -148,12 +153,15 @@ bool SAPI::StopSpeech() {
 	if (player == nullptr)return false;
 	g_dataQueue.clear();
 	player->stop();
+	this->paused = false;
 	return true;
 }
 bool SAPI::PauseSpeech() {
+	paused = true;
 	return SUCCEEDED(player->pause());
 }
 bool SAPI::ResumeSpeech() {
+	paused = false;
 	return SUCCEEDED(player->resume());
 }
 void SAPI::SetVolume(uint64_t value) {
