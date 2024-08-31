@@ -257,6 +257,11 @@ extern "C" SRAL_API void SRAL_Uninitialize(void) {
 	g_currentEngine = nullptr;
 	g_engines.clear();
 	g_excludes = 0;
+	if (g_keyboardHookThread) {
+		SRAL_UnregisterKeyboardHooks();
+		// Just for sure
+		g_keyboardHookThread = false;
+	}
 	g_initialized = false;
 }
 #ifdef _WIN32
