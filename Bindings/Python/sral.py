@@ -125,3 +125,8 @@ class Sral:
     def delay(self, time):
         return self.lib.SRAL_Delay(c_int(time))
 
+    def register_keyboard_hooks(self):
+        return self.lib.SRAL_RegisterKeyboardHooks()
+
+    def unregister_keyboard_hooks(self):
+        return self.lib.SRAL_UnregisterKeyboardHooks()

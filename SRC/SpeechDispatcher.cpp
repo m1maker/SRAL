@@ -73,7 +73,11 @@ bool SpeechDispatcher::Speak(const char* text, bool interrupt) {
 		spd_stop(Speech);
 		spd_cancel(Speech);
 	}
-	this->paused = false;
+	if (this->paused) {
+		this->ResumeSpeech();
+		this->paused = false;
+
+	}
 	return spd_say(Speech, interrupt ? SPD_IMPORTANT : SPD_TEXT, text);
 }
 bool SpeechDispatcher::StopSpeech() {
