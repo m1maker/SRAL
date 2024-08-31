@@ -287,7 +287,7 @@ BOOL FindProcess(const wchar_t* name) {
 #endif
 static Engine* get_engine(int);
 static void speech_engine_update() {
-	if (!g_currentEngine->GetActive() || g_currentEngine->GetNumber() == ENGINE_SAPI) {
+	if (!g_currentEngine->GetActive() || g_currentEngine->GetNumber() == ENGINE_SAPI || g_currentEngine->GetNumber() == ENGINE_UIA) {
 #ifdef _WIN32
 		if (FindProcess(L"narrator.exe") == TRUE) {
 			g_currentEngine = get_engine(ENGINE_UIA);
@@ -301,7 +301,7 @@ static void speech_engine_update() {
 					break;
 				}
 			}
-	}
+		}
 #ifdef _WIN32
 	}
 #endif
