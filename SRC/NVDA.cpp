@@ -1,8 +1,7 @@
-#ifdef _WIN32
 #include "Encoding.h"
 #include "NVDA.h"
+#include "Util.h"
 #include<Windows.h>
-
 
 bool NVDA::Initialize() {
 	lib = LoadLibraryW(L"nvdaControllerClient.dll");
@@ -11,6 +10,7 @@ bool NVDA::Initialize() {
 	nvdaController_brailleMessage = (NVDAController_brailleMessage)GetProcAddress(lib, "nvdaController_brailleMessage");
 	nvdaController_cancelSpeech = (NVDAController_cancelSpeech)GetProcAddress(lib, "nvdaController_cancelSpeech");
 	nvdaController_testIfRunning = (NVDAController_testIfRunning)GetProcAddress(lib, "nvdaController_testIfRunning");
+	nvdaController_speakSsml = (NVDAController_speakSsml)GetProcAddress(lib, "nvdaController_speakSsml");
 	return true;
 }
 bool NVDA::Uninitialize() {
@@ -20,6 +20,7 @@ bool NVDA::Uninitialize() {
 	nvdaController_brailleMessage = nullptr;
 	nvdaController_cancelSpeech = nullptr;
 	nvdaController_testIfRunning = nullptr;
+	nvdaController_speakSsml = nullptr;
 	return true;
 }
 bool NVDA::GetActive() {
@@ -31,9 +32,20 @@ bool NVDA::Speak(const char* text, bool interrupt) {
 	if (!GetActive())return false;
 	if (interrupt)
 		nvdaController_cancelSpeech();
+	std::string text_str(text);
+	if (!IsSsml(text_str))AddSsml(text_str);
+
 	std::wstring out;
-	UnicodeConvert(text, out);
-	return nvdaController_speakText(out.c_str()) == 0;
+	UnicodeConvert(text_str, out);
+	error_status_t result = nvdaController_speakSsml(out.c_str(), -1, 0, 0);
+	if (result == 0)return true;
+	else if (result == 1717) {
+		RemoveSsml(text_str);
+		UnicodeConvert(text_str, out);
+		result = nvdaController_speakText(out.c_str());
+		return result == 0;
+	}
+	return false;
 }
 bool NVDA::Braille(const char* text) {
 	if (!GetActive())return false;
@@ -64,4 +76,3 @@ bool NVDA::PauseSpeech() {
 bool NVDA::ResumeSpeech() {
 	return PauseSpeech(); // Don't know how to do it
 }
-#endif

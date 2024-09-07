@@ -31,6 +31,7 @@ This enumeration defines the features supported by the various speech engines. T
 - `SUPPORTS_SPEECH_VOLUME = 1024`: The engine supports setting the speech volume.
 - `SUPPORTS_SELECT_VOICE = 2048`: The engine supports selecting a specific voice.
 - `SUPPORTS_PAUSE_SPEECH = 4096`: The engine supports pause and resume speech.
+- `SUPPORTS_SSML = 8192`: The engine supports the SSML tags for speak.
 
 
 ## Functions
