@@ -19,7 +19,7 @@ public:
 	bool Initialize()override;
 	bool Uninitialize()override;
 	int GetFeatures()override {
-		return SUPPORTS_SPEECH | SUPPORTS_BRAILLE | SUPPORTS_PAUSE_SPEECH;
+		return SUPPORTS_SPEECH | SUPPORTS_BRAILLE | SUPPORTS_PAUSE_SPEECH | SUPPORTS_SSML;
 	}
 	void SetVolume(uint64_t)override { return; }
 	uint64_t GetVolume()override { return 0; }
@@ -45,11 +45,13 @@ private:
 	typedef error_status_t(__stdcall* NVDAController_brailleMessage)(const wchar_t*);
 	typedef error_status_t(__stdcall* NVDAController_cancelSpeech)();
 	typedef error_status_t(__stdcall* NVDAController_testIfRunning)();
+	typedef error_status_t(__stdcall* NVDAController_speakSsml)(const wchar_t*, int, int, int);
 
 	NVDAController_speakText nvdaController_speakText = nullptr;
 	NVDAController_brailleMessage nvdaController_brailleMessage = nullptr;
 	NVDAController_cancelSpeech nvdaController_cancelSpeech = nullptr;
 	NVDAController_testIfRunning nvdaController_testIfRunning = nullptr;
+	NVDAController_speakSsml nvdaController_speakSsml = nullptr;
 };
 #endif
 #endif
