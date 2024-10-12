@@ -37,7 +37,7 @@ bool NVDA::Speak(const char* text, bool interrupt) {
 
 	std::wstring out;
 	UnicodeConvert(text_str, out);
-	error_status_t result = nvdaController_speakSsml(out.c_str(), -1, 0, 0);
+	error_status_t result = nvdaController_speakSsml(out.c_str(), -1, 0, true);
 	if (result == 0)return true;
 	else if (result == 1717) {
 		RemoveSsml(text_str);
