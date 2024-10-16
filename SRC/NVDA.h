@@ -19,7 +19,7 @@ public:
 	bool Initialize()override;
 	bool Uninitialize()override;
 	int GetFeatures()override {
-		return SUPPORTS_SPEECH | SUPPORTS_BRAILLE | SUPPORTS_PAUSE_SPEECH | SUPPORTS_SSML;
+		return SUPPORTS_SPEECH | SUPPORTS_BRAILLE | SUPPORTS_PAUSE_SPEECH;
 	}
 	void SetVolume(uint64_t)override { return; }
 	uint64_t GetVolume()override { return 0; }

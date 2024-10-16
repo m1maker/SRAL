@@ -1,6 +1,5 @@
 #ifdef _WIN32
 #include "SAPI.h"
-#include "Util.h"
 #include <cstdio>
 #include<string>
 #include<thread>
@@ -132,7 +131,6 @@ bool SAPI::Speak(const char* text, bool interrupt) {
 		this->Initialize();
 	}
 	std::string text_str(text);
-	if (!IsSsml(text_str))AddSsml(text_str);
 	unsigned long bytes;
 	char* audio_ptr = blastspeak_speak_to_memory(instance, &bytes, text_str.c_str());
 	if (audio_ptr == nullptr)

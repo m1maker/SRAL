@@ -1,7 +1,6 @@
 #define SRAL_EXPORT
 #include "../Include/SRAL.h"
 #include "Engine.h"
-#include "Util.h"
 #if defined(_WIN32)
 #define UNICODE
 #include "NVDA.h"
@@ -367,9 +366,7 @@ extern "C" SRAL_API bool SRAL_Output(const char* text, bool interrupt) {
 	if (g_currentEngine == nullptr)return false;
 	speech_engine_update();
 	const bool speech = SRAL_Speak(text, interrupt);
-	std::string braille_str(text);
-	if (IsSsml(braille_str))RemoveSsml(braille_str);
-	const bool braille = SRAL_Braille(braille_str.c_str());
+	const bool braille = SRAL_Braille(text);
 	return speech || braille;
 }
 extern "C" SRAL_API bool SRAL_StopSpeech(void) {
