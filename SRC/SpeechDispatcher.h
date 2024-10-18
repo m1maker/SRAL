@@ -49,7 +49,6 @@ public:
 
 private:
 	SPDConnection* Speech = nullptr;
-	void* Lib = nullptr;
 };
 
 #endif
