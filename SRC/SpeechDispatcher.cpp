@@ -33,6 +33,18 @@ bool SpeechDispatcher::Speak(const char* text, bool interrupt) {
 	}
 	return spd_say(Speech, SPD_IMPORTANT, text);
 }
+bool SpeechDispatcher::SetParameter(int param, int value) {
+	switch (param) {
+	case SYMBOL_LEVEL:
+		spd_set_punctuation(Speech, (SPDPunctuation)value);
+		break;
+	default:
+		return false;
+	}
+	return true;
+}
+
+
 bool SpeechDispatcher::StopSpeech() {
 	if (Speech == nullptr)return false;
 	spd_stop(Speech);
