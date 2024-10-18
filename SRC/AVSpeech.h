@@ -10,6 +10,14 @@ class AVSpeechSynthesizerWrapper;
 class AVSpeech : public Engine {
 public:
 	bool Speak(const char* text, bool interrupt)override;
+	bool SpeakSsml(const char* ssml, bool interrupt)override {
+		return false;
+	}
+	bool SetParameter(int param, int value)override {
+		return false;
+	}
+
+
 	bool Braille(const char* text)override { return false; }
 	bool StopSpeech()override;
 	bool PauseSpeech()override { return false; }
@@ -35,5 +43,5 @@ public:
 	}
 
 private:
-	AVSpeechSynthesizerWrapper* obj;
+	AVSpeechSynthesizerWrapper* obj = nullptr;
 };

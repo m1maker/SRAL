@@ -136,7 +136,7 @@ bool SAPI::Speak(const char* text, bool interrupt) {
 	if (audio_ptr == nullptr)
 		return false;
 
-	char* final = trim(audio_ptr, &bytes, &wfx, 20);
+	char* final = trim(audio_ptr, &bytes, &wfx, this->trimThreshold);
 	if (final == nullptr)
 		return false;
 	PCMData dat = { 0, 0 };
@@ -150,6 +150,17 @@ bool SAPI::Speak(const char* text, bool interrupt) {
 	g_dataQueue.push_back(dat);
 	return true;
 }
+bool SAPI::SetParameter(int param, int value) {
+	switch (param) {
+	case SAPI_TRIM_THRESHOLD:
+		this->trimThreshold = value;
+		break;
+	default:
+		return false;
+	}
+	return true;
+}
+
 
 bool SAPI::StopSpeech() {
 	if (player == nullptr)return false;
