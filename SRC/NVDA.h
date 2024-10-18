@@ -8,6 +8,8 @@
 class NVDA : public Engine {
 public:
 	bool Speak(const char* text, bool interrupt)override;
+	bool SpeakSsml(const char* ssml, bool interrupt)override;
+	bool SetParameter(int param, int value)override;
 	bool Braille(const char* text)override;
 	bool StopSpeech()override;
 	bool PauseSpeech()override;
@@ -52,6 +54,9 @@ private:
 	NVDAController_cancelSpeech nvdaController_cancelSpeech = nullptr;
 	NVDAController_testIfRunning nvdaController_testIfRunning = nullptr;
 	NVDAController_speakSsml nvdaController_speakSsml = nullptr;
+	int symbolLevel = -1;
+
+
 };
 #endif
 #endif

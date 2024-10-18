@@ -25,6 +25,9 @@ class Sral:
     def speak(self, text, interrupt=True):
         return self.lib.SRAL_Speak(c_char_p(text.encode('utf-8')), c_bool(interrupt))
 
+    def speak_ssml(self, text, interrupt=True):
+        return self.lib.SRAL_SpeakSsml(c_char_p(text.encode('utf-8')), c_bool(interrupt))
+
     def braille(self, text):
         return self.lib.SRAL_Braille(c_char_p(text.encode('utf-8')))
 
@@ -45,6 +48,10 @@ class Sral:
 
     def get_engine_features(self, engine):
         return self.lib.SRAL_GetEngineFeatures(c_int(engine))
+
+    def set_engine_parameter(self, engine, param, value):
+        return self.lib.SRAL_SetEngineParameter(c_int(engine), c_int(param), c_int(value))
+
 
     def set_volume(self, value):
         return self.lib.SRAL_SetVolume(c_uint64(value))
@@ -75,6 +82,10 @@ class Sral:
 
     def speak_ex(self, engine, text, interrupt=True):
         return self.lib.SRAL_SpeakEx(c_int(engine), c_char_p(text.encode('utf-8')), c_bool(interrupt))
+
+    def speak_ssml_ex(self, engine, text, interrupt=True):
+        return self.lib.SRAL_SpeakSsmlEx(c_int(engine), c_char_p(text.encode('utf-8')), c_bool(interrupt))
+
 
     def braille_ex(self, engine, text):
         return self.lib.SRAL_BrailleEx(c_int(engine), c_char_p(text.encode('utf-8')))

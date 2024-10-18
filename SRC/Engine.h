@@ -11,6 +11,7 @@ enum KeyboardFlags {
 class Engine {
 public:
 	virtual bool Speak(const char* text, bool interrupt) = 0;
+	virtual bool SpeakSsml(const char* ssml, bool interrupt) = 0;
 
 	virtual bool Braille(const char* text) = 0;
 	virtual bool StopSpeech() = 0;
@@ -29,6 +30,7 @@ public:
 	virtual const char* GetVoiceName(uint64_t index) = 0;
 	virtual bool SetVoice(uint64_t index) = 0;
 	virtual int GetKeyFlags() = 0;
+	virtual bool SetParameter(int param, int value) = 0;
 	bool paused;
 };
 #endif

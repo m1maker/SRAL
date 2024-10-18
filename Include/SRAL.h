@@ -56,13 +56,36 @@ extern "C" {
 	};
 
 	/**
- * @brief Speak the given text.
- * @param text A pointer to the text string to be spoken.
- * @param interrupt A flag indicating whether to interrupt the current speech.
- * @return true if speaking was successful, false otherwise.
- */
+* @enum SRAL_EngineParams
+* @brief Enumeration of engine parameters.
+*/
+
+	enum SRAL_EngineParams {
+		SYMBOL_LEVEL,
+		SAPI_TRIM_THRESHOLD
+	};
+
+
+
+	/**
+	* @brief Speak the given text.
+	* @param text A pointer to the text string to be spoken.
+	* @param interrupt A flag indicating whether to interrupt the current speech.
+	* @return true if speaking was successful, false otherwise.
+	*/
 
 	SRAL_API bool SRAL_Speak(const char* text, bool interrupt);
+
+
+	/**
+* @brief Speak the given text using SSML tags.
+* @param SSML A pointer to the valid SSML string to be spoken.
+* @param interrupt A flag indicating whether to interrupt the current speech.
+* @return true if speaking was successful, false otherwise.
+*/
+
+	SRAL_API bool SRAL_SpeakSsml(const char* ssml, bool interrupt);
+
 
 
 
@@ -128,6 +151,19 @@ extern "C" {
 
 
 	SRAL_API int SRAL_GetEngineFeatures(int engine);
+
+	/**
+* @brief Set the parameter for the specified speech engine.
+* @param engine The engine to set the param for.
+* @param param The desired parameter.
+* @param value The desired value.
+
+* @return true if the parameter was set successfully, false otherwise.
+*/
+
+	SRAL_API bool SRAL_SetEngineParameter(int engine, int param, int value);
+
+
 
 
 
@@ -220,6 +256,19 @@ extern "C" {
   */
 
 	SRAL_API bool SRAL_SpeakEx(int engine, const char* text, bool interrupt);
+
+	/**
+ * @brief Speak the given text with the specified engine and using SSML tags.
+ * @param engine The engine to use for speaking.
+ * @param ssml A pointer to the valid SSML string to be spoken.
+ * @param interrupt A flag indicating whether to interrupt the current speech.
+ * @return true if speaking was successful, false otherwise.
+ */
+
+	SRAL_API bool SRAL_SpeakSsmlEx(int engine, const char* ssml, bool interrupt);
+
+
+
 
 	/**
  * @brief Output text to a Braille display using the specified engine.

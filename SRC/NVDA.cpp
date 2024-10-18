@@ -9,6 +9,7 @@ bool NVDA::Initialize() {
 	nvdaController_brailleMessage = (NVDAController_brailleMessage)GetProcAddress(lib, "nvdaController_brailleMessage");
 	nvdaController_cancelSpeech = (NVDAController_cancelSpeech)GetProcAddress(lib, "nvdaController_cancelSpeech");
 	nvdaController_testIfRunning = (NVDAController_testIfRunning)GetProcAddress(lib, "nvdaController_testIfRunning");
+	nvdaController_speakSsml = (NVDAController_speakSsml)GetProcAddress(lib, "nvdaController_speakSsml");
 	return true;
 }
 bool NVDA::Uninitialize() {
@@ -18,6 +19,8 @@ bool NVDA::Uninitialize() {
 	nvdaController_brailleMessage = nullptr;
 	nvdaController_cancelSpeech = nullptr;
 	nvdaController_testIfRunning = nullptr;
+	nvdaController_speakSsml = nullptr;
+
 	return true;
 }
 bool NVDA::GetActive() {
@@ -34,6 +37,29 @@ bool NVDA::Speak(const char* text, bool interrupt) {
 	UnicodeConvert(text_str, out);
 	return nvdaController_speakText(out.c_str()) == 0;
 }
+bool NVDA::SpeakSsml(const char* ssml, bool interrupt) {
+	if (!GetActive())return false;
+	if (interrupt)
+		nvdaController_cancelSpeech();
+	std::string text_str(ssml);
+	XmlEncode(text_str);
+	std::string final = "<speak>" + text_str + "</speak>";
+	std::wstring out;
+	UnicodeConvert(final, out);
+	return nvdaController_speakSsml(out.c_str(), this->symbolLevel, 0, true) == 0;
+}
+
+bool NVDA::SetParameter(int param, int value) {
+	switch (param) {
+	case SYMBOL_LEVEL:
+		this->symbolLevel = value;
+		break;
+	default:
+		return false;
+	}
+	return true;
+}
+
 bool NVDA::Braille(const char* text) {
 	if (!GetActive())return false;
 	std::wstring out;
