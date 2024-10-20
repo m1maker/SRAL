@@ -12,6 +12,7 @@ public:
 	bool SpeakSsml(const char* ssml, bool interrupt)override {
 		return false;
 	}
+	void* SpeakToMemory(const char* text, uint64_t* buffer_size)override;
 	bool SetParameter(int param, int value)override;
 
 	bool Braille(const char* text)override { return false; }
@@ -25,7 +26,7 @@ public:
 	bool Initialize()override;
 	bool Uninitialize()override;
 	int GetFeatures()override {
-		return SUPPORTS_SPEECH | SUPPORTS_SPEECH_RATE | SUPPORTS_SPEECH_VOLUME | SUPPORTS_SELECT_VOICE | SUPPORTS_PAUSE_SPEECH;
+		return SUPPORTS_SPEECH | SUPPORTS_SPEECH_RATE | SUPPORTS_SPEECH_VOLUME | SUPPORTS_SELECT_VOICE | SUPPORTS_PAUSE_SPEECH | SUPPORTS_SPEAK_TO_MEMORY;
 	}
 	void SetVolume(uint64_t value)override;
 	uint64_t GetVolume()override;

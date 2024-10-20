@@ -11,6 +11,9 @@ public:
 	bool SpeakSsml(const char* ssml, bool interrupt)override {
 		return false;
 	}
+	void* SpeakToMemory(const char* text, uint64_t* buffer_size)override {
+		return nullptr;
+	}
 	bool SetParameter(int param, int value)override {
 		return false;
 	}

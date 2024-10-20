@@ -9,6 +9,10 @@ class NVDA : public Engine {
 public:
 	bool Speak(const char* text, bool interrupt)override;
 	bool SpeakSsml(const char* ssml, bool interrupt)override;
+	void* SpeakToMemory(const char* text, uint64_t* buffer_size)override {
+		return nullptr;
+	}
+
 	bool SetParameter(int param, int value)override;
 	bool Braille(const char* text)override;
 	bool StopSpeech()override;

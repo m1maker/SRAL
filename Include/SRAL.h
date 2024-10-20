@@ -52,7 +52,8 @@ extern "C" {
 		SUPPORTS_SPEECH_VOLUME = 1024,
 		SUPPORTS_SELECT_VOICE = 2048,
 		SUPPORTS_PAUSE_SPEECH = 4096,
-		SUPPORTS_SSML = 8192
+		SUPPORTS_SSML = 8192,
+		SUPPORTS_SPEAK_TO_MEMORY = 16384
 	};
 
 	/**
@@ -76,6 +77,15 @@ extern "C" {
 
 	SRAL_API bool SRAL_Speak(const char* text, bool interrupt);
 
+
+	/**
+* @brief Speak the given text into memory.
+* @param text A pointer to the text string to be spoken.
+* @param buffer_size A pointer to uint64_t to write PCM buffer size.
+* @return a pointer to the PCM buffer if speaking was successful, false otherwise.
+*/
+
+	SRAL_API void* SRAL_SpeakToMemory(const char* text, uint64_t* buffer_size);
 
 	/**
 * @brief Speak the given text using SSML tags.
@@ -256,6 +266,18 @@ extern "C" {
   */
 
 	SRAL_API bool SRAL_SpeakEx(int engine, const char* text, bool interrupt);
+
+	/**
+* @brief Speak the given text into memory with the specified engine.
+* @param engine The engine to use for speaking.
+* @param text A pointer to the text string to be spoken.
+* @param buffer_size A pointer to uint64_t to write PCM buffer size.
+* @return a pointer to the PCM buffer if speaking was successful, false otherwise.
+*/
+
+	SRAL_API void* SRAL_SpeakToMemoryEx(int engine, const char* text, uint64_t* buffer_size);
+
+
 
 	/**
  * @brief Speak the given text with the specified engine and using SSML tags.
