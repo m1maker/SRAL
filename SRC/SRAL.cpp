@@ -364,6 +364,11 @@ extern "C" SRAL_API bool SRAL_Speak(const char* text, bool interrupt) {
 	}
 	return false;
 }
+extern "C" SRAL_API void* SRAL_SpeakToMemory(const char* text, uint64_t* buffer_size) {
+	if (g_currentEngine == nullptr)		return nullptr;
+	speech_engine_update();
+	return g_currentEngine->SpeakToMemory(text, buffer_size);
+}
 extern "C" SRAL_API bool SRAL_SpeakSsml(const char* ssml, bool interrupt) {
 	if (g_currentEngine == nullptr)		return false;
 	speech_engine_update();
@@ -551,6 +556,12 @@ extern "C" SRAL_API bool SRAL_SpeakEx(int engine, const char* text, bool interru
 	}
 	return false;
 }
+extern "C" SRAL_API void* SRAL_SpeakToMemoryEx(int engine, const char* text, uint64_t* buffer_size) {
+	Engine* e = get_engine(engine);
+	if (e == nullptr)return nullptr;
+	return e->SpeakToMemory(text, buffer_size);
+}
+
 extern "C" SRAL_API bool SRAL_SpeakSsmlEx(int engine, const char* ssml, bool interrupt) {
 	Engine* e = get_engine(engine);
 	if (e == nullptr)return false;

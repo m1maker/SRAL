@@ -150,6 +150,19 @@ bool SAPI::Speak(const char* text, bool interrupt) {
 	g_dataQueue.push_back(dat);
 	return true;
 }
+void* SAPI::SpeakToMemory(const char* text, uint64_t* buffer_size) {
+	if (instance == nullptr)return nullptr;
+	std::string text_str(text);
+	unsigned long bytes;
+	char* audio_ptr = blastspeak_speak_to_memory(instance, &bytes, text_str.c_str());
+	if (audio_ptr == nullptr)
+		return nullptr;
+
+	char* final = trim(audio_ptr, &bytes, &wfx, this->trimThreshold);
+	*buffer_size = bytes;
+	return final;
+}
+
 bool SAPI::SetParameter(int param, int value) {
 	switch (param) {
 	case SAPI_TRIM_THRESHOLD:
