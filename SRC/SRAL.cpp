@@ -235,8 +235,8 @@ extern "C" SRAL_API bool SRAL_Initialize(int engines_exclude) {
 	if (g_initialized)return true;
 #if defined(_WIN32)
 	g_engines.push_back(new NVDA);
-	g_engines.push_back(new SAPI);
 	g_engines.push_back(new Jaws);
+	g_engines.push_back(new SAPI);
 	g_engines.push_back(new UIA);
 #elif defined(__APPLE__)
 	g_engines.push_back(new AVSpeech);
