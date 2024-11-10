@@ -32,6 +32,8 @@ bool NVDA::Speak(const char* text, bool interrupt) {
 	if (!GetActive())return false;
 	if (interrupt)
 		nvdaController_cancelSpeech();
+// The below code has been commented out in case it is necessary to fall back.
+/*
 	std::string text_str(text);
 	XmlEncode(text_str);
 	std::string final = "<speak>" + text_str + "</speak>";
@@ -47,7 +49,11 @@ bool NVDA::Speak(const char* text, bool interrupt) {
 	else {
 		return result == 0;
 	}
-	return false;
+*/
+	std::wstring out;
+	UnicodeConvert(text, out);
+	return nvdaController_speakText(out.c_str()) == 0;
+//	return false;
 }
 bool NVDA::SpeakSsml(const char* ssml, bool interrupt) {
 	if (!GetActive())return false;
