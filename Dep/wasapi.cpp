@@ -1,7 +1,7 @@
 #define NOMINMAX
 #include "wasapi.h"
 #include <functiondiscoverykeys.h>
-#include <Functiondiscoverykeys_devpkey.h>
+#include <functiondiscoverykeys_devpkey.h>
 
 #ifndef PKEY_Device_FriendlyName
 #undef DEFINE_PROPERTYKEY
