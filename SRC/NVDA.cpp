@@ -1,6 +1,6 @@
 #include "Encoding.h"
 #include "NVDA.h"
-#include<Windows.h>
+#include <windows.h>
 
 bool NVDA::Initialize() {
 	lib = LoadLibraryW(L"nvdaControllerClient.dll");
