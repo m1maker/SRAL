@@ -14,8 +14,8 @@
  * PARTICULAR PURPOSE.
  *
  *************************************************************************************************/
-#include <UIAutomation.h>
-#include <Uiautomationcore.h>
+#include <uiautomation.h>
+#include <uiautomationcore.h>
 class Provider : public IRawElementProviderSimple,
 	public IInvokeProvider
 {

@@ -22,9 +22,9 @@
 #include <windows.h>
 
 #include <ole2.h>
-#include <UIAutomation.h>
+#include <uiautomation.h>
 
-#include "UIAProvider.h"
+#include "uiaprovider.h"
 
 Provider::Provider(HWND hwnd) : m_refCount(1), m_controlHWnd(hwnd)
 {
