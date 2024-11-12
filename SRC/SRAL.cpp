@@ -258,8 +258,10 @@ extern "C" SRAL_API bool SRAL_Initialize(int engines_exclude) {
 }
 extern "C" SRAL_API void SRAL_Uninitialize(void) {
 	if (!g_initialized)return;
-	g_currentEngine->Uninitialize();
-	delete g_currentEngine;
+	for (uint64_t i = 0; i < g_engines.size(); ++i) {
+		g_engines[i]->Uninitialize();
+		delete g_engines[i];
+	}
 	g_currentEngine = nullptr;
 	g_engines.clear();
 	g_excludes = 0;
