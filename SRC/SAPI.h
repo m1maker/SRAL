@@ -41,7 +41,6 @@ public:
 
 private:
 	blastspeak* instance = nullptr;
-	WasapiPlayer* player = nullptr;
 	WAVEFORMATEX wfx;
 	int trimThreshold = 20;
 };
