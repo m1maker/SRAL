@@ -21,14 +21,15 @@ bool UIA::Initialize() {
 }
 
 bool UIA::Uninitialize() {
-	pProvider->Release();
+	if (pProvider)pProvider->Release();
 
-	pCondition->Release();
+	if (pCondition)pCondition->Release();
 
-	pAutomation->Release();
+	if (pAutomation)pAutomation->Release();
 
 	return true;
 }
+
 bool UIA::Speak(const char* text, bool interrupt) {
 	NotificationProcessing flags = NotificationProcessing_ImportantAll;
 	if (interrupt)
