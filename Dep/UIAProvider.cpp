@@ -24,7 +24,7 @@
 #include <ole2.h>
 #include <uiautomation.h>
 
-#include "uiaprovider.h"
+#include "UIAProvider.h"
 
 Provider::Provider(HWND hwnd) : m_refCount(1), m_controlHWnd(hwnd)
 {
