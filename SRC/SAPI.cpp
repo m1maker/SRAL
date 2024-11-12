@@ -5,6 +5,9 @@
 #include<thread>
 
 
+WasapiPlayer* g_player = nullptr; // Make it global to avoid multiple voices when reinitializing
+
+
 static char* trim(char* data, unsigned long* size, WAVEFORMATEX* wfx, int threshold) {
 	int channels = wfx->nChannels;
 	int bytesPerSample = wfx->wBitsPerSample / 8;
@@ -56,8 +59,8 @@ struct PCMData {
 
 std::vector<PCMData> g_dataQueue;
 bool g_threadStarted = false;
-static void sapi_thread(WasapiPlayer* player) {
-	if (player == nullptr) {
+static void sapi_thread() {
+	if (g_player == nullptr) {
 		g_threadStarted = false;
 	}
 	HRESULT hr;
@@ -65,15 +68,21 @@ static void sapi_thread(WasapiPlayer* player) {
 		Sleep(1);
 		for (uint64_t i = 0; i < g_dataQueue.size(); ++i) {
 
-			hr = player->feed(g_dataQueue[i].data, g_dataQueue[i].size, nullptr);
+			hr = g_player->feed(g_dataQueue[i].data, g_dataQueue[i].size, nullptr);
 			if (FAILED(hr))continue;
-			hr = player->sync();
+			hr = g_player->sync();
 			if (FAILED(hr))continue;
 		}
 		if (g_dataQueue.size() > 0)		g_dataQueue.clear();
 	}
+	delete g_player;
+	g_player = nullptr;
 }
 bool SAPI::Initialize() {
+	if (g_player) {
+		g_threadStarted = false;
+		g_player->stop();
+	}
 	instance = new blastspeak;
 
 	if (blastspeak_initialize(instance) == 0) {
@@ -92,34 +101,31 @@ bool SAPI::Initialize() {
 	wfx.nBlockAlign = (wfx.nChannels * wfx.wBitsPerSample) / 8;
 	wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
 	wfx.cbSize = 0;
-	player = new WasapiPlayer(device, wfx, callback);
-	HRESULT hr = player->open();
+	g_player = new WasapiPlayer(device, wfx, callback);
+	HRESULT hr = g_player->open();
 	if (FAILED(hr)) {
-		delete player;
-		player = nullptr;
+		delete g_player;
+		g_player = nullptr;
 		return false;
 	}
 	g_threadStarted = true;
-	std::thread t(sapi_thread, player);
+	std::thread t(sapi_thread);
 	t.detach();
 	return true;
 }
 bool SAPI::Uninitialize() {
-	if (instance == nullptr || player == nullptr)return false;
-	g_threadStarted = false;
+	if (instance == nullptr || g_player == nullptr)return false;
+	g_threadStarted = false; // SAPI thread will be stopped when all messages was spoken
 	blastspeak_destroy(instance);
 	delete instance;
 	instance = nullptr;
-	StopSpeech();
-	delete player;
-	player = nullptr;
 	return true;
 }
 bool SAPI::GetActive() {
-	return instance != nullptr;
+	return instance != nullptr && g_player != nullptr;
 }
 bool SAPI::Speak(const char* text, bool interrupt) {
-	if (instance == nullptr || player == nullptr)
+	if (instance == nullptr || g_player == nullptr)
 		return false;
 	if (interrupt) {
 		StopSpeech();
@@ -145,7 +151,7 @@ bool SAPI::Speak(const char* text, bool interrupt) {
 	if (this->paused) {
 		this->paused = false;
 		if (!interrupt)
-			player->resume();
+			g_player->resume();
 	}
 	g_dataQueue.push_back(dat);
 	return true;
@@ -176,19 +182,19 @@ bool SAPI::SetParameter(int param, int value) {
 
 
 bool SAPI::StopSpeech() {
-	if (player == nullptr)return false;
+	if (g_player == nullptr)return false;
 	g_dataQueue.clear();
-	player->stop();
+	g_player->stop();
 	this->paused = false;
 	return true;
 }
 bool SAPI::PauseSpeech() {
 	paused = true;
-	return SUCCEEDED(player->pause());
+	return SUCCEEDED(g_player->pause());
 }
 bool SAPI::ResumeSpeech() {
 	paused = false;
-	return SUCCEEDED(player->resume());
+	return SUCCEEDED(g_player->resume());
 }
 void SAPI::SetVolume(uint64_t value) {
 	if (instance == nullptr)return;
