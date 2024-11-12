@@ -4,7 +4,7 @@
 #include "../Dep/fsapi.h"
 #include "../Include/SRAL.h"
 #include "Engine.h"
-#include <Windows.h>
+#include <windows.h>
 class Jaws : public Engine {
 public:
 	bool Speak(const char* text, bool interrupt)override;

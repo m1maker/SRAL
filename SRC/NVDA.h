@@ -4,7 +4,7 @@
 #pragma once
 #include "../Include/SRAL.h"
 #include "Engine.h"
-#include <Windows.h>
+#include <windows.h>
 class NVDA : public Engine {
 public:
 	bool Speak(const char* text, bool interrupt)override;

@@ -7,7 +7,7 @@
 #include "SAPI.h"
 #include "Jaws.h"
 #include "UIA.h"
-#include <Windows.h>
+#include <windows.h>
 #include <tlhelp32.h>
 #elif defined(__APPLE__)
 #include "AVSpeech.h"
