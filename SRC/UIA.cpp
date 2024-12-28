@@ -37,7 +37,6 @@ bool UIA::Speak(const char* text, bool interrupt) {
 	std::wstring str;
 	UnicodeConvert(text, str);
 	pProvider = new Provider(GetForegroundWindow());
-	printf("Test");
 
 	HRESULT hr = pAutomation->ElementFromHandle(GetForegroundWindow(), &pElement);
 
