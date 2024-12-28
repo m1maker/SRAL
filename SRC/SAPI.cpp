@@ -156,7 +156,7 @@ bool SAPI::Speak(const char* text, bool interrupt) {
 	g_dataQueue.push_back(dat);
 	return true;
 }
-void* SAPI::SpeakToMemory(const char* text, uint64_t* buffer_size) {
+void* SAPI::SpeakToMemory(const char* text, uint64_t* buffer_size, int*channels, int* sample_rate, int* bits_per_sample) {
 	if (instance == nullptr)return nullptr;
 	std::string text_str(text);
 	unsigned long bytes;
@@ -166,6 +166,9 @@ void* SAPI::SpeakToMemory(const char* text, uint64_t* buffer_size) {
 
 	char* final = trim(audio_ptr, &bytes, &wfx, this->trimThreshold);
 	*buffer_size = bytes;
+	*channels = instance->channels;
+	*sample_rate = instance->sample_rate;
+	*bits_per_sample = instance->bits_per_sample;
 	return final;
 }
 

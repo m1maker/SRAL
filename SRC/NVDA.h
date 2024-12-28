@@ -9,7 +9,7 @@ class NVDA : public Engine {
 public:
 	bool Speak(const char* text, bool interrupt)override;
 	bool SpeakSsml(const char* ssml, bool interrupt)override;
-	void* SpeakToMemory(const char* text, uint64_t* buffer_size)override {
+	void* SpeakToMemory(const char* text, uint64_t* buffer_size, int*channels, int* sample_rate, int* bits_per_sample)override {
 		return nullptr;
 	}
 
