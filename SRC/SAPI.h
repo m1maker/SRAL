@@ -12,7 +12,7 @@ public:
 	bool SpeakSsml(const char* ssml, bool interrupt)override {
 		return false;
 	}
-	void* SpeakToMemory(const char* text, uint64_t* buffer_size)override;
+	void* SpeakToMemory(const char* text, uint64_t* buffer_size, int*channels, int* sample_rate, int* bits_per_sample)override;
 	bool SetParameter(int param, int value)override;
 
 	bool Braille(const char* text)override { return false; }

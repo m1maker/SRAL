@@ -82,10 +82,15 @@ extern "C" {
 * @brief Speak the given text into memory.
 * @param text A pointer to the text string to be spoken.
 * @param buffer_size A pointer to uint64_t to write PCM buffer size.
+* @param channels A pointer to int to write PCM channel count.
+* @param sample_rate A pointer to int to write PCM sample rate in HZ.
+* @param bits_per_sample A pointer to int to write PCM bit size (floating point or signed integer).
+
+
 * @return a pointer to the PCM buffer if speaking was successful, false otherwise.
 */
 
-	SRAL_API void* SRAL_SpeakToMemory(const char* text, uint64_t* buffer_size);
+	SRAL_API void* SRAL_SpeakToMemory(const char* text, uint64_t* buffer_size, int*channels, int* sample_rate, int* bits_per_sample);
 
 	/**
 * @brief Speak the given text using SSML tags.
@@ -272,10 +277,14 @@ extern "C" {
 * @param engine The engine to use for speaking.
 * @param text A pointer to the text string to be spoken.
 * @param buffer_size A pointer to uint64_t to write PCM buffer size.
+* @param channels A pointer to int to write PCM channel count.
+* @param sample_rate A pointer to int to write PCM sample rate in HZ.
+* @param bits_per_sample A pointer to int to write PCM bit size (floating point or signed integer).
+
 * @return a pointer to the PCM buffer if speaking was successful, false otherwise.
 */
 
-	SRAL_API void* SRAL_SpeakToMemoryEx(int engine, const char* text, uint64_t* buffer_size);
+	SRAL_API void* SRAL_SpeakToMemoryEx(int engine, const char* text, uint64_t* buffer_size, int*channels, int* sample_rate, int* bits_per_sample);
 
 
 
