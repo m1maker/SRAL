@@ -29,13 +29,13 @@ extern "C" {
 
 	enum SRAL_Engines {
 		ENGINE_NONE = 0,
-		ENGINE_NVDA = 2,
-		ENGINE_SAPI = 4,
-		ENGINE_JAWS = 8,
-		ENGINE_SPEECH_DISPATCHER = 16,
-		ENGINE_UIA = 32,
-		ENGINE_AV_SPEECH = 64,
-		ENGINE_NARRATOR = 128
+		ENGINE_NVDA = 1 << 1,
+		ENGINE_SAPI = 1 << 2,
+		ENGINE_JAWS = 1 << 3,
+		ENGINE_SPEECH_DISPATCHER = 1 << 4,
+		ENGINE_UIA = 1 << 5,
+		ENGINE_AV_SPEECH = 1 << 6,
+		ENGINE_NARRATOR = 1 << 7
 	};
 
 	/**
@@ -46,14 +46,14 @@ extern "C" {
  */
 
 	enum SRAL_SupportedFeatures {
-		SUPPORTS_SPEECH = 128,
-		SUPPORTS_BRAILLE = 256,
-		SUPPORTS_SPEECH_RATE = 512,
-		SUPPORTS_SPEECH_VOLUME = 1024,
-		SUPPORTS_SELECT_VOICE = 2048,
-		SUPPORTS_PAUSE_SPEECH = 4096,
-		SUPPORTS_SSML = 8192,
-		SUPPORTS_SPEAK_TO_MEMORY = 16384
+		SUPPORTS_SPEECH = 1 << 1,
+		SUPPORTS_BRAILLE = 1 << 2,
+		SUPPORTS_SPEECH_RATE = 1 << 3,
+		SUPPORTS_SPEECH_VOLUME = 1 << 4,
+		SUPPORTS_SELECT_VOICE = 1 << 5,
+		SUPPORTS_PAUSE_SPEECH = 1 << 6,
+		SUPPORTS_SSML = 1 << 7,
+		SUPPORTS_SPEAK_TO_MEMORY = 1 << 8
 	};
 
 	/**
@@ -90,7 +90,7 @@ extern "C" {
 * @return a pointer to the PCM buffer if speaking was successful, false otherwise.
 */
 
-	SRAL_API void* SRAL_SpeakToMemory(const char* text, uint64_t* buffer_size, int*channels, int* sample_rate, int* bits_per_sample);
+	SRAL_API void* SRAL_SpeakToMemory(const char* text, uint64_t* buffer_size, int* channels, int* sample_rate, int* bits_per_sample);
 
 	/**
 * @brief Speak the given text using SSML tags.
@@ -284,7 +284,7 @@ extern "C" {
 * @return a pointer to the PCM buffer if speaking was successful, false otherwise.
 */
 
-	SRAL_API void* SRAL_SpeakToMemoryEx(int engine, const char* text, uint64_t* buffer_size, int*channels, int* sample_rate, int* bits_per_sample);
+	SRAL_API void* SRAL_SpeakToMemoryEx(int engine, const char* text, uint64_t* buffer_size, int* channels, int* sample_rate, int* bits_per_sample);
 
 
 
@@ -455,6 +455,27 @@ extern "C" {
 
 
 	SRAL_API void SRAL_UnregisterKeyboardHooks(void);
+
+
+
+
+	/**
+* @brief Get all available engines for the current platform.
+* @return Bitmask with available engines.
+*/
+
+
+	SRAL_API int SRAL_GetAvailableEngines(void);
+
+
+
+	/**
+* @brief Get all active engines that can be used.
+* @return Bitmask with active engines.
+*/
+
+
+	SRAL_API int SRAL_GetActiveEngines(void);
 
 
 

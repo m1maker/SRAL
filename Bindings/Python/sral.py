@@ -141,3 +141,9 @@ class Sral:
 
     def unregister_keyboard_hooks(self):
         return self.lib.SRAL_UnregisterKeyboardHooks()
+
+    def get_available_engines(self):
+        return self.lib.SRAL_GetAvailableEngines()
+
+    def get_active_engines(self):
+        return self.lib.SRAL_GetActiveEngines()
