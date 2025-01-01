@@ -646,3 +646,23 @@ extern "C" SRAL_API void SRAL_Delay(int time) {
 	g_lastDelayTime = time;
 	g_delayOperation = true;
 }
+
+extern "C" SRAL_API int SRAL_GetAvailableEngines(void) {
+	if (g_engines.empty())return 0;
+	int mask = 0;
+	for (Engine* e : g_engines) {
+		if (e)
+			mask |= e->GetNumber();
+	}
+	return mask;
+}
+
+extern "C" SRAL_API int SRAL_GetActiveEngines(void) {
+	if (g_engines.empty())return 0;
+	int mask = 0;
+	for (Engine* e : g_engines) {
+		if (e)
+			mask |= e->GetActive();
+	}
+	return mask;
+}
