@@ -661,8 +661,8 @@ extern "C" SRAL_API int SRAL_GetActiveEngines(void) {
 	if (g_engines.empty())return 0;
 	int mask = 0;
 	for (Engine* e : g_engines) {
-		if (e)
-			mask |= e->GetActive();
+		if (e && e->GetActive())
+			mask |= e->GetNumber();
 	}
 	return mask;
 }
