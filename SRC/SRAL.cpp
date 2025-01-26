@@ -43,10 +43,10 @@ private:
 
 
 
-Engine* g_currentEngine = nullptr;
-std::vector<Engine*> g_engines;
-int g_excludes = 0;
-bool g_initialized = false;
+static Engine* g_currentEngine = nullptr;
+static std::vector<Engine*> g_engines;
+static int g_excludes = 0;
+static bool g_initialized = false;
 
 struct QueuedOutput {
 	const char* text;
@@ -57,12 +57,13 @@ struct QueuedOutput {
 	int time;
 	Engine* engine;
 };
-std::vector<QueuedOutput> g_delayedOutputs;
-bool g_delayOperation = false;
-bool g_outputThreadRunning = false;
+
+static std::vector<QueuedOutput> g_delayedOutputs;
+static bool g_delayOperation = false;
+static bool g_outputThreadRunning = false;
 
 
-uint64_t g_lastDelayTime = 0;
+static uint64_t g_lastDelayTime = 0;
 
 
 static void output_thread() {
@@ -95,8 +96,8 @@ static void output_thread() {
 
 
 
-bool g_keyboardHookThread = false;
-bool g_shiftPressed = false;
+static bool g_keyboardHookThread = false;
+static bool g_shiftPressed = false;
 
 #if defined(_WIN32)
 static HHOOK g_keyboardHook;
@@ -167,7 +168,7 @@ extern "C" SRAL_API void SRAL_UnregisterKeyboardHooks(void) {
 	return;
 }
 #else
-Display* g_display = nullptr;
+static Display* g_display = nullptr;
 static void hook_thread() {
 
 	g_display = XOpenDisplay(nullptr);
