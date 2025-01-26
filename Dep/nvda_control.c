@@ -1,5 +1,10 @@
 #include "nvda_control.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 // Connects to the NVDA named pipe
 HANDLE nvda_connect() {
     HANDLE hPipe = CreateFile(
@@ -38,7 +43,6 @@ int nvda_send_command(HANDLE hPipe, const char* command) {
     );
 
     if (!result) {
-        fprintf(stderr, "Failed to send command. Error: %lu\n", GetLastError());
         return -1;
     }
 
@@ -77,3 +81,8 @@ int nvda_pause_speech(HANDLE hPipe, int pause) {
 int nvda_cancel_speech(HANDLE hPipe) {
     return nvda_send_command(hPipe, "cancelSpeech");
 }
+
+#ifdef __cplusplus
+}
+#endif
+

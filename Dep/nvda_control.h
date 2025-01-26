@@ -5,6 +5,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 
 // Named pipe name
 #define NVDA_PIPE_NAME L"\\\\.\\pipe\\NVDAControlPipe"
@@ -14,7 +19,7 @@
  * Connects to the NVDA named pipe.
  * Returns a handle to the pipe if successful, or INVALID_HANDLE_VALUE on failure.
  */
-HANDLE nvda_connect();
+HANDLE nvda_connect(void);
 
 /**
  * Disconnects from the NVDA named pipe.
@@ -68,5 +73,10 @@ int nvda_pause_speech(HANDLE hPipe, int pause);
  * @return 0 on success, -1 on failure.
  */
 int nvda_cancel_speech(HANDLE hPipe);
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif // NVDA_CONTROL_H
