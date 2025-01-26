@@ -7,7 +7,7 @@ extern "C" {
 
 // Connects to the NVDA named pipe
 HANDLE nvda_connect() {
-    HANDLE hPipe = CreateFile(
+    HANDLE hPipe = CreateFileW(
         NVDA_PIPE_NAME,          // Pipe name
         GENERIC_READ | GENERIC_WRITE, // Read and write access
         0,                       // No sharing
@@ -16,7 +16,7 @@ HANDLE nvda_connect() {
         0,                       // Default attributes
         NULL                     // No template file
     );
-
+    printf("%u\n", GetLastError());
     return hPipe;
 }
 
