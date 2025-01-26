@@ -1,8 +1,12 @@
 #include "Encoding.h"
 #include "NVDA.h"
 #include <windows.h>
+#include "../Dep/nvda_control.h"
 
 bool NVDA::Initialize() {
+	pipe = nvda_connect();
+	if (pipe != INVALID_HANDLE_VALUE)
+		return true;
 	lib = LoadLibraryW(L"nvdaControllerClient.dll");
 	if (lib == nullptr)return false;
 	nvdaController_speakText = (NVDAController_speakText)GetProcAddress(lib, "nvdaController_speakText");
@@ -13,6 +17,10 @@ bool NVDA::Initialize() {
 	return true;
 }
 bool NVDA::Uninitialize() {
+	if (pipe != INVALID_HANDLE_VALUE) {
+		nvda_disconnect(pipe);
+		return true;
+	}
 	if (lib == nullptr)return false;
 	FreeLibrary(lib);
 	nvdaController_speakText = nullptr;
@@ -24,18 +32,22 @@ bool NVDA::Uninitialize() {
 	return true;
 }
 bool NVDA::GetActive() {
+	if (pipe != INVALID_HANDLE_VALUE)
+		return true;
 	if (lib == nullptr) return false;
 	if (nvdaController_testIfRunning) return  (!!FindWindowW(L"wxWindowClassNR", L"NVDA") && nvdaController_testIfRunning() == 0);
 	return false;
 }
 bool NVDA::Speak(const char* text, bool interrupt) {
 	if (!GetActive())return false;
-	if (interrupt)
-		nvdaController_cancelSpeech();
+	if (interrupt) {
+		pipe == INVALID_HANDLE_VALUE ? nvdaController_cancelSpeech() : nvda_cancel_speech(pipe);
+	}
 	std::string text_str(text);
 	XmlEncode(text_str);
 	std::string final = "<speak>" + text_str + "</speak>";
-
+	if (pipe != INVALID_HANDLE_VALUE)
+		return nvda_speak_ssml(pipe, final.c_str()) == 0;
 	std::wstring out_ssml;
 	UnicodeConvert(final, out_ssml);
 	error_status_t result = nvdaController_speakSsml(out_ssml.c_str(), this->symbolLevel, 0, true);
@@ -52,7 +64,9 @@ bool NVDA::Speak(const char* text, bool interrupt) {
 bool NVDA::SpeakSsml(const char* ssml, bool interrupt) {
 	if (!GetActive())return false;
 	if (interrupt)
-		nvdaController_cancelSpeech();
+		pipe == INVALID_HANDLE_VALUE ? nvdaController_cancelSpeech() : nvda_cancel_speech(pipe);
+	if (pipe != INVALID_HANDLE_VALUE)
+		return nvda_speak_ssml(pipe, ssml) == 0;
 	std::string text_str(ssml);
 	std::wstring out;
 	UnicodeConvert(ssml, out);
@@ -78,10 +92,12 @@ bool NVDA::Braille(const char* text) {
 }
 bool NVDA::StopSpeech() {
 	if (!GetActive())return false;
-	return nvdaController_cancelSpeech() == 0;
+	return pipe == INVALID_HANDLE_VALUE ? nvdaController_cancelSpeech() == 0 : nvda_cancel_speech(pipe) == 0;
 }
 bool NVDA::PauseSpeech() {
 	if (!GetActive())return false;
+	if (pipe != INVALID_HANDLE_VALUE)
+		return nvda_pause_speech(pipe, true);
 	INPUT input[2] = {};
 
 	input[0].type = INPUT_KEYBOARD;
@@ -97,5 +113,5 @@ bool NVDA::PauseSpeech() {
 	return true;
 }
 bool NVDA::ResumeSpeech() {
-	return PauseSpeech(); // Don't know how to do it
+	return pipe == INVALID_HANDLE_VALUE ? PauseSpeech() : nvda_pause_speech(pipe, false);
 }
