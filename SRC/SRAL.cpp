@@ -13,9 +13,6 @@
 #include "AVSpeech.h"
 #else
 #include "SpeechDispatcher.h"
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/keysym.h>
 #endif
 #include <vector>
 #include <string>
@@ -160,77 +157,14 @@ extern "C" SRAL_API void SRAL_UnregisterKeyboardHooks(void) {
 	PostMessage(0, WM_KEYUP, 0, 0);
 	g_keyboardHookThread = false;
 }
-#elif defined(__APPLE__)
+#else
 extern "C" SRAL_API bool SRAL_RegisterKeyboardHooks(void) {
 	return false;
 }
 extern "C" SRAL_API void SRAL_UnregisterKeyboardHooks(void) {
 	return;
 }
-#else
-static Display* g_display = nullptr;
-static void hook_thread() {
-
-	g_display = XOpenDisplay(nullptr);
-
-	if (g_display == nullptr)return;
-	XGrabKeyboard(g_display, DefaultRootWindow(g_display), True, GrabModeAsync, GrabModeAsync, CurrentTime);
-	XEvent event;
-
-	while (g_keyboardHookThread) {
-		if (XPending(g_display)) {
-			XNextEvent(g_display, &event);
-		}
-		for (uint64_t i = 0; i < g_engines.size(); ++i) {
-			if (g_engines[i] == nullptr || !g_engines[i]->GetActive()) continue;
-
-			if (event.type == KeyPress) {
-				KeySym key = XLookupKeysym(&event.xkey, 0);
-
-				if ((key == XK_Control_L || key == XK_Control_R) && g_engines[i]->GetKeyFlags() & HANDLE_INTERRUPT) {
-					g_engines[i]->StopSpeech();
-				}
-				else if ((key == XK_Shift_L || key == XK_Shift_R) && g_engines[i]->GetKeyFlags() & HANDLE_PAUSE_RESUME && g_shiftPressed == false) {
-					if (g_engines[i]->paused)
-						g_engines[i]->ResumeSpeech();
-					else
-						g_engines[i]->PauseSpeech();
-					g_shiftPressed = true;
-				}
-			}
-			else if (event.type == KeyRelease) {
-				KeySym key = XLookupKeysym(&event.xkey, 0);
-
-				if ((key == XK_Shift_L || key == XK_Shift_R) && g_shiftPressed) {
-					g_shiftPressed = false;
-				}
-			}
-		}
-	}
-	XCloseDisplay(g_display);
-}
-extern "C" SRAL_API bool SRAL_RegisterKeyboardHooks(void) {
-	if (g_keyboardHookThread)return g_keyboardHookThread;
-	g_keyboardHookThread = true;
-	std::thread t(hook_thread);
-	t.detach();
-	Timer timer;
-	while (timer.elapsed() < 3000) {
-		usleep(5000);
-		if (g_display != nullptr) {
-			return true;
-		}
-	}
-	return false; // Timeout: Hook is not set
-}
-
-extern "C" SRAL_API void SRAL_UnregisterKeyboardHooks(void) {
-	g_keyboardHookThread = false;
-}
-
 #endif
-
-
 
 extern "C" SRAL_API bool SRAL_Initialize(int engines_exclude) {
 	if (g_initialized)return true;
