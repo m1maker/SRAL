@@ -47,8 +47,11 @@ int nvda_send_command(HANDLE hPipe, const char* command) {
     if (!result) {
         // If the write fails, close the pipe and reconnect
         nvda_disconnect(hPipe);
-        hPipe = INVALID_HANDLE_VALUE;
-        return -1;
+        hPipe = nvda_connect();
+        if (hPipe == INVALID_HANDLE_VALUE) {
+            return -1;
+        }
+        return nvda_send_command(hPipe, command);
     }
 
     return 0;
