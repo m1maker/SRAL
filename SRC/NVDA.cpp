@@ -43,11 +43,11 @@ bool NVDA::Speak(const char* text, bool interrupt) {
 	if (interrupt) {
 		pipe == INVALID_HANDLE_VALUE ? nvdaController_cancelSpeech() : nvda_cancel_speech(pipe);
 	}
+	if (pipe != INVALID_HANDLE_VALUE)
+		return nvda_speak(pipe, text, this->symbolLevel) == 0;
 	std::string text_str(text);
 	XmlEncode(text_str);
 	std::string final = "<speak>" + text_str + "</speak>";
-	if (pipe != INVALID_HANDLE_VALUE)
-		return nvda_speak_ssml(pipe, final.c_str()) == 0;
 	std::wstring out_ssml;
 	UnicodeConvert(final, out_ssml);
 	error_status_t result = nvdaController_speakSsml(out_ssml.c_str(), this->symbolLevel, 0, true);
@@ -66,7 +66,7 @@ bool NVDA::SpeakSsml(const char* ssml, bool interrupt) {
 	if (interrupt)
 		pipe == INVALID_HANDLE_VALUE ? nvdaController_cancelSpeech() : nvda_cancel_speech(pipe);
 	if (pipe != INVALID_HANDLE_VALUE)
-		return nvda_speak_ssml(pipe, ssml) == 0;
+		return nvda_speak_ssml(pipe, ssml, this->symbolLevel) == 0;
 	std::string text_str(ssml);
 	std::wstring out;
 	UnicodeConvert(ssml, out);

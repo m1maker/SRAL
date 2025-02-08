@@ -49,23 +49,23 @@ int nvda_send_command(HANDLE hPipe, const char* command) {
 }
 
 // Sends a "speak" command to NVDA
-int nvda_speak(HANDLE hPipe, const char* text) {
+int nvda_speak(HANDLE hPipe, const char* text, int symbol_level) {
     char command[64000];
-    snprintf(command, sizeof(command), "speak \"%s\"", text);
+    snprintf(command, sizeof(command), "speak \"%s\" 0 %d", text, symbol_level);
     return nvda_send_command(hPipe, command);
 }
 
 // Sends a "speakSpelling" command to NVDA
-int nvda_speak_spelling(HANDLE hPipe, const char* text) {
+int nvda_speak_spelling(HANDLE hPipe, const char* text, const char* locale, int use_character_descriptions) {
     char command[64000];
-    snprintf(command, sizeof(command), "speakSpelling \"%s\"", text);
+    snprintf(command, sizeof(command), "speakSpelling \"%s\" \"%s\" %d", text, locale, use_character_descriptions);
     return nvda_send_command(hPipe, command);
 }
 
 // Sends a "speakSsml" command to NVDA
-int nvda_speak_ssml(HANDLE hPipe, const char* ssml) {
+int nvda_speak_ssml(HANDLE hPipe, const char* ssml, int symbol_level) {
     char command[64000];
-    snprintf(command, sizeof(command), "speakSsml \"%s\"", ssml);
+    snprintf(command, sizeof(command), "speakSsml \"%s\" 0 %d", ssml, symbol_level);
     return nvda_send_command(hPipe, command);
 }
 
