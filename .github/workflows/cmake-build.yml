@@ -34,7 +34,7 @@ jobs:
         run: cmake . -B build -DCMAKE_OSX_ARCHITECTURES=x86_64
 
       - name: Build with CMake
-        run: cmake --build build --config Release
+        run: cmake --build build --config Release -j 16
 
 
 
