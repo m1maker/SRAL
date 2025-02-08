@@ -29,7 +29,10 @@ void nvda_disconnect(HANDLE hPipe) {
 // Sends a command to the NVDA named pipe
 int nvda_send_command(HANDLE hPipe, const char* command) {
     if (hPipe == INVALID_HANDLE_VALUE) {
-        return -1;
+        hPipe = nvda_connect();  // Reconnect if the pipe is invalid
+        if (hPipe == INVALID_HANDLE_VALUE) {
+            return -1;
+        }
     }
 
     DWORD bytesWritten;
@@ -42,6 +45,9 @@ int nvda_send_command(HANDLE hPipe, const char* command) {
     );
 
     if (!result) {
+        // If the write fails, close the pipe and reconnect
+        nvda_disconnect(hPipe);
+        hPipe = INVALID_HANDLE_VALUE;
         return -1;
     }
 
@@ -90,9 +96,7 @@ int nvda_braille(HANDLE hPipe, const char* text) {
 
 // Sends an "active" command to NVDA
 int nvda_active(HANDLE hPipe) {
-    DWORD instances;
-    GetNamedPipeHandleState(hPipe, NULL, &instances, NULL, NULL, NULL, 0);
-    return instances > 0 ? 0 : -1;
+    return nvda_send_command(hPipe, "active");
 }
 
 #ifdef __cplusplus
