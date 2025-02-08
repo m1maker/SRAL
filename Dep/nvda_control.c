@@ -16,7 +16,6 @@ HANDLE nvda_connect() {
         0,                       // Default attributes
         NULL                     // No template file
     );
-    printf("%u\n", GetLastError());
     return hPipe;
 }
 
