@@ -58,6 +58,8 @@ install(TARGETS ${PROJECT_NAME}_static DESTINATION "lib")
 
 
 add_executable(${PROJECT_NAME}_test "Examples/C/SRALExample.c" "Include/SRAL.h")
+add_executable(${PROJECT_NAME}_NVDAControleExConsole "Examples/C/NVDAControlExConsole.c" "Dep/nvda_control.c")
+
 target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME}_static)
 
 if (WIN32)
