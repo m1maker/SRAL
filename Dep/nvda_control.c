@@ -81,6 +81,20 @@ int nvda_cancel_speech(HANDLE hPipe) {
     return nvda_send_command(hPipe, "cancelSpeech");
 }
 
+// Sends a "braille" command to NVDA
+int nvda_braille(HANDLE hPipe, const char* text) {
+    char command[64000];
+    snprintf(command, sizeof(command), "braille \"%s\"", text);
+    return nvda_send_command(hPipe, command);
+}
+
+// Sends an "active" command to NVDA
+int nvda_active(HANDLE hPipe) {
+    DWORD instances;
+    GetNamedPipeHandleState(hPipe, NULL, &instances, NULL, NULL, NULL, 0);
+    return instances > 0 ? 0 : -1;
+}
+
 #ifdef __cplusplus
 }
 #endif

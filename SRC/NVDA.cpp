@@ -31,8 +31,9 @@ bool NVDA::Uninitialize() {
 
 	return true;
 }
+
 bool NVDA::GetActive() {
-	if (pipe != INVALID_HANDLE_VALUE)
+	if (nvda_active(pipe) == 0)
 		return true;
 	if (lib == nullptr) return false;
 	if (nvdaController_testIfRunning) return  (!!FindWindowW(L"wxWindowClassNR", L"NVDA") && nvdaController_testIfRunning() == 0);
@@ -86,6 +87,8 @@ bool NVDA::SetParameter(int param, int value) {
 
 bool NVDA::Braille(const char* text) {
 	if (!GetActive())return false;
+	if (pipe != INVALID_HANDLE_VALUE)
+		return nvda_braille(pipe, text) == 0;
 	std::wstring out;
 	UnicodeConvert(text, out);
 	return nvdaController_brailleMessage(out.c_str()) == 0;

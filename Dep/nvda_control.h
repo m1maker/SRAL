@@ -90,6 +90,20 @@ int nvda_pause_speech(HANDLE hPipe, int pause);
  */
 int nvda_cancel_speech(HANDLE hPipe);
 
+/**
+ * Sends a "braille" command to NVDA.
+ * @param hPipe Handle to the pipe.
+ * @param text The text to show on braille display.
+ * @return 0 on success, -1 on failure.
+ */
+int nvda_braille(HANDLE hPipe, const char* text);
+
+/**
+ * Check that NVDA is active.
+ * Returns 0 if successful, or -1 on failure.
+ */
+int nvda_active(HANDLE hPipe);
+
 #ifdef __cplusplus
 }
 #endif
