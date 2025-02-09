@@ -6,7 +6,7 @@
    @file SRAL.h
    @brief This header file defines the Screen Reader Abstraction Library (SRAL).
    
-   SRAL provides a unified interface for interacting with various screen reader engines.
+   SRAL provides a unified interface for interacting with various speech engines.
    It abstracts the differences between multiple speech engines, allowing developers to
    implement accessibility features in their applications without needing to handle the
    specifics of each engine.
@@ -15,10 +15,7 @@
    enabling applications to provide auditory feedback, braille output, and control 
    over speech parameters such as rate and volume.
 
-   @note Ensure that the appropriate engine is installed and configured on the system
-   where the application utilizing this library is run.
-
-
+*/
 #ifndef SRAL_H_
 #define SRAL_H_
 #pragma once
