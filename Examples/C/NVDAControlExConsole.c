@@ -5,7 +5,6 @@
 #include <conio.h>  // For _kbhit() and _getch()
 
 BOOL g_Running;
-HANDLE g_Nvda;
 
 void on_exit(void) {
 	printf("Exiting...\n");
@@ -25,8 +24,8 @@ BOOL WINAPI ConsoleHandler(DWORD signal) {
 
 int main(void) {
 	char command[64000];
-	g_Nvda = nvda_connect();
-	if (g_Nvda == INVALID_HANDLE_VALUE) {
+	int r = nvda_connect();
+	if (r == -1) {
 		printf("Failed to connect to NVDA named pipe.\n");
 		return -1;
 	}
@@ -75,13 +74,13 @@ int main(void) {
 		command[i] = '0'; // Null-terminate the string
 
 		if (g_Running && strlen(command) > 0) { // Check if we should still be running and if there's a command
-			if (nvda_send_command(g_Nvda, command) == -1) {
+			if (nvda_send_command(command) == -1) {
 				printf("Failed to send command %s\n", command);
 			}
 			printf("\r\n"); // Move to a new line (next command)
 		}
 	}
-	nvda_disconnect(g_Nvda);
+	nvda_disconnect();
 	return 0;
 }
 

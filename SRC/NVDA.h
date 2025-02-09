@@ -47,7 +47,6 @@ public:
 
 private:
 	HINSTANCE lib = nullptr;
-	HANDLE pipe = nullptr;
 	typedef error_status_t(__stdcall* NVDAController_speakText)(const wchar_t*);
 	typedef error_status_t(__stdcall* NVDAController_brailleMessage)(const wchar_t*);
 	typedef error_status_t(__stdcall* NVDAController_cancelSpeech)();
