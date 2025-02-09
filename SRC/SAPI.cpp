@@ -5,7 +5,7 @@
 #include<thread>
 
 
-WasapiPlayer* g_player = nullptr; // Make it global to avoid multiple voices when reinitializing
+static WasapiPlayer* g_player = nullptr; // Make it global to avoid multiple voices when reinitializing
 
 
 static char* trim(char* data, unsigned long* size, WAVEFORMATEX* wfx, int threshold) {
