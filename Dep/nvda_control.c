@@ -105,10 +105,43 @@ int nvda_braille(const char* text) {
     return nvda_send_command(command);
 }
 
-// Sends an "active" command to NVDA
+// Function to check if NVDA is active
 int nvda_active(void) {
-    return g_hNvda != INVALID_HANDLE_VALUE && nvda_send_command("active");
+    if (g_hNvda == INVALID_HANDLE_VALUE) {
+        return -1;  // Pipe is not connected
+    }
+
+    static const char* pingCommand = "active";
+    DWORD bytesWritten;
+    BOOL result = WriteFile(
+        g_hNvda,
+        pingCommand,
+        (DWORD)strlen(pingCommand),
+        &bytesWritten,
+        NULL
+    );
+
+    if (!result || bytesWritten != strlen(pingCommand)) {
+        nvda_disconnect();
+        return -1;
+    }
+
+    char buffer[5];
+    result = ReadFile(
+        g_hNvda,
+        buffer,
+        sizeof(buffer) - 1,
+        NULL,
+        NULL
+    );
+
+    if (!result) {
+        return -1;
+    }
+
+    return strcmp(buffer, "NVDA") == 0 ? 0 : -1;
 }
+
 
 #ifdef __cplusplus
 }
