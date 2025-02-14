@@ -4,11 +4,15 @@
 extern "C" {
 #endif
 
-static HANDLE g_hNvda;
+static HANDLE g_hNvda = INVALID_HANDLE_VALUE;
 
 
 // Connects to the NVDA named pipe
 int nvda_connect(void) {
+    if (g_hNvda != INVALID_HANDLE_VALUE) {
+        nvda_disconnect();
+    }
+
     g_hNvda = CreateFileW(
         NVDA_PIPE_NAME,          // Pipe name
         GENERIC_READ | GENERIC_WRITE, // Read and write access
@@ -24,8 +28,10 @@ int nvda_connect(void) {
 // Disconnects from the NVDA named pipe
 void nvda_disconnect(void) {
     if (g_hNvda != INVALID_HANDLE_VALUE) {
+        DisconnectNamedPipe(g_hNvda);
         CloseHandle(g_hNvda);
     }
+    g_hNvda = INVALID_HANDLE_VALUE;
 }
 
 // Sends a command to the NVDA named pipe
@@ -101,8 +107,7 @@ int nvda_braille(const char* text) {
 
 // Sends an "active" command to NVDA
 int nvda_active(void) {
-    nvda_disconnect();
-    return nvda_send_command("active");
+    return g_hNvda != INVALID_HANDLE_VALUE && nvda_send_command("active");
 }
 
 #ifdef __cplusplus
