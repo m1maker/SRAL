@@ -36,7 +36,7 @@ bool SpeechDispatcher::Speak(const char* text, bool interrupt) {
 bool SpeechDispatcher::SetParameter(int param, void* value) {
 	switch (param) {
 	case SYMBOL_LEVEL:
-		spd_set_punctuation(Speech, (SPDPunctuation)*value);
+		spd_set_punctuation(Speech, static_cast<SPDPunctuation>(*static_cast<int*>(value)));
 		break;
 	default:
 		return false;
