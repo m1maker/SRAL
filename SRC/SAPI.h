@@ -13,7 +13,8 @@ public:
 		return false;
 	}
 	void* SpeakToMemory(const char* text, uint64_t* buffer_size, int*channels, int* sample_rate, int* bits_per_sample)override;
-	bool SetParameter(int param, int value)override;
+	bool SetParameter(int param, void* value)override;
+	void* GetParameter(int param) override;
 
 	bool Braille(const char* text)override { return false; }
 	bool StopSpeech()override;

@@ -84,7 +84,8 @@ extern "C" {
 		SYMBOL_LEVEL,
 		SAPI_TRIM_THRESHOLD,
 		ENABLE_SPELLING,
-		USE_CHARACTER_DESCRIPTIONS
+		USE_CHARACTER_DESCRIPTIONS,
+		NVDA_IS_CONTROL_EX
 	};
 
 
@@ -192,14 +193,23 @@ extern "C" {
 * @brief Set the parameter for the specified speech engine.
 * @param engine The engine to set the param for.
 * @param param The desired parameter.
-* @param value The desired value.
+* @param value A pointer to desired value.
 
 * @return true if the parameter was set successfully, false otherwise.
 */
 
-	SRAL_API bool SRAL_SetEngineParameter(int engine, int param, int value);
+	SRAL_API bool SRAL_SetEngineParameter(int engine, int param, void* value);
 
 
+
+
+	/**
+* @brief Get the parameter for the specified speech engine.
+* @param engine The engine to get the param for.
+* @return an address to value if the parameter was get successfully, NULL otherwise.
+*/
+
+	SRAL_API void* SRAL_GetEngineParameter(int engine, int param);
 
 
 

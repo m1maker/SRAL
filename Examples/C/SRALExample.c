@@ -26,6 +26,8 @@ int main(void) {
 	}
 	SRAL_RegisterKeyboardHooks();
 	// Speak some text
+	bool result = *(bool*)SRAL_GetEngineParameter(ENGINE_NVDA, NVDA_IS_CONTROL_EX);
+	printf("NVDA extended: %d\n", result);
 	if (SRAL_GetEngineFeatures(0) & SUPPORTS_SPEECH) {
 		printf("Enter the text you want to be spoken:\n");
 		scanf("%s", text);

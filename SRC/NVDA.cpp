@@ -71,21 +71,38 @@ bool NVDA::SpeakSsml(const char* ssml, bool interrupt) {
 	return nvdaController_speakSsml(out.c_str(), this->symbolLevel, 0, true) == 0;
 }
 
-bool NVDA::SetParameter(int param, int value) {
+bool NVDA::SetParameter(int param, void* value) {
 	switch (param) {
 	case SYMBOL_LEVEL:
-		this->symbolLevel = value;
+		this->symbolLevel = *static_cast<int*>(value);
 		break;
 	case ENABLE_SPELLING:
-		this->enable_spelling = value;
+		this->enable_spelling = *static_cast<bool*>(value);
 		break;
 	case USE_CHARACTER_DESCRIPTIONS:
-		this->use_character_descriptions = value;
+		this->use_character_descriptions = *static_cast<bool*>(value);
 		break;
 	default:
 		return false;
 	}
 	return true;
+}
+
+void* NVDA::GetParameter(int param) {
+	switch (param) {
+	case SYMBOL_LEVEL:
+		return static_cast<void*>(&this->symbolLevel);
+	case ENABLE_SPELLING:
+		return static_cast<void*>(&this->enable_spelling);
+	case USE_CHARACTER_DESCRIPTIONS:
+		return static_cast<void*>(&this->use_character_descriptions);
+	case NVDA_IS_CONTROL_EX:
+		this->extended = nvda_active() == 0;
+		return static_cast<void*>(&this->extended);
+	default:
+		return nullptr;
+	}
+	return nullptr;
 }
 
 bool NVDA::Braille(const char* text) {
