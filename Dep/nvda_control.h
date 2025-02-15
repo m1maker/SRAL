@@ -1,3 +1,22 @@
+/*
+ * NVDA Control Header File
+ *
+ * Copyright (c) 2025 [m1maker]
+ * This header file defines the interface for communicating with the NVDA (NonVisual Desktop Access)
+ * screen reader via a named pipe
+ *
+ * Prerequisites:
+ * - The NVDAControlEx add-on must be installed in NVDA for this interface to function correctly.
+ * https://github.com/m1maker/NVDAControlEx
+ *   This add-on enhances the NVDA API, allowing for more advanced control and communication features.
+ *
+ * Usage:
+ * To use this API, include this header file in your source code and link against the nvda_control.c
+ * implementation that handles the actual communication with NVDA. Ensure that the NVDAControlEx add-on
+ * is installed and enabled.
+ */
+
+
 #ifndef NVDA_CONTROL_H
 #define NVDA_CONTROL_H
 
