@@ -42,7 +42,7 @@ bool NVDA::Speak(const char* text, bool interrupt) {
 		nvda_active() != 0 ? nvdaController_cancelSpeech() : nvda_cancel_speech();
 	}
 	if (nvda_active() == 0)
-		return nvda_speak(text, this->symbolLevel) == 0;
+		return !enable_spelling ? nvda_speak(text, this->symbolLevel) == 0 : nvda_speak_spelling(text, "", this->use_character_descriptions) == 0;
 	std::string text_str(text);
 	XmlEncode(text_str);
 	std::string final = "<speak>" + text_str + "</speak>";
@@ -75,6 +75,12 @@ bool NVDA::SetParameter(int param, int value) {
 	switch (param) {
 	case SYMBOL_LEVEL:
 		this->symbolLevel = value;
+		break;
+	case ENABLE_SPELLING:
+		this->enable_spelling = value;
+		break;
+	case USE_CHARACTER_DESCRIPTIONS:
+		this->use_character_descriptions = value;
 		break;
 	default:
 		return false;
