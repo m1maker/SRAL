@@ -5,10 +5,13 @@
 
 bool NVDA::Initialize() {
 	int r = nvda_connect();
-	if (r == 0)
+	if (r == 0) {
 		return true;
+	}
 	lib = LoadLibraryW(L"nvdaControllerClient.dll");
-	if (lib == nullptr)return false;
+	if (lib == nullptr) {
+		return false	;
+	}
 	nvdaController_speakText = (NVDAController_speakText)GetProcAddress(lib, "nvdaController_speakText");
 	nvdaController_brailleMessage = (NVDAController_brailleMessage)GetProcAddress(lib, "nvdaController_brailleMessage");
 	nvdaController_cancelSpeech = (NVDAController_cancelSpeech)GetProcAddress(lib, "nvdaController_cancelSpeech");
@@ -32,6 +35,11 @@ bool NVDA::Uninitialize() {
 bool NVDA::GetActive() {
 	if (nvda_active() == 0)
 		return true;
+	else {
+		// Try to use the library
+		this->Uninitialize();
+		return this->Initialize();
+	}
 	if (lib == nullptr) return false;
 	if (nvdaController_testIfRunning) return  (!!FindWindowW(L"wxWindowClassNR", L"NVDA") && nvdaController_testIfRunning() == 0);
 	return false;
@@ -39,7 +47,7 @@ bool NVDA::GetActive() {
 bool NVDA::Speak(const char* text, bool interrupt) {
 	if (!GetActive())return false;
 	if (interrupt) {
-		nvda_active() != 0 ? nvdaController_cancelSpeech() : nvda_cancel_speech();
+		nvda_active() == 0 ? nvdaController_cancelSpeech() : nvda_cancel_speech();
 	}
 	if (nvda_active() == 0)
 		return !enable_spelling ? nvda_speak(text, this->symbolLevel) == 0 : nvda_speak_spelling(text, "", this->use_character_descriptions) == 0;
@@ -62,7 +70,7 @@ bool NVDA::Speak(const char* text, bool interrupt) {
 bool NVDA::SpeakSsml(const char* ssml, bool interrupt) {
 	if (!GetActive())return false;
 	if (interrupt)
-		nvda_active() != 0 ? nvdaController_cancelSpeech() : nvda_cancel_speech();
+		nvda_active() == 0 ? nvdaController_cancelSpeech() : nvda_cancel_speech();
 	if (nvda_active() == 0)
 		return nvda_speak_ssml(ssml, this->symbolLevel) == 0;
 	std::string text_str(ssml);
@@ -115,7 +123,7 @@ bool NVDA::Braille(const char* text) {
 }
 bool NVDA::StopSpeech() {
 	if (!GetActive())return false;
-	return nvda_active() != 0 ? nvdaController_cancelSpeech() == 0 : nvda_cancel_speech() == 0;
+	return nvda_active() == 0 ? nvdaController_cancelSpeech() == 0 : nvda_cancel_speech() == 0;
 }
 bool NVDA::PauseSpeech() {
 	if (!GetActive())return false;
@@ -136,5 +144,5 @@ bool NVDA::PauseSpeech() {
 	return true;
 }
 bool NVDA::ResumeSpeech() {
-	return nvda_active() != 0 ? PauseSpeech() : nvda_pause_speech(false);
+	return nvda_active() == 0 ? PauseSpeech() : nvda_pause_speech(false);
 }
