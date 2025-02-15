@@ -49,16 +49,16 @@ bool StopSpeech(){
 bool GetActive(){
  return synth != nil;
 }
-void SetVolume(uint64_t value){
+void SetVolume(int value){
  this->volume = value;
 }
-uint64_t GetVolume(){
+int GetVolume(){
  return this->volume;
 }
-void SetRate(uint64_t value){
+void SetRate(int value){
  this->rate = value;
 }
-uint64_t GetRate(){
+int GetRate(){
  return this->rate;
 }
 uint64_t GetVoiceCount(){
