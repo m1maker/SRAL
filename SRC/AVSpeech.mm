@@ -158,10 +158,14 @@ bool AVSpeech::SetParameter(int param, void* value) {
 void* AVSpeech::GetParameter(int param) {
 	int voice_count = 0;
 	switch (param) {
-	case SPEECH_RATE:
-		return static_cast<void*>(&obj->GetRate());
-	case SPEECH_VOLUME:
-		return static_cast<void*>(&obj->GetVolume());
+	case SPEECH_RATE: {
+		int rate = obj->GetRate();
+		return new int(rate);
+	}
+	case SPEECH_VOLUME: {
+		int volume = obj->GetVolume();
+		return new int(volume);
+	}
 	case VOICE_LIST:
 		if (!voices.empty())
 			voices.clear();
