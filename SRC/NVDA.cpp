@@ -38,7 +38,7 @@ bool NVDA::GetActive() {
 	else {
 		// Try to use the library
 		this->Uninitialize();
-		return this->Initialize();
+		this->Initialize();
 	}
 	if (lib == nullptr) return false;
 	if (nvdaController_testIfRunning) return  (!!FindWindowW(L"wxWindowClassNR", L"NVDA") && nvdaController_testIfRunning() == 0);
