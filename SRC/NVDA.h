@@ -25,7 +25,7 @@ public:
 	bool Initialize()override;
 	bool Uninitialize()override;
 	int GetFeatures()override {
-		return SUPPORTS_SPEECH | SUPPORTS_BRAILLE | SUPPORTS_PAUSE_SPEECH;
+		return SUPPORTS_SPEECH | SUPPORTS_BRAILLE | SUPPORTS_PAUSE_SPEECH | SUPPORTS_SPELLING;
 	}
 	void SetVolume(uint64_t)override { return; }
 	uint64_t GetVolume()override { return 0; }
@@ -59,7 +59,8 @@ private:
 	NVDAController_testIfRunning nvdaController_testIfRunning = nullptr;
 	NVDAController_speakSsml nvdaController_speakSsml = nullptr;
 	int symbolLevel = -1;
-
+	bool enable_spelling = false;
+	bool use_character_descriptions = false;
 
 };
 #endif
