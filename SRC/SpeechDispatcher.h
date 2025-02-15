@@ -15,7 +15,8 @@ public:
 		return nullptr;
 	}
 
-	bool SetParameter(int param, int value)override;
+	bool SetParameter(int param, void* value)override;
+	void* GetParameter(int param) override;
 
 
 	bool Braille(const char* text)override { return false; }

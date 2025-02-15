@@ -172,10 +172,10 @@ void* SAPI::SpeakToMemory(const char* text, uint64_t* buffer_size, int*channels,
 	return final;
 }
 
-bool SAPI::SetParameter(int param, int value) {
+bool SAPI::SetParameter(int param, void* value) {
 	switch (param) {
 	case SAPI_TRIM_THRESHOLD:
-		this->trimThreshold = value;
+		this->trimThreshold = *static_cast<int*>(value);
 		break;
 	default:
 		return false;
@@ -183,6 +183,15 @@ bool SAPI::SetParameter(int param, int value) {
 	return true;
 }
 
+void* SAPI::GetParameter(int param) {
+	switch (param) {
+	case SAPI_TRIM_THRESHOLD:
+		return static_cast<void*>(&this->trimThreshold);
+	default:
+		return nullptr;
+	}
+	return nullptr;
+}
 
 bool SAPI::StopSpeech() {
 	if (g_player == nullptr)return false;

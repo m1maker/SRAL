@@ -30,7 +30,9 @@ public:
 	virtual const char* GetVoiceName(uint64_t index) = 0;
 	virtual bool SetVoice(uint64_t index) = 0;
 	virtual int GetKeyFlags() = 0;
-	virtual bool SetParameter(int param, int value) = 0;
+	virtual bool SetParameter(int param, void* value) = 0;
+	virtual void* GetParameter(int param) = 0;
+
 	bool paused;
 };
 #endif

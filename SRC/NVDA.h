@@ -13,7 +13,9 @@ public:
 		return nullptr;
 	}
 
-	bool SetParameter(int param, int value)override;
+	bool SetParameter(int param, void* value)override;
+	void* GetParameter(int param) override;
+
 	bool Braille(const char* text)override;
 	bool StopSpeech()override;
 	bool PauseSpeech()override;
@@ -61,7 +63,7 @@ private:
 	int symbolLevel = -1;
 	bool enable_spelling = false;
 	bool use_character_descriptions = false;
-
+	bool extended = false;
 };
 #endif
 #endif

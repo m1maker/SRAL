@@ -17,8 +17,12 @@ public:
 		return nullptr;
 	}
 
-	bool SetParameter(int param, int value)override {
+	bool SetParameter(int param, void* value)override {
 		return false;
+	}
+
+	void* GetParameter(int param) override {
+		return nullptr;
 	}
 
 

@@ -14,8 +14,12 @@ public:
 	void* SpeakToMemory(const char* text, uint64_t* buffer_size, int*channels, int* sample_rate, int* bits_per_sample)override {
 		return nullptr;
 	}
-	bool SetParameter(int param, int value)override {
+	bool SetParameter(int param, void* value)override {
 		return false;
+	}
+
+	void* GetParameter(int param) override {
+		return nullptr;
 	}
 
 	bool Braille(const char* text)override;
