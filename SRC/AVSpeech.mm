@@ -5,13 +5,13 @@
 
 class AVSpeechSynthesizerWrapper {
 public:
-    float rate;
-    float volume;
-    AVSpeechSynthesizer* synth;
-    AVSpeechSynthesisVoice* currentVoice;
-    AVSpeechUtterance* utterance;
+	float rate;
+	float volume;
+	AVSpeechSynthesizer* synth;
+	AVSpeechSynthesisVoice* currentVoice;
+	AVSpeechUtterance* utterance;
 
-    AVSpeechSynthesizerWrapper() : rate(0), volume(1), synth(nullptr), currentVoice(nullptr), utterance(nullptr) {}
+	AVSpeechSynthesizerWrapper() : rate(0), volume(1), synth(nullptr), currentVoice(nullptr), utterance(nullptr) {}
 AVSpeechSynthesisVoice* getVoiceObject(NSString* name){
  NSArray<AVSpeechSynthesisVoice*>* voices = [AVSpeechSynthesisVoice speechVoices];
  for (AVSpeechSynthesisVoice* v in voices) {
@@ -87,55 +87,93 @@ bool SetVoice(uint64_t index){
 };
 
 bool AVSpeech::Initialize() {
-    obj = new AVSpeechSynthesizerWrapper();
-    return obj->Initialize();
+	obj = new AVSpeechSynthesizerWrapper();
+	return obj->Initialize();
 }
 
 bool AVSpeech::Uninitialize() {
-    if (obj == nullptr) return false; // Check for nullptr
-    delete obj;
-    obj = nullptr; // Set to nullptr after deletion
-    return true; // Return true to indicate successful uninitialization
+	if (obj == nullptr) return false; // Check for nullptr
+	delete obj;
+	obj = nullptr; // Set to nullptr after deletion
+	return true; // Return true to indicate successful uninitialization
 }
 
 bool AVSpeech::GetActive() {
-    return obj != nullptr && obj->GetActive();
+	return obj != nullptr && obj->GetActive();
 }
 
 bool AVSpeech::Speak(const char* text, bool interrupt) {
-    return obj->Speak(text, interrupt);
+	return obj->Speak(text, interrupt);
 }
 
 bool AVSpeech::StopSpeech() {
-    return obj->StopSpeech();
+	return obj->StopSpeech();
 }
 
 void AVSpeech::SetVolume(uint64_t value) {
-    obj->SetVolume(value);
+	obj->SetVolume(value);
 }
 
 uint64_t AVSpeech::GetVolume() {
-    return obj->GetVolume();
+	return obj->GetVolume();
 }
 
 void AVSpeech::SetRate(uint64_t value) {
-    obj->SetRate(value);
+	obj->SetRate(value);
 }
 
 uint64_t AVSpeech::GetRate() {
-    return obj->GetRate();
+	return obj->GetRate();
 }
 
 uint64_t AVSpeech::GetVoiceCount() {
-    return obj->GetVoiceCount();
+	return obj->GetVoiceCount();
 }
 
 const char* AVSpeech::GetVoiceName(uint64_t index) {
-    return obj->GetVoiceName(index);
+	return obj->GetVoiceName(index);
 }
 
 bool AVSpeech::SetVoice(uint64_t index) {
-    return obj->SetVoice(index);
+	return obj->SetVoice(index);
 }
 
+
+bool AVSpeech::SetParameter(int param, void* value) {
+	switch (param) {
+	case SPEECH_RATE:
+		obj->SetRate(*static_cast<int*>(value));
+		return true;
+	case SPEECH_VOLUME:
+		obj->SetVolume(*static_cast<int*>(value));
+		return true;
+	case VOICE_INDEX:
+		return obj->SetVoice(*static_cast<int*>(value));
+	default:
+		return false;
+	}
+	return true;
+}
+
+void* AVSpeech::GetParameter(int param) {
+	int voice_count = 0;
+	switch (param) {
+	case SPEECH_RATE:
+		return static_cast<void*>(&obj->GetRate());
+	case SPEECH_VOLUME:
+		return static_cast<void*>(&obj->GetVolume());
+	case VOICE_LIST:
+		if (!voices.empty())
+			voices.clear();
+		voice_count = obj->GetVoiceCount();
+		voices.resize(voice_count);
+		for (int i = 0; i < voice_count; ++i) {
+			voices[i] = obj->GetVoiceName(i);
+		}
+		return static_cast<void*>(voices.data());
+	default:
+		return nullptr;
+	}
+	return nullptr;
+}
 

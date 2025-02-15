@@ -5,6 +5,7 @@ Thanks Gruia for implementing AVSpeech.
 #include "../Include/SRAL.h"
 #include "Engine.h"
 #include <string>
+#include <vector>
 class AVSpeechSynthesizerWrapper;
 
 class AVSpeech : public Engine {
@@ -17,14 +18,9 @@ public:
 		return nullptr;
 	}
 
-	bool SetParameter(int param, void* value)override {
-		return false;
-	}
+	bool SetParameter(int param, void* value)override;
 
-	void* GetParameter(int param) override {
-		return nullptr;
-	}
-
+	void* GetParameter(int param) override;
 
 	bool Braille(const char* text)override { return false; }
 	bool StopSpeech()override;
@@ -52,4 +48,5 @@ public:
 
 private:
 	AVSpeechSynthesizerWrapper* obj = nullptr;
+	std::vector<const char*> voices;
 };

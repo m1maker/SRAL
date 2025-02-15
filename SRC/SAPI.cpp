@@ -173,10 +173,21 @@ void* SAPI::SpeakToMemory(const char* text, uint64_t* buffer_size, int*channels,
 }
 
 bool SAPI::SetParameter(int param, void* value) {
+	if (instance == nullptr)
+		return false;
+
 	switch (param) {
 	case SAPI_TRIM_THRESHOLD:
 		this->trimThreshold = *static_cast<int*>(value);
 		break;
+	case SPEECH_RATE:
+		blastspeak_set_voice_rate(instance, *static_cast<int*>(value));
+		return true;
+	case SPEECH_VOLUME:
+		blastspeak_set_voice_volume(instance, *static_cast<int*>(value));
+		return true;
+	case VOICE_INDEX:
+		blastspeak_set_voice(instance, *static_cast<int*>(value));
 	default:
 		return false;
 	}
@@ -184,9 +195,27 @@ bool SAPI::SetParameter(int param, void* value) {
 }
 
 void* SAPI::GetParameter(int param) {
+	if (instance == nullptr)
+		return nullptr;
+	long* val = new long;
+
 	switch (param) {
 	case SAPI_TRIM_THRESHOLD:
 		return static_cast<void*>(&this->trimThreshold);
+	case SPEECH_RATE:
+		blastspeak_get_voice_rate(instance, val);
+		return static_cast<void*>(val);
+	case SPEECH_VOLUME:
+		blastspeak_get_voice_volume(instance, val);
+		return static_cast<void*>(val);
+	case VOICE_LIST:
+		if (!voices.empty())
+			voices.clear();
+		voices.resize(instance->voice_count);
+		for (int i = 0; i < instance->voice_count; ++i) {
+			voices[i] = blastspeak_get_voice_description(instance, i);
+		}
+		return static_cast<void*>(voices.data());
 	default:
 		return nullptr;
 	}

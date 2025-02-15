@@ -52,10 +52,11 @@ int main(void) {
 	// Speech rate
 	if (SRAL_GetEngineFeatures(0) & SUPPORTS_SPEECH_RATE) {
 
-		uint64_t rate = SRAL_GetRate();
+		int rate = *(int*)SRAL_GetEngineParameter(ENGINE_NONE, SPEECH_RATE);
+
 		const uint64_t max_rate = rate + 10;
 		for (rate; rate < max_rate; rate++) {
-			SRAL_SetRate(rate);
+			SRAL_SetEngineParameter(ENGINE_NONE, SPEECH_RATE, &rate);
 			SRAL_Speak(text, false);
 			sleep_ms(500);
 		}
