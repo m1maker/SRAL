@@ -24,6 +24,10 @@ You will also have an executable test to test the SRAL.
 To build on Linux you need to install libspeechd-dev and libx11-dev
 
 
+## Support for NVDAControlEx
+
+SRAL supports the [NVDAControlEx](https://github.com/m1maker/NVDAControlEx) add-on, allowing developers to extended manage the NVDA functions.
+
 ## Usage
 
 To use the SRAL API in a C/C++ project, you need a statically linked or dynamically imported SRAL library, as well as a SRAL.h file with function declarations.
