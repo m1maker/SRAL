@@ -18,6 +18,7 @@
 #include <string>
 #include <chrono>
 #include <thread>
+#include <map>
 
 class Timer {
 public:
@@ -38,6 +39,18 @@ private:
 	std::chrono::time_point<std::chrono::high_resolution_clock> start_time;
 };
 
+
+
+static const std::map<SRAL_Engines, std::string> g_engineNames = {
+	{ ENGINE_NONE, "None" },
+	{ ENGINE_NVDA, "NVDA" },
+	{ ENGINE_SAPI, "SAPI" },
+	{ ENGINE_JAWS, "JAWS" },
+	{ ENGINE_SPEECH_DISPATCHER, "Speech Dispatcher" },
+	{ ENGINE_UIA, "UIA" },
+	{ ENGINE_AV_SPEECH, "AV Speech" },
+	{ ENGINE_NARRATOR, "Narrator" }
+};
 
 
 static Engine* g_currentEngine = nullptr;
@@ -614,3 +627,15 @@ extern "C" SRAL_API int SRAL_GetActiveEngines(void) {
 	}
 	return mask;
 }
+
+
+extern "C" SRAL_API const char* SRAL_GetEngineName(int engine) {
+	auto it = g_engineNames.find(static_cast<SRAL_Engines>(engine));
+	if (it != g_engineNames.end()) {
+		return it->second.c_str();
+	} else {
+		return "";
+	}
+	return "";
+}
+

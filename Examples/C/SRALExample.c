@@ -17,6 +17,16 @@ void sleep_ms(int milliseconds) {
 #endif
 }
 
+void PrintEngineNames(int engineBitmask) {
+	for (int engine = ENGINE_NVDA; engine <= ENGINE_NARRATOR; engine <<= 1) {
+		if (engineBitmask & engine) {
+			const char* name = SRAL_GetEngineName(engine);
+			printf("%s\n", name);
+		}
+	}
+}
+
+
 int main(void) {
 	char text[10000];
 	// Initialize the SRAL library
@@ -24,6 +34,14 @@ int main(void) {
 		printf("Failed to initialize SRAL library.\n");
 		return 1;
 	}
+
+	printf("Available engines on the current platform:\n");
+	PrintEngineNames(SRAL_GetAvailableEngines());
+	printf("\n");
+	printf("Active/running engines:\n");
+	PrintEngineNames(SRAL_GetActiveEngines());
+	printf("\n");
+
 	SRAL_RegisterKeyboardHooks();
 	// Speak some text
 	bool result = *(bool*)SRAL_GetEngineParameter(ENGINE_NVDA, NVDA_IS_CONTROL_EX);
