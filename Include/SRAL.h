@@ -515,6 +515,17 @@ extern "C" {
 
 
 
+	/**
+ * @brief Get name of the specified engine.
+ * @param engine The identifier of the engine to query.
+ * @return a pointer to the name.
+ */
+
+
+	SRAL_API const char* SRAL_GetEngineName(int engine);
+
+
+
 
 #ifdef __cplusplus
 }// extern "C"
