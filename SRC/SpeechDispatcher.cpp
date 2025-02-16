@@ -53,14 +53,11 @@ bool SpeechDispatcher::SetParameter(int param, void* value) {
 
 void* SpeechDispatcher::GetParameter(int param) {
 	if (Speech == nullptr)return nullptr;
-	long* val = new long;
 	switch (param) {
 		case SPEECH_RATE:
-			*val = spd_get_voice_rate(Speech);
-			return static_cast<void*>(val);
+			return new int(spd_get_voice_rate(Speech));
 		case SPEECH_VOLUME:
-			*val = spd_get_volume(Speech);
-			return static_cast<void*>(val);
+			return new int(spd_get_volume(Speech));
 		default:
 			return nullptr;
 	}

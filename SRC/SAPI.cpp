@@ -196,17 +196,20 @@ bool SAPI::SetParameter(int param, void* value) {
 void* SAPI::GetParameter(int param) {
 	if (instance == nullptr)
 		return nullptr;
-	long* val = new long;
 
 	switch (param) {
 	case SAPI_TRIM_THRESHOLD:
-		return static_cast<void*>(&this->trimThreshold);
-	case SPEECH_RATE:
+		return new long(this->trimThreshold);
+	case SPEECH_RATE: {
+		long* val = new long;
 		blastspeak_get_voice_rate(instance, val);
 		return static_cast<void*>(val);
-	case SPEECH_VOLUME:
+	}
+	case SPEECH_VOLUME: {
+		long* val = new long;
 		blastspeak_get_voice_volume(instance, val);
 		return static_cast<void*>(val);
+	}
 	case VOICE_LIST:
 		if (voices)
 			delete[] voices;
@@ -218,8 +221,7 @@ void* SAPI::GetParameter(int param) {
 		}
 		return voices;
 	case VOICE_COUNT:
-		*val = instance->voice_count;
-		return static_cast<void*>(val);
+		return new int(instance->voice_count);
 	default:
 		return nullptr;
 	}

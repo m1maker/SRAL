@@ -99,14 +99,14 @@ bool NVDA::SetParameter(int param, void* value) {
 void* NVDA::GetParameter(int param) {
 	switch (param) {
 	case SYMBOL_LEVEL:
-		return static_cast<void*>(&this->symbolLevel);
+		return new int(this->symbolLevel);
 	case ENABLE_SPELLING:
-		return static_cast<void*>(&this->enable_spelling);
+		return new bool(this->enable_spelling);
 	case USE_CHARACTER_DESCRIPTIONS:
-		return static_cast<void*>(&this->use_character_descriptions);
+		return new bool(this->use_character_descriptions);
 	case NVDA_IS_CONTROL_EX:
 		this->extended = nvda_active() == 0;
-		return static_cast<void*>(&this->extended);
+		return new bool(this->extended);
 	default:
 		return nullptr;
 	}
