@@ -4,7 +4,6 @@
 #include<string>
 #include<thread>
 
-
 static WasapiPlayer* g_player = nullptr; // Make it global to avoid multiple voices when reinitializing
 
 
@@ -209,13 +208,18 @@ void* SAPI::GetParameter(int param) {
 		blastspeak_get_voice_volume(instance, val);
 		return static_cast<void*>(val);
 	case VOICE_LIST:
-		if (!voices.empty())
-			voices.clear();
-		voices.resize(instance->voice_count);
+		if (voices)
+			delete[] voices;
+		voices = new const char*[instance->voice_count];
 		for (int i = 0; i < instance->voice_count; ++i) {
-			voices[i] = blastspeak_get_voice_description(instance, i);
+			const char* voice_desc = blastspeak_get_voice_description(instance, i);
+			voices[i] = new char[strlen(voice_desc) + 1];
+			strcpy(const_cast<char*>(voices[i]), voice_desc);
 		}
-		return static_cast<void*>(voices.data());
+		return voices;
+	case VOICE_COUNT:
+		*val = instance->voice_count;
+		return static_cast<void*>(val);
 	default:
 		return nullptr;
 	}

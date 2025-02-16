@@ -49,6 +49,28 @@ int main(void) {
 	scanf("%s", text);
 
 	SRAL_StopSpeech(); // Stops the delay thread
+
+	// Set voice
+	if (SRAL_GetEngineFeatures(0) & SUPPORTS_SELECT_VOICE) {
+		int voice_count = *(int*)SRAL_GetEngineParameter(0, VOICE_COUNT);
+		if (voice_count > 0) {
+			const char** voices = (const char**)SRAL_GetEngineParameter(0, VOICE_LIST);
+			if (voices != NULL) {
+				printf("Enter voice index to select\nVoice list:\n");
+				for (int i = 0; i < voice_count; i++) {
+					printf("%d: %s\n", i, voices[i]);
+					free((void*)voices[i]);
+				}
+				free(voices);
+				int index = 0;
+				scanf("%d", &index);
+				if (index >= 0 && index < voice_count) {
+					SRAL_SetEngineParameter(0, VOICE_INDEX, &index);
+				}
+			}
+		}
+	}
+
 	// Speech rate
 	if (SRAL_GetEngineFeatures(0) & SUPPORTS_SPEECH_RATE) {
 

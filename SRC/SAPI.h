@@ -6,7 +6,6 @@
 #include "../Dep/wasapi.h"
 #include "../Include/SRAL.h"
 #include "Engine.h"
-#include <vector>
 
 class SAPI : public Engine {
 public:
@@ -46,6 +45,6 @@ private:
 	blastspeak* instance = nullptr;
 	WAVEFORMATEX wfx;
 	int trimThreshold = 20;
-	std::vector<const char*> voices;
+	const char** voices = nullptr;
 };
 #endif
