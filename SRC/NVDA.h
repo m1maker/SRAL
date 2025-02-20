@@ -13,8 +13,8 @@ public:
 		return nullptr;
 	}
 
-	bool SetParameter(int param, void* value)override;
-	void* GetParameter(int param) override;
+	bool SetParameter(int param, const void* value)override;
+	bool GetParameter(int param, void* value) override;
 
 	bool Braille(const char* text)override;
 	bool StopSpeech()override;

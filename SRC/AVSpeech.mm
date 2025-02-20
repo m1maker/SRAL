@@ -139,45 +139,42 @@ bool AVSpeech::SetVoice(uint64_t index) {
 }
 
 
-bool AVSpeech::SetParameter(int param, void* value) {
+bool AVSpeech::SetParameter(int param, const void* value) {
 	switch (param) {
 	case SPEECH_RATE:
-		obj->SetRate(*static_cast<int*>(value));
+		obj->SetRate(*reinterpret_cast<const int*>(value));
 		return true;
 	case SPEECH_VOLUME:
-		obj->SetVolume(*static_cast<int*>(value));
+		obj->SetVolume(*reinterpret_cast<const int*>(value));
 		return true;
 	case VOICE_INDEX:
-		return obj->SetVoice(*static_cast<int*>(value));
+		return obj->SetVoice(*reinterpret_cast<const int*>(value));
 	default:
 		return false;
 	}
 	return true;
 }
 
-void* AVSpeech::GetParameter(int param) {
-	int voice_count = 0;
+bool AVSpeech::GetParameter(int param, void* value) {
 	switch (param) {
 	case SPEECH_RATE: {
-		int rate = obj->GetRate();
-		return new int(rate);
+		*(int*)value = obj->GetRate();
+		return true;
 	}
 	case SPEECH_VOLUME: {
-		int volume = obj->GetVolume();
-		return new int(volume);
+		*(int*)value = obj->GetVolume();
+		return true;
 	}
-	case VOICE_LIST:
-		if (!voices.empty())
-			voices.clear();
-		voice_count = obj->GetVoiceCount();
-		voices.resize(voice_count);
+	case VOICE_LIST: {
+		int voice_count = obj->GetVoiceCount();
 		for (int i = 0; i < voice_count; ++i) {
-			voices[i] = obj->GetVoiceName(i);
+			(const char**)value[i] = obj->GetVoiceName(i);
 		}
-		return static_cast<void*>(voices.data());
-	default:
-		return nullptr;
+		return true;
 	}
-	return nullptr;
+	default:
+		return false;
+	}
+	return true;
 }
 

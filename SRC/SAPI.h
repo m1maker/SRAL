@@ -14,8 +14,8 @@ public:
 		return false;
 	}
 	void* SpeakToMemory(const char* text, uint64_t* buffer_size, int*channels, int* sample_rate, int* bits_per_sample)override;
-	bool SetParameter(int param, void* value)override;
-	void* GetParameter(int param) override;
+	bool SetParameter(int param, const void* value)override;
+	bool GetParameter(int param, void* value) override;
 
 	bool Braille(const char* text)override { return false; }
 	bool StopSpeech()override;
@@ -45,6 +45,5 @@ private:
 	blastspeak* instance = nullptr;
 	WAVEFORMATEX wfx;
 	int trimThreshold = 20;
-	const char** voices = nullptr;
 };
 #endif

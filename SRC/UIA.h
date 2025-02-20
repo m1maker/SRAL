@@ -16,12 +16,12 @@ public:
 		return nullptr;
 	}
 
-	bool SetParameter(int param, void* value)override {
+	bool SetParameter(int param, const void* value)override {
 		return false;
 	}
 
-	void* GetParameter(int param) override {
-		return nullptr;
+	bool GetParameter(int param, void* value) override {
+		return false;
 	}
 
 	bool Braille(const char* text)override { return false; }
