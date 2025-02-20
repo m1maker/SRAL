@@ -203,7 +203,7 @@ extern "C" {
 * @return true if the parameter was set successfully, false otherwise.
 */
 
-	SRAL_API bool SRAL_SetEngineParameter(int engine, int param, void* value);
+	SRAL_API bool SRAL_SetEngineParameter(int engine, int param, const void* value);
 
 
 
@@ -211,10 +211,12 @@ extern "C" {
 	/**
 * @brief Get the parameter for the specified speech engine.
 * @param engine The engine to get the param for.
-* @return an address to value if the parameter was get successfully, NULL otherwise.
+* @param value An out pointer to write value.
+
+* @return true if the parameter was retrieved successfully, false otherwise.
 */
 
-	SRAL_API void* SRAL_GetEngineParameter(int engine, int param);
+	SRAL_API bool SRAL_GetEngineParameter(int engine, int param, void* value);
 
 
 

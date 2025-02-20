@@ -44,7 +44,8 @@ int main(void) {
 
 	SRAL_RegisterKeyboardHooks();
 	// Speak some text
-	bool result = *(bool*)SRAL_GetEngineParameter(ENGINE_NVDA, NVDA_IS_CONTROL_EX);
+	bool result;
+	SRAL_GetEngineParameter(ENGINE_NVDA, NVDA_IS_CONTROL_EX, &result);
 	printf("NVDA extended: %d\n", result);
 	if (SRAL_GetEngineFeatures(0) & SUPPORTS_SPEECH) {
 		printf("Enter the text you want to be spoken:\n");
@@ -70,21 +71,23 @@ int main(void) {
 
 	// Set voice
 	if (SRAL_GetEngineFeatures(0) & SUPPORTS_SELECT_VOICE) {
-		int voice_count = *(int*)SRAL_GetEngineParameter(0, VOICE_COUNT);
+		int voice_count;
+		SRAL_GetEngineParameter(ENGINE_NONE, VOICE_COUNT, &voice_count);
 		if (voice_count > 0) {
-			const char** voices = (const char**)SRAL_GetEngineParameter(0, VOICE_LIST);
-			if (voices != NULL) {
-				printf("Enter voice index to select\nVoice list:\n");
-				for (int i = 0; i < voice_count; i++) {
-					printf("%d: %s\n", i, voices[i]);
-					free((void*)voices[i]);
-				}
-				free(voices);
-				int index = 0;
-				scanf("%d", &index);
-				if (index >= 0 && index < voice_count) {
-					SRAL_SetEngineParameter(0, VOICE_INDEX, &index);
-				}
+			char* voices[256];
+			for (unsigned int i = 0; i < voice_count; i++) {
+				voices[i] = (char*)malloc(64);
+			}
+			SRAL_GetEngineParameter(0, VOICE_LIST, voices);
+			printf("Enter voice index to select\nVoice list:\n");
+			for (int i = 0; i < voice_count; i++) {
+				printf("%d: %s\n", i, voices[i]);
+				free(voices[i]);
+			}
+			int index = 0;
+			scanf("%d", &index);
+			if (index >= 0 && index < voice_count) {
+				SRAL_SetEngineParameter(0, VOICE_INDEX, &index);
 			}
 		}
 	}
@@ -92,7 +95,8 @@ int main(void) {
 	// Speech rate
 	if (SRAL_GetEngineFeatures(0) & SUPPORTS_SPEECH_RATE) {
 
-		int rate = *(int*)SRAL_GetEngineParameter(ENGINE_NONE, SPEECH_RATE);
+		int rate;
+		SRAL_GetEngineParameter(ENGINE_NONE, SPEECH_RATE, &rate);
 
 		const uint64_t max_rate = rate + 10;
 		for (rate; rate < max_rate; rate++) {

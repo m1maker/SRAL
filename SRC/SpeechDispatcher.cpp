@@ -33,17 +33,17 @@ bool SpeechDispatcher::Speak(const char* text, bool interrupt) {
 	}
 	return spd_say(Speech, SPD_IMPORTANT, text);
 }
-bool SpeechDispatcher::SetParameter(int param, void* value) {
+bool SpeechDispatcher::SetParameter(int param, const void* value) {
 	if (Speech == nullptr)return false;
 	switch (param) {
 	case SYMBOL_LEVEL:
-		spd_set_punctuation(Speech, static_cast<SPDPunctuation>(*static_cast<int*>(value)));
+		spd_set_punctuation(Speech, static_cast<SPDPunctuation>(*reinterpret_cast<const int*>(value)));
 		break;
 	case SPEECH_RATE:
-		spd_set_voice_rate(Speech, *static_cast<int*>(value));
+		spd_set_voice_rate(Speech, *reinterpret_cast<const int*>(value));
 		break;
 	case SPEECH_VOLUME:
-		spd_set_volume(Speech, *static_cast<int*>(value));
+		spd_set_volume(Speech, *reinterpret_cast<const int*>(value));
 		break;
 	default:
 		return false;
@@ -51,17 +51,19 @@ bool SpeechDispatcher::SetParameter(int param, void* value) {
 	return true;
 }
 
-void* SpeechDispatcher::GetParameter(int param) {
-	if (Speech == nullptr)return nullptr;
+bool SpeechDispatcher::GetParameter(int param, void* value) {
+	if (Speech == nullptr)return false;
 	switch (param) {
 		case SPEECH_RATE:
-			return new int(spd_get_voice_rate(Speech));
+			*(int*)value = spd_get_voice_rate(Speech);
+			return true;
 		case SPEECH_VOLUME:
-			return new int(spd_get_volume(Speech));
+			*(int*)value = spd_get_volume(Speech);
+			return true;
 		default:
-			return nullptr;
+			return false;
 	}
-	return nullptr;
+	return false;
 }
 
 bool SpeechDispatcher::StopSpeech() {

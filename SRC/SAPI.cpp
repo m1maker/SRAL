@@ -56,8 +56,8 @@ struct PCMData {
 	unsigned long size;
 };
 
-std::vector<PCMData> g_dataQueue;
-bool g_threadStarted = false;
+static std::vector<PCMData> g_dataQueue;
+static bool g_threadStarted = false;
 static void sapi_thread() {
 	if (g_player == nullptr) {
 		g_threadStarted = false;
@@ -171,61 +171,59 @@ void* SAPI::SpeakToMemory(const char* text, uint64_t* buffer_size, int*channels,
 	return final;
 }
 
-bool SAPI::SetParameter(int param, void* value) {
+bool SAPI::SetParameter(int param, const void* value) {
 	if (instance == nullptr)
 		return false;
 
 	switch (param) {
 	case SAPI_TRIM_THRESHOLD:
-		this->trimThreshold = *static_cast<int*>(value);
+		this->trimThreshold = *reinterpret_cast<const int*>(value);
 		break;
 	case SPEECH_RATE:
-		blastspeak_set_voice_rate(instance, *static_cast<int*>(value));
+		blastspeak_set_voice_rate(instance, *reinterpret_cast<const long*>(value));
 		return true;
 	case SPEECH_VOLUME:
-		blastspeak_set_voice_volume(instance, *static_cast<int*>(value));
+		blastspeak_set_voice_volume(instance, *reinterpret_cast<const long*>(value));
 		return true;
 	case VOICE_INDEX:
-		blastspeak_set_voice(instance, *static_cast<int*>(value));
+		blastspeak_set_voice(instance, *reinterpret_cast<const int*>(value));
 	default:
 		return false;
 	}
 	return true;
 }
 
-void* SAPI::GetParameter(int param) {
+bool SAPI::GetParameter(int param, void* value) {
 	if (instance == nullptr)
-		return nullptr;
+		return false;
 
 	switch (param) {
 	case SAPI_TRIM_THRESHOLD:
-		return new long(this->trimThreshold);
+		*(int*)value = this->trimThreshold;
+		return true;
 	case SPEECH_RATE: {
-		long* val = new long;
-		blastspeak_get_voice_rate(instance, val);
-		return static_cast<void*>(val);
+		blastspeak_get_voice_rate(instance, (long*)value);
+		return true;
 	}
 	case SPEECH_VOLUME: {
-		long* val = new long;
-		blastspeak_get_voice_volume(instance, val);
-		return static_cast<void*>(val);
+		blastspeak_get_voice_volume(instance, (long*)value);
+		return true;
 	}
-	case VOICE_LIST:
-		if (voices)
-			delete[] voices;
-		voices = new const char*[instance->voice_count];
+	case VOICE_LIST: {
+		char** voices = (char**)value;
 		for (int i = 0; i < instance->voice_count; ++i) {
 			const char* voice_desc = blastspeak_get_voice_description(instance, i);
-			voices[i] = new char[strlen(voice_desc) + 1];
-			strcpy(const_cast<char*>(voices[i]), voice_desc);
+			strcpy(voices[i], voice_desc);
 		}
-		return voices;
-	case VOICE_COUNT:
-		return new int(instance->voice_count);
-	default:
-		return nullptr;
+		return true;
 	}
-	return nullptr;
+	case VOICE_COUNT:
+		*(int*)value = instance->voice_count;
+		return true;
+	default:
+		return false;
+	}
+	return false;
 }
 
 bool SAPI::StopSpeech() {

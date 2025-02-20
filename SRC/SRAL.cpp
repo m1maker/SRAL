@@ -475,7 +475,7 @@ extern "C" SRAL_API bool SRAL_SetVoiceEx(int engine, uint64_t index) {
 
 
 
-extern "C" SRAL_API bool SRAL_SetEngineParameter(int engine, int param, void* value) {
+extern "C" SRAL_API bool SRAL_SetEngineParameter(int engine, int param, const void* value) {
 	if (engine == 0 && g_currentEngine != nullptr) {
 		return g_currentEngine->SetParameter(param, value);
 	}
@@ -485,13 +485,13 @@ extern "C" SRAL_API bool SRAL_SetEngineParameter(int engine, int param, void* va
 }
 
 
-extern "C" SRAL_API void* SRAL_GetEngineParameter(int engine, int param) {
+extern "C" SRAL_API bool SRAL_GetEngineParameter(int engine, int param, void* value) {
 	if (engine == 0 && g_currentEngine != nullptr) {
-		return g_currentEngine->GetParameter(param);
+		return g_currentEngine->GetParameter(param, value);
 	}
 	Engine* e = get_engine(engine);
-	if (e == nullptr)return nullptr;
-	return e->GetParameter(param);
+	if (e == nullptr)return false;
+	return e->GetParameter(param, value);
 }
 
 
