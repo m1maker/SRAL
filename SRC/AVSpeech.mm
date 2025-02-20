@@ -167,8 +167,11 @@ bool AVSpeech::GetParameter(int param, void* value) {
 	}
 	case VOICE_LIST: {
 		int voice_count = obj->GetVoiceCount();
+		char** voices = (char**)value;
 		for (int i = 0; i < voice_count; ++i) {
-			(const char**)value[i] = obj->GetVoiceName(i);
+			(const char* desc = obj->GetVoiceName(i);
+			strcpy(voices[i], desc);
+		}
 		}
 		return true;
 	}
