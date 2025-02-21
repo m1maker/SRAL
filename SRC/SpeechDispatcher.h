@@ -31,7 +31,7 @@ public:
 	bool Initialize()override;
 	bool Uninitialize()override;
 	int GetFeatures()override {
-		return SUPPORTS_SPEECH | SUPPORTS_SPEECH_RATE | SUPPORTS_SPEECH_VOLUME | SUPPORTS_PAUSE_SPEECH;
+		return SUPPORTS_SPEECH | SUPPORTS_SPEECH_RATE | SUPPORTS_SPEECH_VOLUME | SUPPORTS_PAUSE_SPEECH | SUPPORTS_SPELLING;
 	}
 	void SetVolume(uint64_t)override;
 	uint64_t GetVolume()override;
@@ -52,6 +52,7 @@ public:
 
 private:
 	SPDConnection* Speech = nullptr;
+	bool enableSpelling = false;
 };
 
 #endif
