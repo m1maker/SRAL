@@ -33,10 +33,13 @@ bool NVDA::Uninitialize() {
 }
 
 bool NVDA::GetActive() {
-	if (nvda_active() == 0)
+	if (nvda_active() == 0) {
+		this->extended = true;
 		return true;
+	}
 	else {
 		// Try to use the library
+		this->extended = false;
 		this->Uninitialize();
 		this->Initialize();
 	}
@@ -47,9 +50,9 @@ bool NVDA::GetActive() {
 bool NVDA::Speak(const char* text, bool interrupt) {
 	if (!GetActive())return false;
 	if (interrupt) {
-		nvda_active() == 0 ? nvda_cancel_speech() : nvdaController_cancelSpeech();
+		this->extended ? nvda_cancel_speech() : nvdaController_cancelSpeech();
 	}
-	if (nvda_active() == 0)
+	if (this->extended)
 		return !enable_spelling ? nvda_speak(text, this->symbolLevel) == 0 : nvda_speak_spelling(text, "", this->use_character_descriptions) == 0;
 	std::string text_str(text);
 	XmlEncode(text_str);
@@ -70,8 +73,8 @@ bool NVDA::Speak(const char* text, bool interrupt) {
 bool NVDA::SpeakSsml(const char* ssml, bool interrupt) {
 	if (!GetActive())return false;
 	if (interrupt)
-		nvda_active() == 0 ? nvda_cancel_speech() : nvdaController_cancelSpeech();
-	if (nvda_active() == 0)
+		this->extended ? nvda_cancel_speech() : nvdaController_cancelSpeech();
+	if (this->extended)
 		return nvda_speak_ssml(ssml, this->symbolLevel) == 0;
 	std::string text_str(ssml);
 	std::wstring out;
@@ -119,7 +122,7 @@ bool NVDA::GetParameter(int param, void* value) {
 
 bool NVDA::Braille(const char* text) {
 	if (!GetActive())return false;
-	if (nvda_active() == 0)
+	if (this->extended)
 		return nvda_braille(text) == 0;
 	std::wstring out;
 	UnicodeConvert(text, out);
@@ -127,11 +130,11 @@ bool NVDA::Braille(const char* text) {
 }
 bool NVDA::StopSpeech() {
 	if (!GetActive())return false;
-	return 		nvda_active() == 0 ? nvda_cancel_speech() == 0 : nvdaController_cancelSpeech() == 0;
+	return 		this->extended ? nvda_cancel_speech() == 0 : nvdaController_cancelSpeech() == 0;
 }
 bool NVDA::PauseSpeech() {
 	if (!GetActive())return false;
-	if (nvda_active() == 0)
+	if (this->extended)
 		return nvda_pause_speech(true);
 	INPUT input[2] = {};
 
@@ -148,5 +151,5 @@ bool NVDA::PauseSpeech() {
 	return true;
 }
 bool NVDA::ResumeSpeech() {
-	return 		nvda_active() == 0 ? nvda_pause_speech(false) == 0 : PauseSpeech();
+	return 		this->extended ? nvda_pause_speech(false) == 0 : PauseSpeech();
 }
