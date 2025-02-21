@@ -47,7 +47,7 @@ bool NVDA::GetActive() {
 bool NVDA::Speak(const char* text, bool interrupt) {
 	if (!GetActive())return false;
 	if (interrupt) {
-		nvda_active() == -1 ? nvdaController_cancelSpeech() : nvda_cancel_speech();
+		nvda_active() == 0 ? nvda_cancel_speech() : nvdaController_cancelSpeech();
 	}
 	if (nvda_active() == 0)
 		return !enable_spelling ? nvda_speak(text, this->symbolLevel) == 0 : nvda_speak_spelling(text, "", this->use_character_descriptions) == 0;
@@ -70,7 +70,7 @@ bool NVDA::Speak(const char* text, bool interrupt) {
 bool NVDA::SpeakSsml(const char* ssml, bool interrupt) {
 	if (!GetActive())return false;
 	if (interrupt)
-		nvda_active() == -1 ? nvdaController_cancelSpeech() : nvda_cancel_speech();
+		nvda_active() == 0 ? nvda_cancel_speech() : nvdaController_cancelSpeech();
 	if (nvda_active() == 0)
 		return nvda_speak_ssml(ssml, this->symbolLevel) == 0;
 	std::string text_str(ssml);
@@ -127,7 +127,7 @@ bool NVDA::Braille(const char* text) {
 }
 bool NVDA::StopSpeech() {
 	if (!GetActive())return false;
-	return nvda_active() == -1 ? nvdaController_cancelSpeech() == 0 : nvda_cancel_speech() == 0;
+	return 		nvda_active() == 0 ? nvda_cancel_speech() == 0 : nvdaController_cancelSpeech() == 0;
 }
 bool NVDA::PauseSpeech() {
 	if (!GetActive())return false;
@@ -148,5 +148,5 @@ bool NVDA::PauseSpeech() {
 	return true;
 }
 bool NVDA::ResumeSpeech() {
-	return nvda_active() == -1 ? PauseSpeech() : nvda_pause_speech(false);
+	return 		nvda_active() == 0 ? nvda_pause_speech(false) == 0 : PauseSpeech();
 }
