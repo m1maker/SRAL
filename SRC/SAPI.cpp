@@ -78,6 +78,7 @@ static void sapi_thread() {
 	g_player = nullptr;
 }
 bool SAPI::Initialize() {
+	this->voiceIndex = 0;
 	if (g_player) {
 		g_threadStarted = false;
 		g_player->stop();
@@ -113,6 +114,7 @@ bool SAPI::Initialize() {
 	return true;
 }
 bool SAPI::Uninitialize() {
+	this->voiceIndex = 0;
 	if (instance == nullptr || g_player == nullptr)return false;
 	g_threadStarted = false; // SAPI thread will be stopped when all messages was spoken
 	blastspeak_destroy(instance);
@@ -180,13 +182,17 @@ bool SAPI::SetParameter(int param, const void* value) {
 		this->trimThreshold = *reinterpret_cast<const int*>(value);
 		break;
 	case SPEECH_RATE:
-		blastspeak_set_voice_rate(instance, *reinterpret_cast<const long*>(value));
-		return true;
+		return blastspeak_set_voice_rate(instance, *reinterpret_cast<const long*>(value));
 	case SPEECH_VOLUME:
-		blastspeak_set_voice_volume(instance, *reinterpret_cast<const long*>(value));
-		return true;
-	case VOICE_INDEX:
-		blastspeak_set_voice(instance, *reinterpret_cast<const int*>(value));
+		return blastspeak_set_voice_volume(instance, *reinterpret_cast<const long*>(value));
+	case VOICE_INDEX: {
+		int result = blastspeak_set_voice(instance, *reinterpret_cast<const int*>(value));
+		if (result) {
+			this->voiceIndex = *reinterpret_cast<const int*>(value);
+			return true;
+		}
+		return false;
+	}
 	default:
 		return false;
 	}
@@ -202,12 +208,10 @@ bool SAPI::GetParameter(int param, void* value) {
 		*(int*)value = this->trimThreshold;
 		return true;
 	case SPEECH_RATE: {
-		blastspeak_get_voice_rate(instance, (long*)value);
-		return true;
+		return blastspeak_get_voice_rate(instance, (long*)value);
 	}
 	case SPEECH_VOLUME: {
-		blastspeak_get_voice_volume(instance, (long*)value);
-		return true;
+		return blastspeak_get_voice_volume(instance, (long*)value);
 	}
 	case VOICE_LIST: {
 		char** voices = (char**)value;
@@ -219,6 +223,9 @@ bool SAPI::GetParameter(int param, void* value) {
 	}
 	case VOICE_COUNT:
 		*(int*)value = instance->voice_count;
+		return true;
+	case VOICE_INDEX:
+		*(int*)value = this->voiceIndex;
 		return true;
 	default:
 		return false;

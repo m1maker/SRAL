@@ -45,5 +45,6 @@ private:
 	blastspeak* instance = nullptr;
 	WAVEFORMATEX wfx;
 	int trimThreshold = 20;
+	int voiceIndex = 0;
 };
 #endif
