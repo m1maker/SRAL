@@ -1,4 +1,6 @@
 #include "SpeechDispatcher.h"
+#include "../Dep/utf-8.h"
+
 bool SpeechDispatcher::Initialize() {
 	const auto* address = spd_get_default_address(nullptr);
 	if (address == nullptr) {
@@ -31,8 +33,19 @@ bool SpeechDispatcher::Speak(const char* text, bool interrupt) {
 		this->paused = false;
 
 	}
-	return spd_say(Speech, SPD_IMPORTANT, text);
+	if (!enableSpelling) {
+		return spd_say(Speech, SPD_IMPORTANT, text);
+	}
+	else {
+		utf8_iter iter;
+		utf8_init(&iter, text);
+		while (utf8_next(&iter)) {
+			spd_char(Speech, SPD_IMPORTANT, utf8_getchar(&iter));
+		}
+	}
+	return false;
 }
+
 
 bool SpeechDispatcher::SetParameter(int param, const void* value) {
 	if (Speech == nullptr)return false;
@@ -48,7 +61,6 @@ bool SpeechDispatcher::SetParameter(int param, const void* value) {
 		break;
 	case ENABLE_SPELLING:
 		this->enableSpelling = *reinterpret_cast<const bool*>(value);
-		spd_set_spelling(Speech, this->enableSpelling ? SPD_SPELL_ON : SPD_SPELL_OFF);
 		break;
 	default:
 		return false;
