@@ -49,11 +49,11 @@ public:
 
 private:
 	HINSTANCE lib = nullptr;
-	typedef error_status_t(__stdcall* NVDAController_speakText)(const wchar_t*);
-	typedef error_status_t(__stdcall* NVDAController_brailleMessage)(const wchar_t*);
-	typedef error_status_t(__stdcall* NVDAController_cancelSpeech)();
-	typedef error_status_t(__stdcall* NVDAController_testIfRunning)();
-	typedef error_status_t(__stdcall* NVDAController_speakSsml)(const wchar_t*, int, int, int);
+	using NVDAController_speakText = error_status_t(__stdcall*)(const wchar_t*);
+	using NVDAController_brailleMessage = error_status_t(__stdcall*)(const wchar_t*);
+	using NVDAController_cancelSpeech = error_status_t(__stdcall*)();
+	using NVDAController_testIfRunning = error_status_t(__stdcall*)();
+	using NVDAController_speakSsml = error_status_t(__stdcall*)(const wchar_t*, int, int, int);
 
 	NVDAController_speakText nvdaController_speakText = nullptr;
 	NVDAController_brailleMessage nvdaController_brailleMessage = nullptr;

@@ -31,8 +31,9 @@ bool SpeechDispatcher::Speak(const char* text, bool interrupt) {
 		this->paused = false;
 
 	}
-	return !enableSpelling ? spd_say(Speech, SPD_IMPORTANT, text) : spd_char(Speech, SPD_IMPORTANT, text);
+	return spd_say(Speech, SPD_IMPORTANT, text);
 }
+
 bool SpeechDispatcher::SetParameter(int param, const void* value) {
 	if (Speech == nullptr)return false;
 	switch (param) {
@@ -47,6 +48,7 @@ bool SpeechDispatcher::SetParameter(int param, const void* value) {
 		break;
 	case ENABLE_SPELLING:
 		this->enableSpelling = *reinterpret_cast<const bool*>(value);
+		spd_set_spelling(Speech, this->enableSpelling ? SPD_SPELL_ON : SPD_SPELL_OFF);
 		break;
 	default:
 		return false;
