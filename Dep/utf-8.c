@@ -22,6 +22,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 #include "utf-8.h"
 
 #include <string.h>
@@ -285,3 +290,8 @@ const char* unicode_converter(uint32_t codepoint, uint8_t size) {
 
 	return str;
 }
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
