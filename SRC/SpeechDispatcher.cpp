@@ -34,14 +34,14 @@ bool SpeechDispatcher::Speak(const char* text, bool interrupt) {
 
 	}
 	if (!enableSpelling) {
-		return spd_say(Speech, SPD_IMPORTANT, text);
+		return spd_say(Speech, SPD_IMPORTANT, text) != -1;
 	}
 	else {
 		utf8_iter iter;
 		bool result = true;
 		utf8_init(&iter, text);
 		while (utf8_next(&iter) && result) {
-			result = spd_char(Speech, SPD_IMPORTANT, utf8_getchar(&iter));
+			result = (spd_char(Speech, SPD_IMPORTANT, utf8_getchar(&iter)) != -1);
 		}
 		return result;
 	}
