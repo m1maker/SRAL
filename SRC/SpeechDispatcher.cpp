@@ -38,10 +38,12 @@ bool SpeechDispatcher::Speak(const char* text, bool interrupt) {
 	}
 	else {
 		utf8_iter iter;
+		bool result = true;
 		utf8_init(&iter, text);
-		while (utf8_next(&iter)) {
-			spd_char(Speech, SPD_IMPORTANT, utf8_getchar(&iter));
+		while (utf8_next(&iter) && result) {
+			result = spd_char(Speech, SPD_IMPORTANT, utf8_getchar(&iter));
 		}
+		return result;
 	}
 	return false;
 }
