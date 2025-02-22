@@ -1,5 +1,7 @@
 #include "SpeechDispatcher.h"
+extern "C" {
 #include "../Dep/utf-8.h"
+}
 
 bool SpeechDispatcher::Initialize() {
 	const auto* address = spd_get_default_address(nullptr);
