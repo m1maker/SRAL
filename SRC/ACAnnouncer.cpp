@@ -1,9 +1,10 @@
 #include "ACAnnouncer.h"
+#include <accesskit.h>
 #include <iostream>
 
 bool ACAnnouncer::Speak(const char* text, bool interrupt) {
-	static accesskit_tree tree = accesskit_tree_new(WINDOW_ID);
-	static accesskit_windows_adapter adapter = accesskit_windows_adapter_new(GetForegroundWindow(), true, [](struct accesskit_action_request* request, void* userdata) {
+	static accesskit_tree* tree = accesskit_tree_new(WINDOW_ID);
+	static accesskit_windows_adapter* adapter = accesskit_windows_adapter_new(GetForegroundWindow(), true, [](struct accesskit_action_request* request, void* userdata) {
 		accesskit_action_request_free(request);
 			}, nullptr);
 
@@ -24,7 +25,7 @@ bool ACAnnouncer::Speak(const char* text, bool interrupt) {
 	accesskit_tree_update_push_node(update, WINDOW_ID, window_node);
 	accesskit_tree_update_push_node(update, ANNOUNCEMENT_ID, announcement_node);
 
-	accesskit_windows_adapter_update_if_active(&adapter, [](void* userdata) {
+	accesskit_windows_adapter_update_if_active(adapter, [](void* userdata) {
 		return (accesskit_tree_update*)userdata;
 			}, update);
 
@@ -32,7 +33,7 @@ bool ACAnnouncer::Speak(const char* text, bool interrupt) {
 }
 
 bool ACAnnouncer::StopSpeech() {
-	return Speak(true);
+	return Speak("", true);
 }
 
 bool ACAnnouncer::GetActive() {

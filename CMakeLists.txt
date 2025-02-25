@@ -14,9 +14,21 @@ if (POLICY CMP0141)
 endif()
 
 project ("SRAL")
+include_directories(${CMAKE_BINARY_DIR}/accesskit/include)
 add_library(${PROJECT_NAME}_obj OBJECT)
+include(ExternalProject)
+ExternalProject_Add(
+    accesskit
+    URL https://github.com/AccessKit/accesskit-c/releases/download/0.14.0/accesskit-c-0.14.0.zip
+    SOURCE_DIR ${CMAKE_BINARY_DIR}/accesskit
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+)
+
+
 target_sources(${PROJECT_NAME}_obj PRIVATE
-  "SRC/SRAL.cpp" "SRC/Engine.h")
+  "SRC/SRAL.cpp" "SRC/Engine.h" "SRC/ACAnnouncer.cpp" "SRC/ACAnnouncer.h")
 target_sources(${PROJECT_NAME}_obj PUBLIC
   FILE_SET HEADERS
   BASE_DIRS "${INCLUDES}"
@@ -87,3 +99,6 @@ endif()
 
 
 
+
+target_link_libraries(${PROJECT_NAME} ${CMAKE_BINARY_DIR}/accesskit/lib/windows/x86_64/msvc/static/accesskit.lib)
+target_link_libraries(${PROJECT_NAME}_static ${CMAKE_BINARY_DIR}/accesskit/lib/windows/x86_64/msvc/static/accesskit.lib)
