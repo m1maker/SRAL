@@ -52,6 +52,7 @@ extern "C" {
 		ENGINE_JAWS = 1 << 3,
 		ENGINE_SPEECH_DISPATCHER = 1 << 4,
 		ENGINE_UIA = 1 << 5,
+		ENGINE_AC_ANNOUNCER = 1 << 5,
 		ENGINE_AV_SPEECH = 1 << 6,
 		ENGINE_NARRATOR = 1 << 7
 	};
