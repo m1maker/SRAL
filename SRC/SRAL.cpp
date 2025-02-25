@@ -14,6 +14,7 @@
 #else
 #include "SpeechDispatcher.h"
 #endif
+#include "ACAnnouncer.h"
 #include <vector>
 #include <string>
 #include <chrono>
@@ -181,6 +182,7 @@ extern "C" SRAL_API void SRAL_UnregisterKeyboardHooks(void) {
 
 extern "C" SRAL_API bool SRAL_Initialize(int engines_exclude) {
 	if (g_initialized)return true;
+	g_engines.push_back(new ACAnnouncer);
 #if defined(_WIN32)
 	g_engines.push_back(new NVDA);
 	g_engines.push_back(new Jaws);

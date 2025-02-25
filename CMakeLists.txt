@@ -100,5 +100,6 @@ endif()
 
 
 
-target_link_libraries(${PROJECT_NAME} ${CMAKE_BINARY_DIR}/accesskit/lib/windows/x86_64/msvc/static/accesskit.lib)
-target_link_libraries(${PROJECT_NAME}_static ${CMAKE_BINARY_DIR}/accesskit/lib/windows/x86_64/msvc/static/accesskit.lib)
+target_link_libraries(${PROJECT_NAME} ${CMAKE_BINARY_DIR}/accesskit/lib/windows/x86_64/msvc/static/accesskit.lib ntdll.lib)
+target_link_libraries(${PROJECT_NAME}_static ${CMAKE_BINARY_DIR}/accesskit/lib/windows/x86_64/msvc/static/accesskit.lib  ntdll.lib)
+target_link_libraries(${PROJECT_NAME}_test ${CMAKE_BINARY_DIR}/accesskit/lib/windows/x86_64/msvc/static/accesskit.lib  ntdll.lib)
