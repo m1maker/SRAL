@@ -468,7 +468,7 @@ int main(void) {
 							int new_voice_index = (original_voice_index + 1) % voice_count;
 							printf("  Attempting to set voice to index: %d (%s)\n", new_voice_index, voice_list_names[new_voice_index]);
 							if (SRAL_SetEngineParameter(ENGINE_NONE, VOICE_INDEX, &new_voice_index)) {
-								SRAL_GetEngineParameter(ENGINE_NONE, VOICE_INDEX, current_voice_index);
+								SRAL_GetEngineParameter(ENGINE_NONE, VOICE_INDEX, &current_voice_index);
 								printf("  New voice index confirmed by get: %d\n", current_voice_index);
 								CHECK(current_voice_index == new_voice_index, "Voice index set and get matches", "Voice index set/get mismatch");
 								SRAL_Speak("Testing newly selected voice.", true);
