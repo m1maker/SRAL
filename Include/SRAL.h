@@ -237,65 +237,6 @@ extern "C" {
 	SRAL_API void SRAL_Uninitialize(void);
 
 
-	/** Deprecated
- * @brief Set the speech volume level, if current speech engine supports this.
- * @param value The desired volume level.
- * @return true if the volume was set successfully, false otherwise.
- */
-
-
-	SRAL_API bool SRAL_SetVolume(uint64_t value);
-
-	/** Deprecated
- * @brief Get the current speech volume level of the current speech engine.
- * @return The current volume level.
- */
-
-	SRAL_API uint64_t SRAL_GetVolume(void);
-
-
-	/** Deprecated
- * @brief Set the speech rate, if current engine supports this.
- * @param value The desired speech rate.
- * @return true if the speech rate was set successfully, false otherwise.
- */
-
-
-	SRAL_API bool SRAL_SetRate(uint64_t value);
-
-	/** Deprecated
- * @brief Get the current speech rate of the current speech engine.
- * @return The current speech rate.
- */
-
-	SRAL_API uint64_t SRAL_GetRate(void);
-
-	/** Deprecated
- * @brief Get the count of available voices supported by the current speech engine.
- * @return The number of available voices.
- */
-
-	SRAL_API uint64_t SRAL_GetVoiceCount(void);
-
-	/** Deprecated
- * @brief Get the name of a voice by its index, if the current speech engine supports this.
- * @param The index of a voice to get.
- * @return A pointer to the name of the voice.
- */
-
-	SRAL_API const char* SRAL_GetVoiceName(uint64_t index);
-
-	/** Deprecated
- * @brief Set the currently selected voice by index, if the current speech engine supports this.
- * @param index The index of a voice to set.
- * @return true if the voice was set successfully, false otherwise.
- */
-
-	SRAL_API bool SRAL_SetVoice(uint64_t index);
-
-
-
-
 
 	/**
  * Extended functions to perform operations with specific speech engines.
@@ -391,70 +332,6 @@ extern "C" {
 
 
 	SRAL_API bool SRAL_ResumeSpeechEx(int engine);
-
-
-
-	/** Deprecated
- * @brief Set the volume level for the specified speech engine.
- * @param engine The engine to set the volume for.
- * @param value The desired volume level.
- * @return true if the volume was set successfully, false otherwise.
- */
-
-	SRAL_API bool SRAL_SetVolumeEx(int engine, uint64_t value);
-
-
-	/** Deprecated
- * @brief Get the current volume level for the specified engine.
- * @param engine The engine to query.
- * @return The current volume level for the engine.
- */
-
-
-	SRAL_API uint64_t SRAL_GetVolumeEx(int engine);
-
-	/** Deprecated
- * @brief Set the speech rate for the specified engine.
- * @param engine The engine to set the rate for.
- * @param value The desired speech rate.
- * @return true if the speech rate was set successfully, false otherwise.
- */
-
-	SRAL_API bool SRAL_SetRateEx(int engine, uint64_t value);
-
-	/** Deprecated
- * @brief Get the current speech rate for the specified engine.
- * @param engine The engine to query.
- * @return The current speech rate for the engine.
- */
-
-	SRAL_API uint64_t SRAL_GetRateEx(int engine);
-
-	/** Deprecated
- * @brief Get the count of available voices for the specified engine.
- * @param engine The engine to query.
- * @return The number of voices available for the speech engine.
- */
-
-	SRAL_API uint64_t SRAL_GetVoiceCountEx(int engine);
-
-	/** Deprecated
- * @brief Get the name of a voice for the specified engine by its index.
- * @param engine The engine to query.
- * @param index The index of the voice.
- * @return A pointer to the name of the voice.
- */
-
-	SRAL_API const char* SRAL_GetVoiceNameEx(int engine, uint64_t index);
-
-	/** Deprecated
- * @brief Set the currently selected voice for the specified engine by index.
- * @param engine The engine to set the voice for.
- * @param index The index of the voice to set.
- * @return true if the voice was set successfully, false otherwise.
- */
-
-	SRAL_API bool SRAL_SetVoiceEx(int engine, uint64_t index);
 
 
 

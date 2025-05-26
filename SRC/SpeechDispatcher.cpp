@@ -106,21 +106,6 @@ namespace Sral {
 	}
 
 
-	void SpeechDispatcher::SetVolume(uint64_t value) {
-		if (!GetActive())return;
-		spd_set_volume(Speech, value);
-	}
-	uint64_t SpeechDispatcher::GetVolume() {
-		if (!GetActive())return 0;
-		return spd_get_volume(Speech);
-	}
-	void SpeechDispatcher::SetRate(uint64_t value) {
-		if (!GetActive())return;
-		spd_set_voice_rate(Speech, value);
-	}
-	uint64_t SpeechDispatcher::GetRate() {
-		if (!GetActive())return 0;
-		return spd_get_voice_rate(Speech);
-	}
+}
 
 }

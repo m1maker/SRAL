@@ -33,13 +33,6 @@ namespace Sral {
 		int GetFeatures()override {
 			return SRAL_SUPPORTS_SPEECH | SRAL_SUPPORTS_SPEECH_RATE | SRAL_SUPPORTS_SPEECH_VOLUME | SRAL_SUPPORTS_SELECT_VOICE | SRAL_SUPPORTS_PAUSE_SPEECH | SRAL_SUPPORTS_SPEAK_TO_MEMORY;
 		}
-		void SetVolume(uint64_t value)override;
-		uint64_t GetVolume()override;
-		void SetRate(uint64_t value)override;
-		uint64_t GetRate()override;
-		uint64_t GetVoiceCount()override;
-		const char* GetVoiceName(uint64_t index)override;
-		bool SetVoice(uint64_t index)override;
 		int GetKeyFlags()override {
 			return HANDLE_INTERRUPT | HANDLE_PAUSE_RESUME;
 		}
