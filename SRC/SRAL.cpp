@@ -54,8 +54,8 @@ static const std::map<SRAL_Engines, std::string> g_engineNames = {
 };
 
 
-static Engine* g_currentEngine = nullptr;
-static std::map<SRAL_Engines, std::unique_ptr<Engine>> g_engines;
+static Sral::Engine* g_currentEngine = nullptr;
+static std::map<SRAL_Engines, std::unique_ptr<Sral::Engine>> g_engines;
 static int g_excludes = 0;
 static bool g_initialized = false;
 
@@ -66,13 +66,14 @@ struct QueuedOutput {
 	bool speak;
 	bool ssml;
 	int time;
-	Engine* engine;
+	Sral::Engine* engine;
 };
 
 static std::vector<QueuedOutput> g_delayedOutputs;
 static bool g_delayOperation = false;
 static bool g_outputThreadRunning = false;
 
+static std::thread g_outputThread;
 
 static uint64_t g_lastDelayTime = 0;
 
@@ -119,10 +120,10 @@ static LRESULT CALLBACK KeyboardHookProc(int nCode, WPARAM wParam, LPARAM lParam
 			if (ptr == nullptr || !ptr->GetActive()) continue;
 
 			if (wParam == WM_KEYDOWN) {
-				if ((pKeyInfo->vkCode == VK_LCONTROL || pKeyInfo->vkCode == VK_RCONTROL) && ptr->GetKeyFlags() & HANDLE_INTERRUPT) {
+				if ((pKeyInfo->vkCode == VK_LCONTROL || pKeyInfo->vkCode == VK_RCONTROL) && ptr->GetKeyFlags() & Sral::HANDLE_INTERRUPT) {
 					ptr->StopSpeech();
 				}
-				else if ((pKeyInfo->vkCode == VK_LSHIFT || pKeyInfo->vkCode == VK_RSHIFT) && ptr->GetKeyFlags() & HANDLE_PAUSE_RESUME && g_shiftPressed == false) {
+				else if ((pKeyInfo->vkCode == VK_LSHIFT || pKeyInfo->vkCode == VK_RSHIFT) && ptr->GetKeyFlags() & Sral::HANDLE_PAUSE_RESUME && g_shiftPressed == false) {
 					if (ptr->paused)
 						ptr->ResumeSpeech();
 					else
@@ -139,6 +140,9 @@ static LRESULT CALLBACK KeyboardHookProc(int nCode, WPARAM wParam, LPARAM lParam
 	}
 	return CallNextHookEx(g_keyboardHook, nCode, wParam, lParam);
 }
+
+static std::thread g_hookThread;
+
 static void hook_thread() {
 	g_keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardHookProc, GetModuleHandle(NULL), 0);
 	if (g_keyboardHook == nullptr)return;
@@ -155,8 +159,8 @@ static void hook_thread() {
 extern "C" SRAL_API bool SRAL_RegisterKeyboardHooks(void) {
 	if (g_keyboardHookThread)return g_keyboardHookThread;
 	g_keyboardHookThread = true;
-	std::thread t(hook_thread);
-	t.detach();
+	g_hookThread = std::thread(hook_thread);
+	g_hookThread.detach();
 	Timer timer;
 	while (timer.elapsed() < 3000) {
 		Sleep(5);
@@ -170,6 +174,9 @@ extern "C" SRAL_API bool SRAL_RegisterKeyboardHooks(void) {
 extern "C" SRAL_API void SRAL_UnregisterKeyboardHooks(void) {
 	PostMessage(0, WM_KEYUP, 0, 0);
 	g_keyboardHookThread = false;
+	if (g_hookThread.joinable()) {
+		g_hookThread.join();
+	}
 }
 #else
 extern "C" SRAL_API bool SRAL_RegisterKeyboardHooks(void) {
@@ -183,14 +190,14 @@ extern "C" SRAL_API void SRAL_UnregisterKeyboardHooks(void) {
 extern "C" SRAL_API bool SRAL_Initialize(int engines_exclude) {
 	if (g_initialized)return true;
 #if defined(_WIN32)
-	g_engines[ENGINE_NVDA] = std::make_unique<NVDA>();
-	g_engines[ENGINE_JAWS] = std::make_unique<Jaws>();
-	g_engines[ENGINE_SAPI] = std::make_unique<SAPI>();
-	g_engines[ENGINE_UIA] = std::make_unique<UIA>();
+	g_engines[ENGINE_NVDA] = std::make_unique<Sral::Nvda>();
+	g_engines[ENGINE_JAWS] = std::make_unique<Sral::Jaws>();
+	g_engines[ENGINE_SAPI] = std::make_unique<Sral::Sapi>();
+	g_engines[ENGINE_UIA] = std::make_unique<Sral::Uia>();
 #elif defined(__APPLE__)
-	g_engines[ENGINE_AV_SPEECH] = std::make_unique<AVSpeech>();
+	g_engines[ENGINE_AV_SPEECH] = std::make_unique<Sral::AvSpeech>();
 #else
-	g_engines[ENGINE_SPEECH_DISPATCHER] = std::make_unique<SpeechDispatcher>();
+	g_engines[ENGINE_SPEECH_DISPATCHER] = std::make_unique<Sral::SpeechDispatcher>();
 #endif
 	bool found = false;
 	for (const auto& [value, ptr] : g_engines) {
@@ -213,10 +220,11 @@ extern "C" SRAL_API void SRAL_Uninitialize(void) {
 	g_currentEngine = nullptr;
 	g_engines.clear();
 	g_excludes = 0;
+	if (g_outputThread.joinable()) {
+		g_outputThread.join();
+	}
 	if (g_keyboardHookThread) {
 		SRAL_UnregisterKeyboardHooks();
-		// Just for sure
-		g_keyboardHookThread = false;
 	}
 	g_initialized = false;
 }
@@ -330,7 +338,7 @@ extern "C" SRAL_API int SRAL_GetEngineFeatures(int engine) {
 		return g_currentEngine->GetFeatures();
 	}
 	else {
-		Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
+		Sral::Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
 		if (e == nullptr)return -1;
 		return e->GetFeatures();
 	}
@@ -394,7 +402,7 @@ extern "C" SRAL_API bool SRAL_SetEngineParameter(int engine, int param, const vo
 	if (engine == 0 && g_currentEngine != nullptr) {
 		return g_currentEngine->SetParameter(param, value);
 	}
-	Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
+	Sral::Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
 	if (e == nullptr)return false;
 	return e->SetParameter(param, value);
 }
@@ -404,7 +412,7 @@ extern "C" SRAL_API bool SRAL_GetEngineParameter(int engine, int param, void* va
 	if (engine == 0 && g_currentEngine != nullptr) {
 		return g_currentEngine->GetParameter(param, value);
 	}
-	Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
+	Sral::Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
 	if (e == nullptr)return false;
 	return e->GetParameter(param, value);
 }
@@ -412,7 +420,7 @@ extern "C" SRAL_API bool SRAL_GetEngineParameter(int engine, int param, void* va
 
 
 extern "C" SRAL_API bool SRAL_SpeakEx(int engine, const char* text, bool interrupt) {
-	Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
+	Sral::Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
 	if (e == nullptr)return false;
 	if (!g_delayOperation)
 		return e->Speak(text, interrupt);
@@ -427,21 +435,21 @@ extern "C" SRAL_API bool SRAL_SpeakEx(int engine, const char* text, bool interru
 		qout.time = g_lastDelayTime;
 		g_delayedOutputs.push_back(qout);
 		if (!g_outputThreadRunning) {
-			std::thread t(output_thread);
-			t.detach();
+			g_outputThread = std::thread(output_thread);
+			g_outputThread.detach();
 		}
 		return true;
 	}
 	return false;
 }
 extern "C" SRAL_API void* SRAL_SpeakToMemoryEx(int engine, const char* text, uint64_t* buffer_size, int* channels, int* sample_rate, int* bits_per_sample) {
-	Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
+	Sral::Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
 	if (e == nullptr)return nullptr;
 	return e->SpeakToMemory(text, buffer_size, channels, sample_rate, bits_per_sample);
 }
 
 extern "C" SRAL_API bool SRAL_SpeakSsmlEx(int engine, const char* ssml, bool interrupt) {
-	Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
+	Sral::Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
 	if (e == nullptr)return false;
 	if (!g_delayOperation)
 		return e->SpeakSsml(ssml, interrupt);
@@ -456,8 +464,8 @@ extern "C" SRAL_API bool SRAL_SpeakSsmlEx(int engine, const char* ssml, bool int
 		qout.time = g_lastDelayTime;
 		g_delayedOutputs.push_back(qout);
 		if (!g_outputThreadRunning) {
-			std::thread t(output_thread);
-			t.detach();
+			g_outputThread = std::thread(output_thread);
+			g_outputThread.detach();
 		}
 		return true;
 	}
@@ -465,33 +473,39 @@ extern "C" SRAL_API bool SRAL_SpeakSsmlEx(int engine, const char* ssml, bool int
 }
 
 extern "C" SRAL_API bool SRAL_BrailleEx(int engine, const char* text) {
-	Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
+	Sral::Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
 	if (e == nullptr)return false;
 	return e->Braille(text);
 }
 extern "C" SRAL_API bool SRAL_OutputEx(int engine, const char* text, bool interrupt) {
-	Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
+	Sral::Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
 	if (e == nullptr)return false;
 	const bool speech = e->Speak(text, interrupt);
 	const bool braille = e->Braille(text);
 	return speech || braille;
 }
 extern "C" SRAL_API bool SRAL_StopSpeechEx(int engine) {
-	Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
+	Sral::Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
 	if (e == nullptr)return false;
 	if (g_delayOperation) {
 		g_delayedOutputs.clear();
 		g_delayOperation = false;
+		if (g_outputThread.joinable()) {
+			g_outputThread.join();
+		}
 	}
 	return e->StopSpeech();
 }
 
 
 extern "C" SRAL_API bool SRAL_PauseSpeechEx(int engine) {
-	Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
+	Sral::Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
 	if (e == nullptr)return false;
 	if (g_delayOperation) {
 		g_delayOperation = false;
+		if (g_outputThread.joinable()) {
+			g_outputThread.join();
+		}
 	}
 	return e->PauseSpeech();
 }
@@ -499,13 +513,13 @@ extern "C" SRAL_API bool SRAL_PauseSpeechEx(int engine) {
 
 
 extern "C" SRAL_API bool SRAL_ResumeSpeechEx(int engine) {
-	Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
+	Sral::Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
 	if (e == nullptr)return false;
 	if (g_delayedOutputs.size() != 0) {
 		g_delayOperation = true;
 		if (!g_outputThreadRunning) {
-			std::thread t(output_thread);
-			t.detach();
+			g_outputThread = std::thread(output_thread);
+			g_outputThread.detach();
 		}
 	}
 	return e->ResumeSpeech();
