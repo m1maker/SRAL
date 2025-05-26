@@ -4,55 +4,55 @@
 #include "Engine.h"
 #include <speech-dispatcher/libspeechd.h>
 
+namespace Sral {
+	class SpeechDispatcher : public Engine {
+	public:
+		bool Speak(const char* text, bool interrupt)override;
+		bool SpeakSsml(const char* ssml, bool interrupt)override {
+			return false;
+		}
+		void* SpeakToMemory(const char* text, uint64_t* buffer_size, int* channels, int* sample_rate, int* bits_per_sample)override {
+			return nullptr;
+		}
 
-class SpeechDispatcher : public Engine {
-public:
-	bool Speak(const char* text, bool interrupt)override;
-	bool SpeakSsml(const char* ssml, bool interrupt)override {
-		return false;
-	}
-	void* SpeakToMemory(const char* text, uint64_t* buffer_size, int*channels, int* sample_rate, int* bits_per_sample)override {
-		return nullptr;
-	}
-
-	bool SetParameter(int param, const void* value)override;
-	bool GetParameter(int param, void* value) override;
+		bool SetParameter(int param, const void* value)override;
+		bool GetParameter(int param, void* value) override;
 
 
-	bool Braille(const char* text)override { return false; }
-	bool StopSpeech()override;
-	bool PauseSpeech()override;
-	bool ResumeSpeech()override;
+		bool Braille(const char* text)override { return false; }
+		bool StopSpeech()override;
+		bool PauseSpeech()override;
+		bool ResumeSpeech()override;
 
-	int GetNumber()override {
-		return ENGINE_SPEECH_DISPATCHER;
-	}
-	bool GetActive()override;
-	bool Initialize()override;
-	bool Uninitialize()override;
-	int GetFeatures()override {
-		return SUPPORTS_SPEECH | SUPPORTS_SPEECH_RATE | SUPPORTS_SPEECH_VOLUME | SUPPORTS_PAUSE_SPEECH | SUPPORTS_SPELLING;
-	}
-	void SetVolume(uint64_t)override;
-	uint64_t GetVolume()override;
-	void SetRate(uint64_t)override;
-	uint64_t GetRate()override;
-	uint64_t GetVoiceCount()override {
-		return 0;
-	}
-	const char* GetVoiceName(uint64_t index)override {
-		return nullptr;
-	}
-	bool SetVoice(uint64_t index)override {
-		return false;
-	}
-	int GetKeyFlags()override {
-		return HANDLE_INTERRUPT | HANDLE_PAUSE_RESUME;
-	}
+		int GetNumber()override {
+			return ENGINE_SPEECH_DISPATCHER;
+		}
+		bool GetActive()override;
+		bool Initialize()override;
+		bool Uninitialize()override;
+		int GetFeatures()override {
+			return SUPPORTS_SPEECH | SUPPORTS_SPEECH_RATE | SUPPORTS_SPEECH_VOLUME | SUPPORTS_PAUSE_SPEECH | SUPPORTS_SPELLING;
+		}
+		void SetVolume(uint64_t)override;
+		uint64_t GetVolume()override;
+		void SetRate(uint64_t)override;
+		uint64_t GetRate()override;
+		uint64_t GetVoiceCount()override {
+			return 0;
+		}
+		const char* GetVoiceName(uint64_t index)override {
+			return nullptr;
+		}
+		bool SetVoice(uint64_t index)override {
+			return false;
+		}
+		int GetKeyFlags()override {
+			return HANDLE_INTERRUPT | HANDLE_PAUSE_RESUME;
+		}
 
-private:
-	SPDConnection* Speech = nullptr;
-	bool enableSpelling = false;
-};
-
+	private:
+		SPDConnection* Speech = nullptr;
+		bool enableSpelling = false;
+	};
+}
 #endif

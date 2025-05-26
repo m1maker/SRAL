@@ -85,61 +85,62 @@ bool SetVoice(uint64_t index){
  }
 }
 };
+namespace Sral {
 
-bool AVSpeech::Initialize() {
+bool AvSpeech::Initialize() {
 	obj = new AVSpeechSynthesizerWrapper();
 	return obj->Initialize();
 }
 
-bool AVSpeech::Uninitialize() {
+bool AvSpeech::Uninitialize() {
 	if (obj == nullptr) return false; // Check for nullptr
 	delete obj;
 	obj = nullptr; // Set to nullptr after deletion
 	return true; // Return true to indicate successful uninitialization
 }
 
-bool AVSpeech::GetActive() {
+bool AvSpeech::GetActive() {
 	return obj != nullptr && obj->GetActive();
 }
 
-bool AVSpeech::Speak(const char* text, bool interrupt) {
+bool AvSpeech::Speak(const char* text, bool interrupt) {
 	return obj->Speak(text, interrupt);
 }
 
-bool AVSpeech::StopSpeech() {
+bool AvSpeech::StopSpeech() {
 	return obj->StopSpeech();
 }
 
-void AVSpeech::SetVolume(uint64_t value) {
+void AvSpeech::SetVolume(uint64_t value) {
 	obj->SetVolume(value);
 }
 
-uint64_t AVSpeech::GetVolume() {
+uint64_t AvSpeech::GetVolume() {
 	return obj->GetVolume();
 }
 
-void AVSpeech::SetRate(uint64_t value) {
+void AvSpeech::SetRate(uint64_t value) {
 	obj->SetRate(value);
 }
 
-uint64_t AVSpeech::GetRate() {
+uint64_t AvSpeech::GetRate() {
 	return obj->GetRate();
 }
 
-uint64_t AVSpeech::GetVoiceCount() {
+uint64_t AvSpeech::GetVoiceCount() {
 	return obj->GetVoiceCount();
 }
 
-const char* AVSpeech::GetVoiceName(uint64_t index) {
+const char* AvSpeech::GetVoiceName(uint64_t index) {
 	return obj->GetVoiceName(index);
 }
 
-bool AVSpeech::SetVoice(uint64_t index) {
+bool AvSpeech::SetVoice(uint64_t index) {
 	return obj->SetVoice(index);
 }
 
 
-bool AVSpeech::SetParameter(int param, const void* value) {
+bool AvSpeech::SetParameter(int param, const void* value) {
 	switch (param) {
 	case SPEECH_RATE:
 		obj->SetRate(*reinterpret_cast<const int*>(value));
@@ -155,7 +156,7 @@ bool AVSpeech::SetParameter(int param, const void* value) {
 	return true;
 }
 
-bool AVSpeech::GetParameter(int param, void* value) {
+bool AvSpeech::GetParameter(int param, void* value) {
 	switch (param) {
 	case SPEECH_RATE: {
 		*(int*)value = obj->GetRate();
@@ -180,3 +181,4 @@ bool AVSpeech::GetParameter(int param, void* value) {
 	return true;
 }
 
+}
