@@ -25,13 +25,6 @@ namespace Sral {
 		virtual int GetFeatures() = 0;
 		virtual bool Initialize() = 0;
 		virtual bool Uninitialize() = 0;
-		virtual void SetVolume(uint64_t value) = 0;
-		virtual uint64_t GetVolume() = 0;
-		virtual void SetRate(uint64_t value) = 0;
-		virtual uint64_t GetRate() = 0;
-		virtual uint64_t GetVoiceCount() = 0;
-		virtual const char* GetVoiceName(uint64_t index) = 0;
-		virtual bool SetVoice(uint64_t index) = 0;
 		virtual int GetKeyFlags() = 0;
 		virtual bool SetParameter(int param, const void* value) = 0;
 		virtual bool GetParameter(int param, void* value) = 0;

@@ -260,38 +260,6 @@ namespace Sral {
 		paused = false;
 		return SUCCEEDED(g_player->resume());
 	}
-	void Sapi::SetVolume(uint64_t value) {
-		if (instance == nullptr)return;
-		blastspeak_set_voice_volume(&*instance, value);
-	}
-	uint64_t Sapi::GetVolume() {
-		if (instance == nullptr)return 0;
-		long value;
-		blastspeak_get_voice_volume(&*instance, &value);
-		return value;
-	}
-	void Sapi::SetRate(uint64_t value) {
-		if (instance == nullptr)return;
-		blastspeak_set_voice_rate(&*instance, value);
-	}
-	uint64_t Sapi::GetRate() {
-		if (instance == nullptr)return 0;
-		long value;
-		blastspeak_get_voice_rate(&*instance, &value);
-		return value;
-	}
-	uint64_t Sapi::GetVoiceCount() {
-		if (instance == nullptr)return 0;
-		return instance->voice_count;
-	}
-	const char* Sapi::GetVoiceName(uint64_t index) {
-		if (instance == nullptr)return nullptr;
-		return blastspeak_get_voice_description(&*instance, index);
-	}
-	bool Sapi::SetVoice(uint64_t index) {
-		if (instance == nullptr)return false;
-		return blastspeak_set_voice(&*instance, index);
-	}
 
 
 }

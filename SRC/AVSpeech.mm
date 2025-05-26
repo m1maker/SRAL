@@ -111,35 +111,6 @@ bool AvSpeech::StopSpeech() {
 	return obj->StopSpeech();
 }
 
-void AvSpeech::SetVolume(uint64_t value) {
-	obj->SetVolume(value);
-}
-
-uint64_t AvSpeech::GetVolume() {
-	return obj->GetVolume();
-}
-
-void AvSpeech::SetRate(uint64_t value) {
-	obj->SetRate(value);
-}
-
-uint64_t AvSpeech::GetRate() {
-	return obj->GetRate();
-}
-
-uint64_t AvSpeech::GetVoiceCount() {
-	return obj->GetVoiceCount();
-}
-
-const char* AvSpeech::GetVoiceName(uint64_t index) {
-	return obj->GetVoiceName(index);
-}
-
-bool AvSpeech::SetVoice(uint64_t index) {
-	return obj->SetVoice(index);
-}
-
-
 bool AvSpeech::SetParameter(int param, const void* value) {
 	switch (param) {
 	case SRAL_PARAM_SPEECH_RATE:
