@@ -5,7 +5,7 @@
 #include <speech-dispatcher/libspeechd.h>
 
 namespace Sral {
-	class SpeechDispatcher : public Engine {
+	class SpeechDispatcher final : public Engine {
 	public:
 		bool Speak(const char* text, bool interrupt)override;
 		bool SpeakSsml(const char* ssml, bool interrupt)override {
@@ -25,13 +25,13 @@ namespace Sral {
 		bool ResumeSpeech()override;
 
 		int GetNumber()override {
-			return ENGINE_SPEECH_DISPATCHER;
+			return SRAL_ENGINE_SPEECH_DISPATCHER;
 		}
 		bool GetActive()override;
 		bool Initialize()override;
 		bool Uninitialize()override;
 		int GetFeatures()override {
-			return SUPPORTS_SPEECH | SUPPORTS_SPEECH_RATE | SUPPORTS_SPEECH_VOLUME | SUPPORTS_PAUSE_SPEECH | SUPPORTS_SPELLING;
+			return SRAL_SUPPORTS_SPEECH | SRAL_SUPPORTS_SPEECH_RATE | SRAL_SUPPORTS_SPEECH_VOLUME | SRAL_SUPPORTS_PAUSE_SPEECH | SRAL_SUPPORTS_SPELLING;
 		}
 		void SetVolume(uint64_t)override;
 		uint64_t GetVolume()override;

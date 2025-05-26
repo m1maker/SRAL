@@ -6,7 +6,7 @@
 #include "Engine.h"
 
 namespace Sral {
-	class Uia : public Engine {
+	class Uia final : public Engine {
 	public:
 		bool Speak(const char* text, bool interrupt)override;
 		bool SpeakSsml(const char* ssml, bool interrupt)override {
@@ -30,13 +30,13 @@ namespace Sral {
 		bool ResumeSpeech()override { return false; }
 
 		int GetNumber()override {
-			return ENGINE_UIA;
+			return SRAL_ENGINE_UIA;
 		}
 		bool GetActive()override;
 		bool Initialize()override;
 		bool Uninitialize()override;
 		int GetFeatures()override {
-			return SUPPORTS_SPEECH;
+			return SRAL_SUPPORTS_SPEECH;
 		}
 		void SetVolume(uint64_t)override { return; }
 		uint64_t GetVolume()override { return 0; }
