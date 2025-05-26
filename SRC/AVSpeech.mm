@@ -142,13 +142,13 @@ bool AvSpeech::SetVoice(uint64_t index) {
 
 bool AvSpeech::SetParameter(int param, const void* value) {
 	switch (param) {
-	case SPEECH_RATE:
+	case SRAL_PARAM_SPEECH_RATE:
 		obj->SetRate(*reinterpret_cast<const int*>(value));
 		return true;
-	case SPEECH_VOLUME:
+	case SRAL_PARAM_SPEECH_VOLUME:
 		obj->SetVolume(*reinterpret_cast<const int*>(value));
 		return true;
-	case VOICE_INDEX:
+	case SRAL_PARAM_VOICE_INDEX:
 		return obj->SetVoice(*reinterpret_cast<const int*>(value));
 	default:
 		return false;
@@ -158,15 +158,15 @@ bool AvSpeech::SetParameter(int param, const void* value) {
 
 bool AvSpeech::GetParameter(int param, void* value) {
 	switch (param) {
-	case SPEECH_RATE: {
+	case SRAL_PARAM_SPEECH_RATE: {
 		*(int*)value = obj->GetRate();
 		return true;
 	}
-	case SPEECH_VOLUME: {
+	case SRAL_PARAM_SPEECH_VOLUME: {
 		*(int*)value = obj->GetVolume();
 		return true;
 	}
-	case VOICE_LIST: {
+	case SRAL_PARAM_VOICE_LIST: {
 		int voice_count = obj->GetVoiceCount();
 		char** voices = (char**)value;
 		for (int i = 0; i < voice_count; ++i) {

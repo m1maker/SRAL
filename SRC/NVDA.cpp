@@ -87,13 +87,13 @@ namespace Sral {
 
 	bool Nvda::SetParameter(int param, const void* value) {
 		switch (param) {
-		case SYMBOL_LEVEL:
+		case SRAL_PARAM_SYMBOL_LEVEL:
 			this->symbolLevel = *reinterpret_cast<const int*>(value);
 			break;
-		case ENABLE_SPELLING:
+		case SRAL_PARAM_ENABLE_SPELLING:
 			this->enable_spelling = *reinterpret_cast<const bool*>(value);
 			break;
-		case USE_CHARACTER_DESCRIPTIONS:
+		case SRAL_PARAM_USE_CHARACTER_DESCRIPTIONS:
 			this->use_character_descriptions = *reinterpret_cast<const bool*>(value);
 			break;
 		default:
@@ -104,16 +104,16 @@ namespace Sral {
 
 	bool Nvda::GetParameter(int param, void* value) {
 		switch (param) {
-		case SYMBOL_LEVEL:
+		case SRAL_PARAM_SYMBOL_LEVEL:
 			*(int*)value = this->symbolLevel;
 			return true;
-		case ENABLE_SPELLING:
+		case SRAL_PARAM_ENABLE_SPELLING:
 			*(bool*)value = this->enable_spelling;
 			return true;
-		case USE_CHARACTER_DESCRIPTIONS:
+		case SRAL_PARAM_USE_CHARACTER_DESCRIPTIONS:
 			*(bool*)value = this->use_character_descriptions;
 			return true;
-		case NVDA_IS_CONTROL_EX:
+		case SRAL_PARAM_NVDA_IS_CONTROL_EX:
 			this->extended = nvda_active() == 0;
 			*(bool*)value = this->extended;
 			return true;

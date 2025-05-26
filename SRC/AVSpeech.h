@@ -9,7 +9,7 @@ class AVSpeechSynthesizerWrapper;
 
 namespace Sral {
 
-	class AvSpeech : public Engine {
+	class AvSpeech final : public Engine {
 	public:
 		bool Speak(const char* text, bool interrupt)override;
 		bool SpeakSsml(const char* ssml, bool interrupt)override {
@@ -28,13 +28,13 @@ namespace Sral {
 		bool PauseSpeech()override { return false; }
 		bool ResumeSpeech()override { return false; }
 		int GetNumber()override {
-			return ENGINE_AV_SPEECH;
+			return SRAL_ENGINE_AV_SPEECH;
 		}
 		bool GetActive()override;
 		bool Initialize()override;
 		bool Uninitialize()override;
 		int GetFeatures()override {
-			return SUPPORTS_SPEECH | SUPPORTS_SPEECH_RATE | SUPPORTS_SPEECH_VOLUME | SUPPORTS_SELECT_VOICE;
+			return SRAL_SUPPORTS_SPEECH | SRAL_SUPPORTS_SPEECH_RATE | SRAL_SUPPORTS_SPEECH_VOLUME | SRAL_SUPPORTS_SELECT_VOICE;
 		}
 		void SetVolume(uint64_t value)override;
 		uint64_t GetVolume()override;

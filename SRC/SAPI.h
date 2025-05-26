@@ -10,7 +10,7 @@
 #include <thread>
 
 namespace Sral {
-	class Sapi : public Engine {
+	class Sapi final : public Engine {
 	public:
 		bool Speak(const char* text, bool interrupt)override;
 		bool SpeakSsml(const char* ssml, bool interrupt)override {
@@ -25,13 +25,13 @@ namespace Sral {
 		bool PauseSpeech()override;
 		bool ResumeSpeech()override;
 		int GetNumber()override {
-			return ENGINE_SAPI;
+			return SRAL_ENGINE_SAPI;
 		}
 		bool GetActive()override;
 		bool Initialize()override;
 		bool Uninitialize()override;
 		int GetFeatures()override {
-			return SUPPORTS_SPEECH | SUPPORTS_SPEECH_RATE | SUPPORTS_SPEECH_VOLUME | SUPPORTS_SELECT_VOICE | SUPPORTS_PAUSE_SPEECH | SUPPORTS_SPEAK_TO_MEMORY;
+			return SRAL_SUPPORTS_SPEECH | SRAL_SUPPORTS_SPEECH_RATE | SRAL_SUPPORTS_SPEECH_VOLUME | SRAL_SUPPORTS_SELECT_VOICE | SRAL_SUPPORTS_PAUSE_SPEECH | SRAL_SUPPORTS_SPEAK_TO_MEMORY;
 		}
 		void SetVolume(uint64_t value)override;
 		uint64_t GetVolume()override;

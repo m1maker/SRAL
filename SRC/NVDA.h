@@ -7,7 +7,7 @@
 #include <windows.h>
 
 namespace Sral {
-	class Nvda : public Engine {
+	class Nvda final : public Engine {
 	public:
 		bool Speak(const char* text, bool interrupt)override;
 		bool SpeakSsml(const char* ssml, bool interrupt)override;
@@ -23,13 +23,13 @@ namespace Sral {
 		bool PauseSpeech()override;
 		bool ResumeSpeech()override;
 		int GetNumber()override {
-			return ENGINE_NVDA;
+			return SRAL_ENGINE_NVDA;
 		}
 		bool GetActive()override;
 		bool Initialize()override;
 		bool Uninitialize()override;
 		int GetFeatures()override {
-			return SUPPORTS_SPEECH | SUPPORTS_BRAILLE | SUPPORTS_PAUSE_SPEECH | SUPPORTS_SPELLING;
+			return SRAL_SUPPORTS_SPEECH | SRAL_SUPPORTS_BRAILLE | SRAL_SUPPORTS_PAUSE_SPEECH | SRAL_SUPPORTS_SPELLING;
 		}
 		void SetVolume(uint64_t)override { return; }
 		uint64_t GetVolume()override { return 0; }

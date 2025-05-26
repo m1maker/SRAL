@@ -43,14 +43,14 @@ private:
 
 
 static const std::map<SRAL_Engines, std::string> g_engineNames = {
-	{ ENGINE_NONE, "None" },
-	{ ENGINE_NVDA, "NVDA" },
-	{ ENGINE_SAPI, "SAPI" },
-	{ ENGINE_JAWS, "JAWS" },
-	{ ENGINE_SPEECH_DISPATCHER, "Speech Dispatcher" },
-	{ ENGINE_UIA, "UIA" },
-	{ ENGINE_AV_SPEECH, "AV Speech" },
-	{ ENGINE_NARRATOR, "Narrator" }
+	{ SRAL_ENGINE_NONE, "None" },
+	{ SRAL_ENGINE_NVDA, "NVDA" },
+	{ SRAL_ENGINE_SAPI, "SAPI" },
+	{ SRAL_ENGINE_JAWS, "JAWS" },
+	{ SRAL_ENGINE_SPEECH_DISPATCHER, "Speech Dispatcher" },
+	{ SRAL_ENGINE_UIA, "UIA" },
+	{ SRAL_ENGINE_AV_SPEECH, "AV Speech" },
+	{ SRAL_ENGINE_NARRATOR, "Narrator" }
 };
 
 
@@ -190,14 +190,14 @@ extern "C" SRAL_API void SRAL_UnregisterKeyboardHooks(void) {
 extern "C" SRAL_API bool SRAL_Initialize(int engines_exclude) {
 	if (g_initialized)return true;
 #if defined(_WIN32)
-	g_engines[ENGINE_NVDA] = std::make_unique<Sral::Nvda>();
-	g_engines[ENGINE_JAWS] = std::make_unique<Sral::Jaws>();
-	g_engines[ENGINE_SAPI] = std::make_unique<Sral::Sapi>();
-	g_engines[ENGINE_UIA] = std::make_unique<Sral::Uia>();
+	g_engines[SRAL_ENGINE_NVDA] = std::make_unique<Sral::Nvda>();
+	g_engines[SRAL_ENGINE_JAWS] = std::make_unique<Sral::Jaws>();
+	g_engines[SRAL_ENGINE_SAPI] = std::make_unique<Sral::Sapi>();
+	g_engines[SRAL_ENGINE_UIA] = std::make_unique<Sral::Uia>();
 #elif defined(__APPLE__)
-	g_engines[ENGINE_AV_SPEECH] = std::make_unique<Sral::AvSpeech>();
+	g_engines[SRAL_ENGINE_AV_SPEECH] = std::make_unique<Sral::AvSpeech>();
 #else
-	g_engines[ENGINE_SPEECH_DISPATCHER] = std::make_unique<Sral::SpeechDispatcher>();
+	g_engines[SRAL_ENGINE_SPEECH_DISPATCHER] = std::make_unique<Sral::SpeechDispatcher>();
 #endif
 	bool found = false;
 	for (const auto& [value, ptr] : g_engines) {
@@ -264,10 +264,10 @@ BOOL FindProcess(const wchar_t* name) {
 
 #endif
 static void speech_engine_update() {
-	if (!g_currentEngine->GetActive() || g_currentEngine->GetNumber() == ENGINE_SAPI || g_currentEngine->GetNumber() == ENGINE_UIA) {
+	if (!g_currentEngine->GetActive() || g_currentEngine->GetNumber() == SRAL_ENGINE_SAPI || g_currentEngine->GetNumber() == SRAL_ENGINE_UIA) {
 #ifdef _WIN32
 		if (FindProcess(L"narrator.exe") == TRUE) {
-			g_currentEngine = g_engines[ENGINE_UIA].get();
+			g_currentEngine = g_engines[SRAL_ENGINE_UIA].get();
 			return;
 		}
 		else {
@@ -329,7 +329,7 @@ extern "C" SRAL_API bool SRAL_ResumeSpeech(void) {
 }
 
 extern "C" SRAL_API int SRAL_GetCurrentEngine(void) {
-	if (g_currentEngine == nullptr)return ENGINE_NONE;
+	if (g_currentEngine == nullptr)return SRAL_ENGINE_NONE;
 	return g_currentEngine->GetNumber();
 }
 extern "C" SRAL_API int SRAL_GetEngineFeatures(int engine) {

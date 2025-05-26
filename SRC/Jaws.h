@@ -7,7 +7,7 @@
 #include <windows.h>
 
 namespace Sral {
-	class Jaws : public Engine {
+	class Jaws final : public Engine {
 	public:
 		bool Speak(const char* text, bool interrupt)override;
 		bool SpeakSsml(const char* ssml, bool interrupt)override {
@@ -29,13 +29,13 @@ namespace Sral {
 		bool PauseSpeech()override { return false; }
 		bool ResumeSpeech()override { return false; }
 		int GetNumber()override {
-			return ENGINE_JAWS;
+			return SRAL_ENGINE_JAWS;
 		}
 		bool GetActive()override;
 		bool Initialize()override;
 		bool Uninitialize()override;
 		int GetFeatures()override {
-			return SUPPORTS_SPEECH | SUPPORTS_BRAILLE;
+			return SRAL_SUPPORTS_SPEECH | SRAL_SUPPORTS_BRAILLE;
 		}
 		void SetVolume(uint64_t)override { return; }
 		uint64_t GetVolume()override { return 0; }

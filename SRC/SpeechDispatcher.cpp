@@ -52,16 +52,16 @@ namespace Sral {
 	bool SpeechDispatcher::SetParameter(int param, const void* value) {
 		if (Speech == nullptr)return false;
 		switch (param) {
-		case SYMBOL_LEVEL:
+		case SRAL_PARAM_SYMBOL_LEVEL:
 			spd_set_punctuation(Speech, static_cast<SPDPunctuation>(*reinterpret_cast<const int*>(value)));
 			break;
-		case SPEECH_RATE:
+		case SRAL_PARAM_SPEECH_RATE:
 			spd_set_voice_rate(Speech, *reinterpret_cast<const int*>(value));
 			break;
-		case SPEECH_VOLUME:
+		case SRAL_PARAM_SPEECH_VOLUME:
 			spd_set_volume(Speech, *reinterpret_cast<const int*>(value));
 			break;
-		case ENABLE_SPELLING:
+		case SRAL_PARAM_ENABLE_SPELLING:
 			this->enableSpelling = *reinterpret_cast<const bool*>(value);
 			break;
 		default:
@@ -73,13 +73,13 @@ namespace Sral {
 	bool SpeechDispatcher::GetParameter(int param, void* value) {
 		if (Speech == nullptr)return false;
 		switch (param) {
-		case SPEECH_RATE:
+		case SRAL_PARAM_SPEECH_RATE:
 			*(int*)value = spd_get_voice_rate(Speech);
 			return true;
-		case SPEECH_VOLUME:
+		case SRAL_PARAM_SPEECH_VOLUME:
 			*(int*)value = spd_get_volume(Speech);
 			return true;
-		case ENABLE_SPELLING:
+		case SRAL_PARAM_ENABLE_SPELLING:
 			*(bool*)value = this->enableSpelling;
 			return true;
 		default:

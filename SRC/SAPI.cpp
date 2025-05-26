@@ -190,14 +190,14 @@ namespace Sral {
 			return false;
 
 		switch (param) {
-		case SAPI_TRIM_THRESHOLD:
+		case SRAL_PARAM_SAPI_TRIM_THRESHOLD:
 			this->trimThreshold = *reinterpret_cast<const int*>(value);
 			break;
-		case SPEECH_RATE:
+		case SRAL_PARAM_SPEECH_RATE:
 			return blastspeak_set_voice_rate(&*instance, *reinterpret_cast<const long*>(value));
-		case SPEECH_VOLUME:
+		case SRAL_PARAM_SPEECH_VOLUME:
 			return blastspeak_set_voice_volume(&*instance, *reinterpret_cast<const long*>(value));
-		case VOICE_INDEX: {
+		case SRAL_PARAM_VOICE_INDEX: {
 			int result = blastspeak_set_voice(&*instance, *reinterpret_cast<const int*>(value));
 			if (result) {
 				this->voiceIndex = *reinterpret_cast<const int*>(value);
@@ -216,16 +216,16 @@ namespace Sral {
 			return false;
 
 		switch (param) {
-		case SAPI_TRIM_THRESHOLD:
+		case SRAL_PARAM_SAPI_TRIM_THRESHOLD:
 			*(int*)value = this->trimThreshold;
 			return true;
-		case SPEECH_RATE: {
+		case SRAL_PARAM_SPEECH_RATE: {
 			return blastspeak_get_voice_rate(&*instance, (long*)value);
 		}
-		case SPEECH_VOLUME: {
+		case SRAL_PARAM_SPEECH_VOLUME: {
 			return blastspeak_get_voice_volume(&*instance, (long*)value);
 		}
-		case VOICE_LIST: {
+		case SRAL_PARAM_VOICE_LIST: {
 			char** voices = (char**)value;
 			for (int i = 0; i < instance->voice_count; ++i) {
 				const char* voice_desc = blastspeak_get_voice_description(&*instance, i);
@@ -233,10 +233,10 @@ namespace Sral {
 			}
 			return true;
 		}
-		case VOICE_COUNT:
+		case SRAL_PARAM_VOICE_COUNT:
 			*(int*)value = instance->voice_count;
 			return true;
-		case VOICE_INDEX:
+		case SRAL_PARAM_VOICE_INDEX:
 			*(int*)value = this->voiceIndex;
 			return true;
 		default:
