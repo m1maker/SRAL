@@ -518,3 +518,16 @@ extern "C" SRAL_API const char* SRAL_GetEngineName(int engine) {
 	return "";
 }
 
+
+extern "C" SRAL_API bool SRAL_SetEnginesExclude(int engines_exclude) {
+	if (!SRAL_IsInitialized()) {
+		return false;
+	}
+	g_excludes = engines_exclude;
+	speech_engine_update();
+	return true;
+}
+
+extern "C" SRAL_API int SRAL_GetEnginesExclude(void) {
+	return SRAL_IsInitialized() ? g_excludes : -1;
+}

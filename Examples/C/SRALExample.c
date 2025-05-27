@@ -619,6 +619,24 @@ int main(void) {
 	SRAL_StopSpeech(); // Good practice to stop, also clear delay queue.
 
 
+	TEST_SECTION("SRAL_Set/GetEnginesExclude");
+
+	int original_engines_to_exclude = engines_to_exclude;
+	engines_to_exclude = SRAL_ENGINE_NVDA | SRAL_ENGINE_SAPI;
+	printf("Original excluding engines: 0x%X (%s)\n",
+		original_engines_to_exclude, SRAL_GetEngineName(original_engines_to_exclude) ? SRAL_GetEngineName(original_engines_to_exclude) : "None");
+
+	printf("Attempting to exclude engines: 0x%X (%s)\n",
+		engines_to_exclude, SRAL_GetEngineName(engines_to_exclude) ? SRAL_GetEngineName(engines_to_exclude) : "None");
+
+	CHECK(SRAL_SetEnginesExclude(SRAL_ENGINE_NVDA | SRAL_ENGINE_SAPI), "Excludes was successfully set.", "Failed to set engines excludes");
+	int new_engines_to_exclude = SRAL_GetEnginesExclude();
+	printf("  New excludes confirmed by get: 0x%X (%s)\n",
+		engines_to_exclude, SRAL_GetEngineName(new_engines_to_exclude) ? SRAL_GetEngineName(new_engines_to_exclude) : "None");
+
+	CHECK(engines_to_exclude == new_engines_to_exclude, "Engines exclude set/get matches", "Engines exclude set/get mismatch");
+
+
 	TEST_SECTION("Unregister Keyboard Hooks");
 	SRAL_UnregisterKeyboardHooks();
 	printf("SRAL_UnregisterKeyboardHooks called. Hooks should now be inactive (if they were active).\n");

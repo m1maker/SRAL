@@ -97,11 +97,20 @@ extern "C" {
 
 
 	/**
-	* @brief Speak the given text.
-	* @param text A pointer to the text string to be spoken.
-	* @param interrupt A flag indicating whether to interrupt the current speech.
-	* @return true if speaking was successful, false otherwise.
-	*/
+* Functions for interacting with the currently available and active engine (auto update).
+* However, for example, if the engine
+* SAPI or UIAutomation is active, then screen readers,
+* such as Jaws or NVDA, will take priority.
+* Note that engines excluded by calling SRAL_Initialize
+* or SRAL_SetEnginesExclude will not be considered here.
+*/
+
+/**
+* @brief Speak the given text.
+* @param text A pointer to the text string to be spoken.
+* @param interrupt A flag indicating whether to interrupt the current speech.
+* @return true if speaking was successful, false otherwise.
+*/
 
 	SRAL_API bool SRAL_Speak(const char* text, bool interrupt);
 
@@ -223,7 +232,7 @@ extern "C" {
 
 	/**
  * @brief Initialize the library and optionally exclude certain engines.
- * @param engines_exclude A bitmask specifying engines to exclude from initialization. Defaults to 0 (include all).
+ * @param engines_exclude A bitmask specifying engines to exclude from auto update. Defaults to 0 (include all).
  * @return true if initialization was successful, false otherwise.
  */
 
@@ -240,6 +249,8 @@ extern "C" {
 
 	/**
  * Extended functions to perform operations with specific speech engines.
+ * Excluded engines when calling SRAL Initialize or SRAL_SetEnginesExclude will always work here,
+* as they are excluded from auto update.
  */
 
  /**
@@ -404,6 +415,25 @@ extern "C" {
 
 	SRAL_API const char* SRAL_GetEngineName(int engine);
 
+
+
+	/**
+* @brief Set excludes for specified engines
+ * @param engines_exclude A bitmask specifying engines to exclude from auto update. Defaults to 0 (include all).
+ * @return true if excludes was successful set, false otherwise.
+*/
+
+
+	SRAL_API bool SRAL_SetEnginesExclude(int engines_exclude);
+
+
+	/**
+* @brief Get engines excluded from auto update.
+ * @return bitmask with excluded engines if SRAL was successfully initialized, -1 otherwise.
+*/
+
+
+	SRAL_API int SRAL_GetEnginesExclude(void);
 
 
 
