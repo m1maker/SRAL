@@ -186,11 +186,18 @@ extern "C" {
 
 
 
+	/**
+* @brief Get status, does this engine speak now.
+* @return true if the engine is currently speaking, false otherwise.
+*/
+
+	SRAL_API bool SRAL_IsSpeaking(void);
+
 
 	/**
- * @brief Get the current speech engine in use.
- * @return The identifier of the current speech engine defined by the SRAL_Engines enumeration.
- */
+	* @brief Get the current speech engine in use.
+	* @return The identifier of the current speech engine defined by the SRAL_Engines enumeration.
+	*/
 
 	SRAL_API int SRAL_GetCurrentEngine(void);
 
@@ -343,6 +350,15 @@ extern "C" {
 
 
 	SRAL_API bool SRAL_ResumeSpeechEx(int engine);
+
+
+	/**
+* @brief Get status, does this engine speak now.
+* @param engine The engine to get speaking status for.
+* @return true if the engine is currently speaking, false otherwise.
+*/
+
+	SRAL_API bool SRAL_IsSpeakingEx(int engine);
 
 
 

@@ -28,6 +28,7 @@ namespace Sral {
 		bool StopSpeech()override;
 		bool PauseSpeech()override { return false; }
 		bool ResumeSpeech()override { return false; }
+		bool IsSpeaking() override { return false; }
 		int GetNumber()override {
 			return SRAL_ENGINE_JAWS;
 		}

@@ -80,12 +80,12 @@ static uint64_t g_lastDelayTime = 0;
 
 static void output_thread() {
 	g_outputThreadRunning = true;
-	static Timer t;
-	t.restart();
+	static Timer timer;
+	timer.restart();
 	while (g_delayOperation && !g_delayedOutputs.empty()) {
 		for (const QueuedOutput& qout : g_delayedOutputs) {
-			t.restart();
-			while (t.elapsed() < qout.time && g_delayOperation) {
+			timer.restart();
+			while (timer.elapsed() < qout.time && g_delayOperation) {
 				std::this_thread::sleep_for(std::chrono::milliseconds(5));
 			}
 			if (qout.speak) {
@@ -162,7 +162,7 @@ extern "C" SRAL_API bool SRAL_RegisterKeyboardHooks(void) {
 	g_keyboardHookThread = true;
 	g_hookThread = std::thread(hook_thread);
 	g_hookThread.detach();
-	Timer timer;
+	static Timer timer;
 	while (timer.elapsed() < 3000) {
 		Sleep(5);
 		if (g_keyboardHook != nullptr) {
@@ -340,6 +340,12 @@ extern "C" SRAL_API bool SRAL_ResumeSpeech(void) {
 	return SRAL_ResumeSpeechEx(g_currentEngine->GetNumber());
 }
 
+extern "C" SRAL_API bool SRAL_IsSpeaking(void) {
+	speech_engine_update();
+	if (g_currentEngine == nullptr)		return false;
+	return SRAL_IsSpeakingEx(g_currentEngine->GetNumber());
+}
+
 extern "C" SRAL_API int SRAL_GetCurrentEngine(void) {
 	speech_engine_update();
 	if (g_currentEngine == nullptr)return SRAL_ENGINE_NONE;
@@ -487,6 +493,12 @@ extern "C" SRAL_API bool SRAL_ResumeSpeechEx(int engine) {
 	return e->ResumeSpeech();
 }
 
+
+extern "C" SRAL_API bool SRAL_IsSpeakingEx(int engine) {
+	Sral::Engine* e = get_engine(engine);
+	if (e == nullptr)return false;
+	return e->IsSpeaking();
+}
 
 extern "C" SRAL_API bool SRAL_IsInitialized(void) {
 	return g_initialized && !g_engines.empty();

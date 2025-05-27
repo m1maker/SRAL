@@ -318,7 +318,8 @@ int main(void) {
 		const char* long_speech = "This is a moderately long sentence designed to test the pause, resume, and stop functionality of the SRAL library effectively.";
 		printf("Speaking long sentence with default engine: \"%s\"\n", long_speech);
 		SRAL_Speak(long_speech, true);
-		prompt_user("Speech started. It should be speaking now. Press Enter to attempt PAUSE (if supported).");
+		prompt_user("Speech started. Press Enter to attempt PAUSE (if supported).");
+		printf("IsSpeaking status: %s", SRAL_IsSpeaking() ? "true" : "false");
 
 		if (current_engine_features & SRAL_SUPPORTS_PAUSE_SPEECH) {
 			CHECK_SRAL(SRAL_PauseSpeech(), "SRAL_PauseSpeech");
@@ -341,6 +342,7 @@ int main(void) {
 				printf("Speaking long sentence with engine %s: \"%s\"\n", SRAL_GetEngineName(specific_engine_for_ex_tests), long_speech);
 				SRAL_SpeakEx(specific_engine_for_ex_tests, long_speech, true);
 				prompt_user("Speech started (Ex). Press Enter to PAUSE (Ex) (if supported).");
+				printf("IsSpeaking status: %s", SRAL_IsSpeakingEx(specific_engine_for_ex_tests) ? "true" : "false");
 
 				if (features_ex & SRAL_SUPPORTS_PAUSE_SPEECH) {
 					CHECK_SRAL(SRAL_PauseSpeechEx(specific_engine_for_ex_tests), "SRAL_PauseSpeechEx");
