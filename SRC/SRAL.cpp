@@ -228,6 +228,21 @@ extern "C" SRAL_API void SRAL_Uninitialize(void) {
 	}
 	g_initialized = false;
 }
+
+static Sral::Engine* get_engine(int engine) {
+	auto it = g_engines.find(static_cast<SRAL_Engines>(engine));
+	if (it != g_engines.end()) {
+		return it->second.get();
+	}
+	else {
+		return nullptr;
+	}
+	return nullptr;
+}
+
+
+
+
 #ifdef _WIN32
 // This is used for find the Windows Narrator process
 BOOL FindProcess(const wchar_t* name) {
@@ -267,7 +282,7 @@ static void speech_engine_update() {
 	if (!g_currentEngine->GetActive() || g_currentEngine->GetNumber() == SRAL_ENGINE_SAPI || g_currentEngine->GetNumber() == SRAL_ENGINE_UIA) {
 #ifdef _WIN32
 		if (FindProcess(L"narrator.exe") == TRUE) {
-			g_currentEngine = g_engines[SRAL_ENGINE_UIA].get();
+			g_currentEngine = get_engine(SRAL_ENGINE_UIA);
 			return;
 		}
 		else {
@@ -338,7 +353,7 @@ extern "C" SRAL_API int SRAL_GetEngineFeatures(int engine) {
 		return g_currentEngine->GetFeatures();
 	}
 	else {
-		Sral::Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
+		Sral::Engine* e = get_engine(engine);
 		if (e == nullptr)return -1;
 		return e->GetFeatures();
 	}
@@ -351,7 +366,7 @@ extern "C" SRAL_API bool SRAL_SetEngineParameter(int engine, int param, const vo
 	if (engine == 0 && g_currentEngine != nullptr) {
 		return g_currentEngine->SetParameter(param, value);
 	}
-	Sral::Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
+	Sral::Engine* e = get_engine(engine);
 	if (e == nullptr)return false;
 	return e->SetParameter(param, value);
 }
@@ -361,7 +376,7 @@ extern "C" SRAL_API bool SRAL_GetEngineParameter(int engine, int param, void* va
 	if (engine == 0 && g_currentEngine != nullptr) {
 		return g_currentEngine->GetParameter(param, value);
 	}
-	Sral::Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
+	Sral::Engine* e = get_engine(engine);
 	if (e == nullptr)return false;
 	return e->GetParameter(param, value);
 }
@@ -369,7 +384,7 @@ extern "C" SRAL_API bool SRAL_GetEngineParameter(int engine, int param, void* va
 
 
 extern "C" SRAL_API bool SRAL_SpeakEx(int engine, const char* text, bool interrupt) {
-	Sral::Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
+	Sral::Engine* e = get_engine(engine);
 	if (e == nullptr)return false;
 	if (!g_delayOperation)
 		return e->Speak(text, interrupt);
@@ -392,13 +407,13 @@ extern "C" SRAL_API bool SRAL_SpeakEx(int engine, const char* text, bool interru
 	return false;
 }
 extern "C" SRAL_API void* SRAL_SpeakToMemoryEx(int engine, const char* text, uint64_t* buffer_size, int* channels, int* sample_rate, int* bits_per_sample) {
-	Sral::Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
+	Sral::Engine* e = get_engine(engine);
 	if (e == nullptr)return nullptr;
 	return e->SpeakToMemory(text, buffer_size, channels, sample_rate, bits_per_sample);
 }
 
 extern "C" SRAL_API bool SRAL_SpeakSsmlEx(int engine, const char* ssml, bool interrupt) {
-	Sral::Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
+	Sral::Engine* e = get_engine(engine);
 	if (e == nullptr)return false;
 	if (!g_delayOperation)
 		return e->SpeakSsml(ssml, interrupt);
@@ -422,19 +437,19 @@ extern "C" SRAL_API bool SRAL_SpeakSsmlEx(int engine, const char* ssml, bool int
 }
 
 extern "C" SRAL_API bool SRAL_BrailleEx(int engine, const char* text) {
-	Sral::Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
+	Sral::Engine* e = get_engine(engine);
 	if (e == nullptr)return false;
 	return e->Braille(text);
 }
 extern "C" SRAL_API bool SRAL_OutputEx(int engine, const char* text, bool interrupt) {
-	Sral::Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
+	Sral::Engine* e = get_engine(engine);
 	if (e == nullptr)return false;
 	const bool speech = e->Speak(text, interrupt);
 	const bool braille = e->Braille(text);
 	return speech || braille;
 }
 extern "C" SRAL_API bool SRAL_StopSpeechEx(int engine) {
-	Sral::Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
+	Sral::Engine* e = get_engine(engine);
 	if (e == nullptr)return false;
 	if (g_delayOperation) {
 		g_delayedOutputs.clear();
@@ -448,7 +463,7 @@ extern "C" SRAL_API bool SRAL_StopSpeechEx(int engine) {
 
 
 extern "C" SRAL_API bool SRAL_PauseSpeechEx(int engine) {
-	Sral::Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
+	Sral::Engine* e = get_engine(engine);
 	if (e == nullptr)return false;
 	if (g_delayOperation) {
 		g_delayOperation = false;
@@ -462,7 +477,7 @@ extern "C" SRAL_API bool SRAL_PauseSpeechEx(int engine) {
 
 
 extern "C" SRAL_API bool SRAL_ResumeSpeechEx(int engine) {
-	Sral::Engine* e = g_engines[static_cast<SRAL_Engines>(engine)].get();
+	Sral::Engine* e = get_engine(engine);
 	if (e == nullptr)return false;
 	if (g_delayedOutputs.size() != 0) {
 		g_delayOperation = true;
