@@ -1,5 +1,5 @@
-#ifndef SCREENREADER_H_
-#define SCREENREADER_H_
+#ifndef ENGINE_H_
+#define ENGINE_H_
 #pragma once
 #include <stdint.h>
 
@@ -20,6 +20,7 @@ namespace Sral {
 		virtual bool StopSpeech() = 0;
 		virtual bool PauseSpeech() = 0;
 		virtual bool ResumeSpeech() = 0;
+		virtual bool IsSpeaking() = 0;
 		virtual int GetNumber() = 0;
 		virtual bool GetActive() = 0;
 		virtual int GetFeatures() = 0;

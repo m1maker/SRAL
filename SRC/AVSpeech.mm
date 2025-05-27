@@ -46,6 +46,10 @@ bool StopSpeech(){
  if (synth.isSpeaking) return [synth stopSpeakingAtBoundary:AVSpeechBoundaryImmediate];
  return false;
 }
+
+bool IsSpeaking() {
+	return synth.isSpeaking;
+}
 bool GetActive(){
  return synth != nil;
 }
@@ -109,6 +113,9 @@ bool AvSpeech::Speak(const char* text, bool interrupt) {
 
 bool AvSpeech::StopSpeech() {
 	return obj->StopSpeech();
+}
+bool AvSpeech::IsSpeaking() {
+	return obj->IsSpeaking();
 }
 
 bool AvSpeech::SetParameter(int param, const void* value) {

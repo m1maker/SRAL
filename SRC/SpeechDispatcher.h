@@ -23,7 +23,7 @@ namespace Sral {
 		bool StopSpeech()override;
 		bool PauseSpeech()override;
 		bool ResumeSpeech()override;
-
+		bool IsSpeaking() override { return false; }
 		int GetNumber()override {
 			return SRAL_ENGINE_SPEECH_DISPATCHER;
 		}

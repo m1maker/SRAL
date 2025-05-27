@@ -24,6 +24,7 @@ namespace Sral {
 		bool StopSpeech()override;
 		bool PauseSpeech()override;
 		bool ResumeSpeech()override;
+		bool IsSpeaking() override;
 		int GetNumber()override {
 			return SRAL_ENGINE_SAPI;
 		}

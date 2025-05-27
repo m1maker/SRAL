@@ -65,14 +65,14 @@ static void sapi_thread() {
 	HRESULT hr;
 	while (g_threadStarted) {
 		Sleep(1);
-		for (uint64_t i = 0; i < g_dataQueue.size(); ++i) {
+		for (const PCMData& data : g_dataQueue) {
 
-			hr = g_player->feed(g_dataQueue[i].data, g_dataQueue[i].size, nullptr);
+			hr = g_player->feed(data.data, data.size, nullptr);
 			if (FAILED(hr))continue;
 			hr = g_player->sync();
 			if (FAILED(hr))continue;
 		}
-		if (g_dataQueue.size() > 0)		g_dataQueue.clear();
+		if (!g_dataQueue.empty())		g_dataQueue.clear();
 	}
 	delete g_player;
 	g_player = nullptr;
@@ -183,6 +183,10 @@ namespace Sral {
 		*sample_rate = instance->sample_rate;
 		*bits_per_sample = instance->bits_per_sample;
 		return final;
+	}
+
+	bool Sapi::IsSpeaking() {
+		return !paused && !g_dataQueue.empty();
 	}
 
 	bool Sapi::SetParameter(int param, const void* value) {

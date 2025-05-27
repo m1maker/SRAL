@@ -27,6 +27,7 @@ namespace Sral {
 		bool StopSpeech()override;
 		bool PauseSpeech()override { return false; }
 		bool ResumeSpeech()override { return false; }
+		bool IsSpeaking() override;
 		int GetNumber()override {
 			return SRAL_ENGINE_AV_SPEECH;
 		}
