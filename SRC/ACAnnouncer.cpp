@@ -5,7 +5,7 @@ bool ACAnnouncer::Speak(const char* text, bool interrupt) {
 	static accesskit_tree tree = accesskit_tree_new(WINDOW_ID);
 	static accesskit_windows_adapter adapter = accesskit_windows_adapter_new(GetForegroundWindow(), true, [](struct accesskit_action_request* request, void* userdata) {
 		accesskit_action_request_free(request);
-			}, nullptr);
+		}, nullptr);
 
 	accesskit_node* window_node = accesskit_node_new(ACCESSKIT_ROLE_WINDOW);
 	accesskit_node* announcement_node = accesskit_node_new(ACCESSKIT_ROLE_LABEL);
@@ -26,7 +26,7 @@ bool ACAnnouncer::Speak(const char* text, bool interrupt) {
 
 	accesskit_windows_adapter_update_if_active(&adapter, [](void* userdata) {
 		return (accesskit_tree_update*)userdata;
-			}, update);
+		}, update);
 
 	return true;
 }
