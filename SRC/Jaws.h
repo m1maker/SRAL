@@ -44,7 +44,7 @@ namespace Sral {
 		}
 
 	private:
-		IJawsApi* JawsAPI = nullptr;
+		IJawsApi* pJawsApi = nullptr;
 	};
 }
 #endif
