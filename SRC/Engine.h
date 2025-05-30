@@ -13,22 +13,24 @@ namespace Sral {
 
 	class Engine {
 	public:
-		virtual bool Speak(const char* text, bool interrupt) = 0;
-		virtual bool SpeakSsml(const char* ssml, bool interrupt) = 0;
-		virtual void* SpeakToMemory(const char* text, uint64_t* buffer_size, int* channels, int* sample_rate, int* bits_per_sample) = 0;
-		virtual bool Braille(const char* text) = 0;
-		virtual bool StopSpeech() = 0;
-		virtual bool PauseSpeech() = 0;
-		virtual bool ResumeSpeech() = 0;
-		virtual bool IsSpeaking() = 0;
-		virtual int GetNumber() = 0;
-		virtual bool GetActive() = 0;
-		virtual int GetFeatures() = 0;
-		virtual bool Initialize() = 0;
-		virtual bool Uninitialize() = 0;
-		virtual int GetKeyFlags() = 0;
-		virtual bool SetParameter(int param, const void* value) = 0;
-		virtual bool GetParameter(int param, void* value) = 0;
+		Engine();
+		virtual ~Engine();
+		virtual bool Speak(const char* text, bool interrupt);
+		virtual bool SpeakSsml(const char* ssml, bool interrupt);
+		virtual void* SpeakToMemory(const char* text, uint64_t* buffer_size, int* channels, int* sample_rate, int* bits_per_sample);
+		virtual bool Braille(const char* text);
+		virtual bool StopSpeech();
+		virtual bool PauseSpeech();
+		virtual bool ResumeSpeech();
+		virtual bool IsSpeaking();
+		virtual int GetNumber();
+		virtual bool GetActive();
+		virtual int GetFeatures();
+		virtual bool Initialize();
+		virtual bool Uninitialize();
+		virtual int GetKeyFlags();
+		virtual bool SetParameter(int param, const void* value);
+		virtual bool GetParameter(int param, void* value);
 
 		bool paused;
 	};
