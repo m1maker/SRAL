@@ -16,7 +16,7 @@ endif()
 project ("SRAL")
 add_library(${PROJECT_NAME}_obj OBJECT)
 target_sources(${PROJECT_NAME}_obj PRIVATE
-  "SRC/SRAL.cpp" "SRC/Engine.h")
+  "SRC/SRAL.cpp" "SRC/Engine.h" "SRC/Engine.cpp")
 target_sources(${PROJECT_NAME}_obj PUBLIC
   FILE_SET HEADERS
   BASE_DIRS "${INCLUDES}"
