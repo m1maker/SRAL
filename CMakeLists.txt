@@ -78,7 +78,6 @@ else()
   target_link_libraries(${PROJECT_NAME}_test ${X11_LIBRARIES})
   find_package(PkgConfig REQUIRED)
   pkg_check_modules(SpeechD REQUIRED speech-dispatcher)
-  find_package(brltty REQUIRED)
 
   target_link_libraries(${PROJECT_NAME} ${SpeechD_LIBRARIES})
   target_link_libraries(${PROJECT_NAME}_test ${SpeechD_LIBRARIES})
