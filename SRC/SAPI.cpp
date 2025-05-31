@@ -4,7 +4,7 @@
 #include<string>
 #include<thread>
 
-static WasapiPlayer* g_player = nullptr; // Make it global to avoid multiple voices when reinitializing
+static std::shared_ptr<WasapiPlayer> g_player;
 
 
 static char* trim(char* data, unsigned long* size, WAVEFORMATEX* wfx, int threshold) {
@@ -63,7 +63,7 @@ static void sapi_thread() {
 		g_threadStarted = false;
 	}
 	HRESULT hr;
-	while (g_threadStarted) {
+	while (g_threadStarted && g_player) {
 		Sleep(1);
 		for (const PCMData& data : g_dataQueue) {
 
@@ -74,9 +74,8 @@ static void sapi_thread() {
 		}
 		if (!g_dataQueue.empty())		g_dataQueue.clear();
 	}
-	delete g_player;
-	g_player = nullptr;
 }
+
 namespace Sral {
 	bool Sapi::Initialize() {
 		if (instance) {
@@ -86,6 +85,7 @@ namespace Sral {
 		if (g_player) {
 			g_threadStarted = false;
 			g_player->stop();
+			g_player.reset();
 		}
 		if (speechThread.joinable()) {
 			speechThread.join();
@@ -98,8 +98,6 @@ namespace Sral {
 			return false;
 		}
 		CoInitialize(nullptr);
-		wchar_t device[] = L"";
-		WasapiPlayer::ChunkCompletedCallback callback = nullptr;
 
 		wfx.wFormatTag = WAVE_FORMAT_PCM;
 		wfx.nChannels = instance->channels;
@@ -108,11 +106,10 @@ namespace Sral {
 		wfx.nBlockAlign = (wfx.nChannels * wfx.wBitsPerSample) / 8;
 		wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
 		wfx.cbSize = 0;
-		g_player = new WasapiPlayer(device, wfx, callback);
+		g_player = std::make_shared<WasapiPlayer>((wchar_t*)L"", wfx, callback);
 		HRESULT hr = g_player->open();
 		if (FAILED(hr)) {
-			delete g_player;
-			g_player = nullptr;
+			g_player.reset();
 			return false;
 		}
 		g_threadStarted = true;
@@ -130,6 +127,9 @@ namespace Sral {
 		if (speechThread.joinable()) {
 			speechThread.join();
 		}
+		if (g_player) {
+			g_player.reset();
+		}
 		return true;
 	}
 
@@ -146,8 +146,29 @@ namespace Sral {
 		}
 		if (wfx.nChannels != instance->channels || wfx.nSamplesPerSec != instance->sample_rate || wfx.wBitsPerSample != instance->bits_per_sample) {
 
-			this->Uninitialize();
-			this->Initialize();
+			wfx.nChannels = instance->channels;
+			wfx.nSamplesPerSec = instance->sample_rate;
+			wfx.wBitsPerSample = instance->bits_per_sample;
+			wfx.nBlockAlign = (wfx.nChannels * wfx.wBitsPerSample) / 8;
+			wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
+			g_threadStarted = false;
+			if (speechThread.joinable()) {
+				speechThread.join();
+			}
+			if (g_player) {
+				g_player.reset();
+			}
+
+
+			g_player = std::make_shared<WasapiPlayer>((wchar_t*)L"", wfx, callback);
+			HRESULT hr = g_player->open();
+			if (FAILED(hr)) {
+				g_player.reset();
+				return false;
+			}
+			g_threadStarted = true;
+			speechThread = std::thread(sapi_thread);
+			speechThread.detach();
 		}
 		std::string text_str(text);
 		unsigned long bytes;
