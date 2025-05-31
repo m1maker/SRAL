@@ -82,8 +82,9 @@ else()
   target_link_libraries(${PROJECT_NAME} ${SpeechD_LIBRARIES})
   target_link_libraries(${PROJECT_NAME}_test ${SpeechD_LIBRARIES})
 
-  target_link_libraries(${PROJECT_NAME} ${BRLTTY_LIBRARIES})
-  target_link_libraries(${PROJECT_NAME}_test ${BRLTTY_LIBRARIES})
+  set(LIBS "/lib/x86_64-linux-gnu/libbrlapi.so.0.8.5")
+  target_link_libraries(${PROJECT_NAME} ${LIBS})
+  target_link_libraries(${PROJECT_NAME}_test ${LIBS})
 
 endif()
 
