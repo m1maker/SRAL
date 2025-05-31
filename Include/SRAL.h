@@ -211,6 +211,14 @@ extern "C" {
 
 	SRAL_API int SRAL_GetEngineFeatures(int engine);
 
+
+	/**
+	* Engine parameters	
+	*Pointers to the value of parameters can be integer, logical/boolean (the same as int), and also 
+	* could also be a const char** if we are getting a list of voices.
+	*/
+
+
 	/**
 * @brief Set the parameter for the specified speech engine.
 * @param engine The engine to set the param for.
