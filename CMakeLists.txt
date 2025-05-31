@@ -82,9 +82,8 @@ else()
   target_link_libraries(${PROJECT_NAME} ${SpeechD_LIBRARIES})
   target_link_libraries(${PROJECT_NAME}_test ${SpeechD_LIBRARIES})
 
-  pkg_check_modules(BRLAPI REQUIRED libbrlapi-dev )
-  target_link_libraries(${PROJECT_NAME} ${BRLAPI_LIBRARIES})
-  target_link_libraries(${PROJECT_NAME}_test ${BRLAPI_LIBRARIES})
+  target_link_libraries(${PROJECT_NAME} ${BRLTTY_LIBRARIES})
+  target_link_libraries(${PROJECT_NAME}_test ${BRLTTY_LIBRARIES})
 
 endif()
 
