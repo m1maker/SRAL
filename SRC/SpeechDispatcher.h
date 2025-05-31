@@ -8,6 +8,7 @@ namespace Sral {
 	class SpeechDispatcher final : public Engine {
 	public:
 		bool Speak(const char* text, bool interrupt)override;
+		bool Braille(const char* text)override;
 
 		bool SetParameter(int param, const void* value)override;
 		bool GetParameter(int param, void* value) override;
@@ -23,7 +24,7 @@ namespace Sral {
 		bool Initialize()override;
 		bool Uninitialize()override;
 		int GetFeatures()override {
-			return SRAL_SUPPORTS_SPEECH | SRAL_SUPPORTS_SPEECH_RATE | SRAL_SUPPORTS_SPEECH_VOLUME | SRAL_SUPPORTS_PAUSE_SPEECH | SRAL_SUPPORTS_SPELLING;
+			return SRAL_SUPPORTS_SPEECH | SRAL_SUPPORTS_BRAILLE | SRAL_SUPPORTS_SPEECH_RATE | SRAL_SUPPORTS_SPEECH_VOLUME | SRAL_SUPPORTS_PAUSE_SPEECH | SRAL_SUPPORTS_SPELLING;
 		}
 		int GetKeyFlags()override {
 			return HANDLE_INTERRUPT | HANDLE_PAUSE_RESUME;
@@ -32,6 +33,7 @@ namespace Sral {
 	private:
 		SPDConnection* Speech = nullptr;
 		bool enableSpelling = false;
+		bool brailleInitialized = false;
 	};
 }
 #endif
