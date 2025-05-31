@@ -161,6 +161,7 @@ int main(void) {
 
 
 	TEST_SECTION("Keyboard Hooks");
+
 	if (SRAL_RegisterKeyboardHooks()) {
 		printf("[SUCCESS] SRAL_RegisterKeyboardHooks registered.\n");
 		prompt_user("Keyboard hooks (Ctrl=Interrupt, Shift=Pause/Resume) are active. Test them with upcoming speech. This primarily affects non-screen-reader engines like SAPI or SpeechDispatcher.");

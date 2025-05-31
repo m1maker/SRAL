@@ -35,6 +35,7 @@ namespace Sral {
 		}
 
 	private:
+		WasapiPlayer::ChunkCompletedCallback callback = nullptr;
 		std::unique_ptr<blastspeak> instance;
 		WAVEFORMATEX wfx;
 		int trimThreshold = 20;
