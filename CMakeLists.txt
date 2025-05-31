@@ -78,9 +78,13 @@ else()
   target_link_libraries(${PROJECT_NAME}_test ${X11_LIBRARIES})
   find_package(PkgConfig REQUIRED)
   pkg_check_modules(SpeechD REQUIRED speech-dispatcher)
+  pkg_check_modules(BRLAPI REQUIRED brltty)
 
   target_link_libraries(${PROJECT_NAME} ${SpeechD_LIBRARIES})
   target_link_libraries(${PROJECT_NAME}_test ${SpeechD_LIBRARIES})
+
+target_link_libraries(${PROJECT_NAME} ${BRLAPI_LIBRARIES})
+  target_link_libraries(${PROJECT_NAME}_test ${BRLAPI_LIBRARIES})
 
 endif()
 

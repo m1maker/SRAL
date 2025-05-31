@@ -1,5 +1,8 @@
+// Actually, it should only be SpeechDispatcher, but since we currently don't support anything else on Linux, we'll integrate BRLTTY here.
 #include "../Dep/utf-8.h"
 #include "SpeechDispatcher.h"
+#include <brlapi.h>
+
 namespace Sral {
 	bool SpeechDispatcher::Initialize() {
 		const auto* address = spd_get_default_address(nullptr);
@@ -11,6 +14,8 @@ namespace Sral {
 			return false;
 		}
 
+		brailleInitialized = brlapi_openConnection(nullptr, nullptr) < 0 ? false : true;
+		brlapi_enterTtyMode(BRLAPI_TTY_DEFAULT, nullptr);
 		return true;
 	}
 	bool SpeechDispatcher::GetActive() {
@@ -20,6 +25,12 @@ namespace Sral {
 		if (Speech == nullptr)return false;
 		spd_close(Speech);
 		Speech = nullptr;
+
+		if (brailleInitialized) {
+			brlapi_leaveTtyMode();
+			brlapi_closeConnection();
+			brailleInitialized = false;
+		}
 		return true;
 	}
 	bool SpeechDispatcher::Speak(const char* text, bool interrupt) {
@@ -48,6 +59,10 @@ namespace Sral {
 		return false;
 	}
 
+	bool SpeechDispatcher::Braille(const char* text) {
+		if (!brailleInitialized) return false;
+		return brlapi_writeText(0, text);
+	}
 
 	bool SpeechDispatcher::SetParameter(int param, const void* value) {
 		if (Speech == nullptr)return false;
