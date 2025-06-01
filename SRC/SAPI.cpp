@@ -62,7 +62,7 @@ struct PCMData {
 
 static std::vector<PCMData> g_dataQueue;
 static std::mutex g_dataQueueMutex;
-
+static std::condition_variable g_dataQueueCv;
 static std::atomic<bool> g_threadStarted = false;
 
 static void sapi_thread() {
@@ -70,34 +70,41 @@ static void sapi_thread() {
 		g_threadStarted.store(false);
 	}
 	HRESULT hr = S_FALSE;
-	while (g_threadStarted && g_player) {
-		Sleep(1);
-		for (PCMData& data : g_dataQueue) {
-			{
-				std::unique_lock<std::mutex> lock(g_dataQueueMutex);
-				if (data.data) {
-					hr = g_player->feed(data.data, data.size, nullptr);
-					delete[] data.data;
-					data.data = nullptr;
-				}
-			}
-			if (FAILED(hr))continue;
-			hr = g_player->sync();
-			if (FAILED(hr))continue;
-		}
-	}
-	{
-		std::unique_lock<std::mutex> lock(g_dataQueueMutex);
-		for (PCMData& data : g_dataQueue) {
-			if (data.data) {
-				delete[] data.data;
-				data.data = nullptr;
-			}
-		}
-		if (!g_dataQueue.empty())		g_dataQueue.clear();
-	}
-}
+	while (g_threadStarted.load()) {
+		PCMData current_data;
+		{
+			std::unique_lock<std::mutex> lock(g_dataQueueMutex);
+			g_dataQueueCv.wait(lock, [&] { return !g_dataQueue.empty() || !g_threadStarted.load(); });
 
+			if (!g_threadStarted.load() && g_dataQueue.empty()) {
+				break;
+			}
+			if (g_dataQueue.empty()) {
+				continue;
+			}
+
+			current_data = g_dataQueue.front();
+			g_dataQueue.erase(g_dataQueue.begin());
+		}
+
+		if (current_data.data) {
+			hr = g_player->feed(current_data.data, current_data.size, nullptr);
+			delete[] current_data.data;
+
+			if (SUCCEEDED(hr)) {
+				hr = g_player->sync();
+			}
+		}
+	}
+	std::unique_lock<std::mutex> lock(g_dataQueueMutex);
+	for (PCMData& data : g_dataQueue) {
+		if (data.data) {
+			delete[] data.data;
+			data.data = nullptr;
+		}
+	}
+	g_dataQueue.clear();
+}
 
 namespace Sral {
 	bool Sapi::Initialize() {
@@ -111,6 +118,7 @@ namespace Sral {
 			g_player.reset();
 		}
 		if (speechThread.joinable()) {
+			g_dataQueueCv.notify_one();
 			speechThread.join();
 		}
 
@@ -148,6 +156,7 @@ namespace Sral {
 		blastspeak_destroy(&*instance);
 		instance.reset();
 		if (speechThread.joinable()) {
+			g_dataQueueCv.notify_one();
 			speechThread.join();
 		}
 		if (g_player) {
@@ -176,6 +185,7 @@ namespace Sral {
 			wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
 			g_threadStarted = false;
 			if (speechThread.joinable()) {
+				g_dataQueueCv.notify_one();
 				speechThread.join();
 			}
 			if (g_player) {
@@ -214,6 +224,7 @@ namespace Sral {
 			std::unique_lock<std::mutex> lock(g_dataQueueMutex);
 			g_dataQueue.push_back(dat);
 		}
+		g_dataQueueCv.notify_one();
 		return true;
 	}
 	void* Sapi::SpeakToMemory(const char* text, uint64_t* buffer_size, int* channels, int* sample_rate, int* bits_per_sample) {
@@ -297,12 +308,22 @@ namespace Sral {
 	}
 
 	bool Sapi::StopSpeech() {
-		if (g_player == nullptr)return false;
-		g_dataQueue.clear();
+		if (g_player == nullptr) return false;
+		{
+			std::unique_lock<std::mutex> lock(g_dataQueueMutex);
+			for (PCMData& data : g_dataQueue) {
+				if (data.data) {
+					delete[] data.data;
+					data.data = nullptr;
+				}
+			}
+			g_dataQueue.clear();
+		}
 		g_player->stop();
 		this->paused = false;
 		return true;
 	}
+
 	bool Sapi::PauseSpeech() {
 		paused = true;
 		return SUCCEEDED(g_player->pause());
