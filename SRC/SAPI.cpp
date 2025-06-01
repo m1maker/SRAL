@@ -6,9 +6,41 @@
 #include <mutex>
 #include <condition_variable>
 #include <atomic>
-
+#include <optional>
+#include <functional>
 
 static std::shared_ptr<WasapiPlayer> g_player;
+
+
+template<typename T, typename Func, typename ...Args>
+inline void safeCall(T* obj, Func func, Args... args) {
+	if (obj) {
+		(obj->*func)(args...);
+	}
+	else {
+	}
+}
+
+template<typename T, typename Func, typename ...Args>
+inline void safeCall(T* obj, Func func, Args... args, std::function<void()> onNull) {
+	if (obj) {
+		(obj->*func)(args...);
+	}
+	else {
+		onNull();
+	}
+}
+
+template<typename T, typename R, typename Func, typename ...Args>
+inline std::optional<R> safeCallVal(T* obj, Func func, Args ...args) {
+	if (obj) {
+		return (obj->*func)(args...);
+	}
+	else {
+		return std::nullopt;
+	}
+}
+
 
 
 static char* trim(char* data, unsigned long* size, WAVEFORMATEX* wfx, int threshold) {
@@ -69,7 +101,6 @@ static void sapi_thread() {
 	if (g_player == nullptr) {
 		g_threadStarted.store(false);
 	}
-	HRESULT hr = S_FALSE;
 	while (g_threadStarted.load()) {
 		PCMData current_data;
 		{
@@ -88,11 +119,11 @@ static void sapi_thread() {
 		}
 
 		if (current_data.data) {
-			hr = g_player->feed(current_data.data, current_data.size, nullptr);
+			auto result = safeCallVal<WasapiPlayer, HRESULT>(g_player.get(), &WasapiPlayer::feed, current_data.data, current_data.size, nullptr);
 			delete[] current_data.data;
 
-			if (SUCCEEDED(hr)) {
-				hr = g_player->sync();
+			if (result.has_value() && SUCCEEDED(*result)) {
+				result = safeCallVal<WasapiPlayer, HRESULT>(g_player.get(), &WasapiPlayer::sync);
 			}
 		}
 	}
