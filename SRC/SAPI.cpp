@@ -65,12 +65,21 @@ static void sapi_thread() {
 	HRESULT hr;
 	while (g_threadStarted && g_player) {
 		Sleep(1);
-		for (const PCMData& data : g_dataQueue) {
-
-			hr = g_player->feed(data.data, data.size, nullptr);
-			if (FAILED(hr))continue;
-			hr = g_player->sync();
-			if (FAILED(hr))continue;
+		for (PCMData& data : g_dataQueue) {
+			if (data.data) {
+				hr = g_player->feed(data.data, data.size, nullptr);
+				delete[] data.data;
+				data.data = nullptr;
+				if (FAILED(hr))continue;
+				hr = g_player->sync();
+				if (FAILED(hr))continue;
+			}
+		}
+		for (PCMData& data : g_dataQueue) {
+			if (data.data) {
+				delete[] data.data;
+				data.data = nullptr;
+			}
 		}
 		if (!g_dataQueue.empty())		g_dataQueue.clear();
 	}

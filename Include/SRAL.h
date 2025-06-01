@@ -125,6 +125,7 @@ extern "C" {
 
 
 * @return a pointer to the PCM buffer if speaking was successful, false otherwise.
+* The caller is responsable to free the memory
 */
 
 	SRAL_API void* SRAL_SpeakToMemory(const char* text, uint64_t* buffer_size, int* channels, int* sample_rate, int* bits_per_sample);
@@ -213,9 +214,10 @@ extern "C" {
 
 
 	/**
-	* Engine parameters	
-	*Pointers to the value of parameters can be integer, logical/boolean (the same as int), and also 
+	* Engine parameters
+	*Pointers to the value of parameters can be integer, logical/boolean (the same as int), and also
 	* could also be a const char** if we are getting a list of voices.
+	* The caller is responsable to free voice list
 	*/
 
 
@@ -229,7 +231,6 @@ extern "C" {
 */
 
 	SRAL_API bool SRAL_SetEngineParameter(int engine, int param, const void* value);
-
 
 
 
@@ -288,6 +289,7 @@ extern "C" {
 * @param bits_per_sample A pointer to int to write PCM bit size (floating point or signed integer).
 
 * @return a pointer to the PCM buffer if speaking was successful, false otherwise.
+* The caller is responsable to free the memory
 */
 
 	SRAL_API void* SRAL_SpeakToMemoryEx(int engine, const char* text, uint64_t* buffer_size, int* channels, int* sample_rate, int* bits_per_sample);
