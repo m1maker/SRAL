@@ -3,6 +3,10 @@
 #include <cstdio>
 #include<string>
 #include<thread>
+#include <mutex>
+#include <condition_variable>
+#include <atomic>
+
 
 static std::shared_ptr<WasapiPlayer> g_player;
 
@@ -57,24 +61,33 @@ struct PCMData {
 };
 
 static std::vector<PCMData> g_dataQueue;
-static bool g_threadStarted = false;
+static std::mutex g_dataQueueMutex;
+
+static std::atomic<bool> g_threadStarted = false;
+
 static void sapi_thread() {
 	if (g_player == nullptr) {
-		g_threadStarted = false;
+		g_threadStarted.store(false);
 	}
-	HRESULT hr;
+	HRESULT hr = S_FALSE;
 	while (g_threadStarted && g_player) {
 		Sleep(1);
 		for (PCMData& data : g_dataQueue) {
-			if (data.data) {
-				hr = g_player->feed(data.data, data.size, nullptr);
-				delete[] data.data;
-				data.data = nullptr;
-				if (FAILED(hr))continue;
-				hr = g_player->sync();
-				if (FAILED(hr))continue;
+			{
+				std::unique_lock<std::mutex> lock(g_dataQueueMutex);
+				if (data.data) {
+					hr = g_player->feed(data.data, data.size, nullptr);
+					delete[] data.data;
+					data.data = nullptr;
+				}
 			}
+			if (FAILED(hr))continue;
+			hr = g_player->sync();
+			if (FAILED(hr))continue;
 		}
+	}
+	{
+		std::unique_lock<std::mutex> lock(g_dataQueueMutex);
 		for (PCMData& data : g_dataQueue) {
 			if (data.data) {
 				delete[] data.data;
@@ -85,6 +98,7 @@ static void sapi_thread() {
 	}
 }
 
+
 namespace Sral {
 	bool Sapi::Initialize() {
 		if (instance) {
@@ -92,7 +106,7 @@ namespace Sral {
 		}
 		this->voiceIndex = 0;
 		if (g_player) {
-			g_threadStarted = false;
+			g_threadStarted.store(false);
 			g_player->stop();
 			g_player.reset();
 		}
@@ -121,7 +135,7 @@ namespace Sral {
 			g_player.reset();
 			return false;
 		}
-		g_threadStarted = true;
+		g_threadStarted.store(true);
 		speechThread = std::thread(sapi_thread);
 		speechThread.detach();
 		return true;
@@ -130,7 +144,7 @@ namespace Sral {
 	bool Sapi::Uninitialize() {
 		this->voiceIndex = 0;
 		if (!instance || g_player == nullptr)return false;
-		g_threadStarted = false; // SAPI thread will be stopped when all messages was spoken
+		g_threadStarted.store(false);
 		blastspeak_destroy(&*instance);
 		instance.reset();
 		if (speechThread.joinable()) {
@@ -196,7 +210,10 @@ namespace Sral {
 			if (!interrupt)
 				g_player->resume();
 		}
-		g_dataQueue.push_back(dat);
+		{
+			std::unique_lock<std::mutex> lock(g_dataQueueMutex);
+			g_dataQueue.push_back(dat);
+		}
 		return true;
 	}
 	void* Sapi::SpeakToMemory(const char* text, uint64_t* buffer_size, int* channels, int* sample_rate, int* bits_per_sample) {
