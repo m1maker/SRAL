@@ -49,6 +49,7 @@ namespace Sral {
 		if (nvdaController_testIfRunning) return  (!!FindWindowW(L"wxWindowClassNR", L"NVDA") && nvdaController_testIfRunning() == 0);
 		return false;
 	}
+
 	bool Nvda::Speak(const char* text, bool interrupt) {
 		if (!GetActive())return false;
 		if (interrupt) {
@@ -56,14 +57,17 @@ namespace Sral {
 		}
 		if (this->extended)
 			return !enable_spelling ? nvda_speak(text, this->symbolLevel) == 0 : nvda_speak_spelling(text, "", this->use_character_descriptions) == 0;
+		std::wstring out;
+		if (this->symbolLevel == -1) {
+			UnicodeConvert(text, out);
+			return nvdaController_speakText(out.c_str()) == 0;
+		}
 		std::string text_str(text);
 		XmlEncode(text_str);
 		std::string final = "<speak>" + text_str + "</speak>";
-		std::wstring out_ssml;
-		UnicodeConvert(final, out_ssml);
-		error_status_t result = nvdaController_speakSsml(out_ssml.c_str(), this->symbolLevel, 0, true);
+		UnicodeConvert(final, out);
+		error_status_t result = nvdaController_speakSsml(out.c_str(), this->symbolLevel, 0, true);
 		if (result == 1717) {
-			std::wstring out;
 			UnicodeConvert(text, out);
 			return nvdaController_speakText(out.c_str()) == 0;
 		}
