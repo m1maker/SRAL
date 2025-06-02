@@ -1,5 +1,5 @@
 #include "VoiceOver.h"
-
+#include <TargetConditionals.h>
 #if TARGET_OS_IOS || TARGET_OS_TV
 #import <UIKit/UIKit.h>
 #elif TARGET_OS_OSX
