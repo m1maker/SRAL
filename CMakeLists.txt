@@ -70,10 +70,17 @@ elseif (APPLE)
   enable_language(OBJCXX)
   set(CMAKE_C_COMPILER clang)
   set(CMAKE_CXX_COMPILER clang++)
-  target_link_libraries(${PROJECT_NAME} PUBLIC "-framework AppKit")
-  target_link_libraries(${PROJECT_NAME}_test PUBLIC "-framework AppKit")
-  target_link_libraries(${PROJECT_NAME} "-framework Foundation" "-framework AVFoundation")
-  target_link_libraries(${PROJECT_NAME}_test "-framework Foundation" "-framework AVFoundation")
+  target_link_libraries(${PROJECT_NAME} PUBLIC
+    "-framework AppKit"
+    "-framework Foundation"
+    "-framework AVFoundation"
+  )
+
+  target_link_libraries(${PROJECT_NAME}_test PUBLIC
+    "-framework AppKit"
+    "-framework Foundation"
+    "-framework AVFoundation"
+  )
 else()
   find_package(X11 REQUIRED)
   target_link_libraries(${PROJECT_NAME} ${X11_LIBRARIES})
