@@ -11,6 +11,7 @@
 #include <tlhelp32.h>
 #elif defined(__APPLE__)
 #include "AVSpeech.h"
+#include "VoiceOver.h"
 #else
 #include "SpeechDispatcher.h"
 #endif
@@ -50,7 +51,8 @@ static const std::map<SRAL_Engines, std::string> g_engineNames = {
 	{ SRAL_ENGINE_SPEECH_DISPATCHER, "Speech Dispatcher" },
 	{ SRAL_ENGINE_UIA, "UIA" },
 	{ SRAL_ENGINE_AV_SPEECH, "AV Speech" },
-	{ SRAL_ENGINE_NARRATOR, "Narrator" }
+	{ SRAL_ENGINE_NARRATOR, "Narrator" },
+	{ SRAL_ENGINE_VOICE_OVER, "Voice Over" }
 };
 
 
@@ -197,6 +199,7 @@ extern "C" SRAL_API bool SRAL_Initialize(int engines_exclude) {
 	g_engines[SRAL_ENGINE_UIA] = std::make_unique<Sral::Uia>();
 #elif defined(__APPLE__)
 	g_engines[SRAL_ENGINE_AV_SPEECH] = std::make_unique<Sral::AvSpeech>();
+	g_engines[SRAL_ENGINE_VOICE_OVER] = std::make_unique<Sral::VoiceOver>();
 #else
 	g_engines[SRAL_ENGINE_SPEECH_DISPATCHER] = std::make_unique<Sral::SpeechDispatcher>();
 #endif
@@ -276,7 +279,7 @@ BOOL FindProcess(const wchar_t* name) {
 
 #endif
 static void speech_engine_update() {
-	if (!g_currentEngine || !g_currentEngine->GetActive() || g_currentEngine->GetNumber() == SRAL_ENGINE_SAPI || g_currentEngine->GetNumber() == SRAL_ENGINE_UIA) {
+	if (!g_currentEngine || !g_currentEngine->GetActive() || g_currentEngine->GetNumber() == SRAL_ENGINE_SAPI || g_currentEngine->GetNumber() == SRAL_ENGINE_UIA || g_currentEngine->GetNumber() == SRAL_ENGINE_AV_SPEECH) {
 #ifdef _WIN32
 		if (FindProcess(L"narrator.exe") == TRUE) {
 			g_currentEngine = get_engine(SRAL_ENGINE_UIA);
