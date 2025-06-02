@@ -96,7 +96,7 @@ namespace Sral {
 			break;
 		case SRAL_PARAM_ENABLE_SPELLING:
 			this->enable_spelling = *reinterpret_cast<const bool*>(value);
-			break;
+			//break;
 		case SRAL_PARAM_USE_CHARACTER_DESCRIPTIONS:
 			this->use_character_descriptions = *reinterpret_cast<const bool*>(value);
 			break;
