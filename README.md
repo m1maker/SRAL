@@ -21,7 +21,7 @@ You will also have an executable test to test the SRAL.
 
 
 # Warning
-To build on Linux you need to install libspeechd-dev and libx11-dev
+To build on Linux you need to install libspeechd-dev, libx11-dev and brltty
 
 
 ## Support for NVDAControlEx
@@ -65,7 +65,7 @@ void sleep_ms(int milliseconds) {
 int main(void) {
 	char text[10000];
 	// Initialize the SRAL library
-	if (!SRAL_Initialize(ENGINE_UIA)) { // So Microsoft UIAutomation provider can't speak in the terminal or none current process windows
+	if (!SRAL_Initialize(SRAL_ENGINE_UIA)) { // So Microsoft UIAutomation provider can't speak in the terminal or none current process windows
 		printf("Failed to initialize SRAL library.\n");
 		return 1;
 	}
@@ -92,72 +92,11 @@ int main(void) {
 	scanf("%s", text);
 
 	SRAL_StopSpeech(); // Stops the delay thread
-	// Speech rate
-	if (SRAL_GetEngineFeatures(0) & SUPPORTS_SPEECH_RATE) {
-
-		uint64_t rate = SRAL_GetRate();
-		const uint64_t max_rate = rate + 10;
-		for (rate; rate < max_rate; rate++) {
-			SRAL_SetRate(rate);
-			SRAL_Speak(text, false);
-			sleep_ms(500);
-		}
-	}
 	// Uninitialize the SRAL library
 	SRAL_Uninitialize();
 
 	return 0;
 }
-
-```
-
-## Python
-```
-import time
-
-import sral
-
-def sleep_ms(milliseconds):
-    time.sleep(milliseconds / 1000.0)  # Convert milliseconds to seconds
-
-def main():
-    text = ""
-    # Initialize the SRAL library
-    instance = sral.Sral(32)
-
-    instance.register_keyboard_hooks()
-
-    # Speak some text
-    if instance.get_engine_features(0) & 128:
-        text = input("Enter the text you want to be spoken:\n")
-        instance.speak(text, False)
-
-    # Output text to a Braille display
-    if instance.get_engine_features(0) & 256:
-        text = input("Enter the text you want to be shown on braille display:\n")
-        instance.braille(text)
-
-    # Delay example
-    instance.output("Delay example: Enter any text", False)
-    instance.delay(5000)
-    instance.output("Press enter to continue", False)
-    input()  # Wait for user to press enter
-
-    instance.stop_speech()  # Stops the delay thread
-
-    # Speech rate
-    if instance.get_engine_features(0) & 512:
-        rate = instance.get_rate()
-        max_rate = rate + 10
-        for rate in range(rate, max_rate):
-            instance.set_rate(rate)
-            instance.speak(text, False)
-            sleep_ms(500)
-
-    # Uninitialize the SRAL library
-    instance = None
-if __name__ == "__main__":
-    main() # invoke_main()
 
 ```
 
