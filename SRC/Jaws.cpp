@@ -6,7 +6,7 @@ namespace Sral {
 
 	bool Jaws::Initialize() {
 		HRESULT hr = CoCreateInstance(CLSID_JawsApi, NULL, CLSCTX_INPROC_SERVER, IID_IJawsApi, (void**)&pJawsApi);
-		if (pJawsApi || FAILED(hr)) {
+		if (!pJawsApi || FAILED(hr)) {
 			return false;
 		}
 		return true;
@@ -19,7 +19,7 @@ namespace Sral {
 		return true;
 	}
 	bool Jaws::GetActive() {
-		return (!!FindWindowW(L"JFWUI2", NULL)) && pJawsApi;
+		return (!!FindWindowW(L"JFWUI2", nullptr));
 	}
 	bool Jaws::Speak(const char* text, bool interrupt) {
 		if (!GetActive())return false;
