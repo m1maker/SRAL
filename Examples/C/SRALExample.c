@@ -41,7 +41,7 @@ void PrintEngineNames(int engineBitmask, const char* title) {
 		return;
 	}
 	bool found = false;
-	for (int engine_val = SRAL_ENGINE_NVDA; engine_val <= SRAL_ENGINE_NARRATOR; engine_val <<= 1) {
+	for (int engine_val = SRAL_ENGINE_NVDA; engine_val <= SRAL_ENGINE_ZDSR; engine_val <<= 1) {
 		if (engineBitmask & engine_val) {
 			const char* name = SRAL_GetEngineName(engine_val);
 			printf("  - %s (0x%X)\n", name ? name : "Unknown Engine", engine_val);
@@ -127,7 +127,7 @@ int main(void) {
 	printf("Current Default Engine: %s (0x%X)\n", SRAL_GetEngineName(current_engine_id) ? SRAL_GetEngineName(current_engine_id) : "None/Unknown", current_engine_id);
 
 	printf("\nNames of all SRAL_Engines enum members (as per SRAL_GetEngineName):\n");
-	for (int e_val = SRAL_ENGINE_NVDA; e_val <= SRAL_ENGINE_NARRATOR; e_val <<= 1) {
+	for (int e_val = SRAL_ENGINE_NVDA; e_val <= SRAL_ENGINE_ZDSR; e_val <<= 1) {
 		const char* name = SRAL_GetEngineName(e_val);
 		printf("  Engine ID 0x%X: %s\n", e_val, name ? name : "(Name not defined or not a single engine ID)");
 	}
@@ -135,14 +135,14 @@ int main(void) {
 
 	int specific_engine_for_ex_tests = SRAL_ENGINE_NONE;
 	if (active_engines != SRAL_ENGINE_NONE) {
-		for (int e_val = SRAL_ENGINE_NVDA; e_val <= SRAL_ENGINE_NARRATOR; e_val <<= 1) {
+		for (int e_val = SRAL_ENGINE_NVDA; e_val <= SRAL_ENGINE_ZDSR; e_val <<= 1) {
 			if ((active_engines & e_val) && e_val != current_engine_id) {
 				specific_engine_for_ex_tests = e_val;
 				break;
 			}
 		}
 		if (specific_engine_for_ex_tests == SRAL_ENGINE_NONE) {
-			for (int e_val = SRAL_ENGINE_NVDA; e_val <= SRAL_ENGINE_NARRATOR; e_val <<= 1) {
+			for (int e_val = SRAL_ENGINE_NVDA; e_val <= SRAL_ENGINE_ZDSR; e_val <<= 1) {
 				if (active_engines & e_val) {
 					specific_engine_for_ex_tests = e_val;
 					break;

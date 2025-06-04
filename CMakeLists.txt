@@ -27,7 +27,7 @@ if(WIN32)
     "SRC/NVDA.h" "SRC/NVDA.cpp" "SRC/SAPI.h" "SRC/SAPI.cpp"
     "Dep/blastspeak.h" "Dep/blastspeak.c" "Dep/fsapi.h" "Dep/fsapi.c" "Dep/nvda_control.h" "Dep/nvda_control.c"
     "SRC/Jaws.h" "SRC/Jaws.cpp" "SRC/UIA.cpp"
-    "Dep/UIAProvider.h" "Dep/UIAProvider.cpp" "Dep/wasapi.h" "Dep/wasapi.cpp")
+    "Dep/UIAProvider.h" "Dep/UIAProvider.cpp" "Dep/wasapi.h" "Dep/wasapi.cpp" "SRC/ZDSR.h" "SRC/ZDSR.cpp")
 elseif(APPLE)
   target_sources(${PROJECT_NAME}_obj PRIVATE
     "SRC/AVSpeech.h" "SRC/AVSpeech.mm" "SRC/VoiceOver.h" "SRC/VoiceOver.mm")
