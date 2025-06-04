@@ -38,25 +38,48 @@ extern "C" {
 #include <stdlib.h>
 
 	/**
- * @enum SRAL_Engines
- * @brief Enumeration of available speech engines.
- *
- * This enumeration defines the identifiers for different speech engines
- * supported by the SRAL library.
- */
-
+	 * @enum SRAL_Engines
+	 * @brief Defines bit flags representing various accessibility engines.
+	 *
+	 * These flags identify different screen readers, speech synthesis engines,
+	 * or accessibility frameworks across various operating systems.
+	 */
 	enum SRAL_Engines {
+		/** @brief No specific engine identified, or engine is unknown. */
 		SRAL_ENGINE_NONE = 0,
+
+		// --- Windows Screen Readers ---
+		/** @brief NonVisual Desktop Access (NVDA), a popular open-source screen reader for Windows. */
 		SRAL_ENGINE_NVDA = 1 << 1,
-		SRAL_ENGINE_SAPI = 1 << 2,
-		SRAL_ENGINE_JAWS = 1 << 3,
-		SRAL_ENGINE_SPEECH_DISPATCHER = 1 << 4,
-		SRAL_ENGINE_UIA = 1 << 5,
-		SRAL_ENGINE_AC_ANNOUNCER = 1 << 5,
-		SRAL_ENGINE_AV_SPEECH = 1 << 6,
-		SRAL_ENGINE_NARRATOR = 1 << 7,
+		/** @brief Job Access With Speech (JAWS), a commercial screen reader for Windows. */
+		SRAL_ENGINE_JAWS = 1 << 2,
+		/** @brief Zhengdu Screen Reader (ZDSR), The most powerful screen reading solution for Windows. */
+		SRAL_ENGINE_ZDSR = 1 << 3,
+		/** @brief Microsoft Narrator, the built-in screen reader for Windows. */
+		SRAL_ENGINE_NARRATOR = 1 << 4,
+
+		// --- Windows Speech Synthesis Engines ---
+		/** @brief Microsoft Speech API (SAPI), for text-to-speech capabilities on Windows. */
+		SRAL_ENGINE_SAPI = 1 << 5,
+
+		// --- Windows Accessibility Frameworks ---
+		/**
+		 * @brief Microsoft UI Automation (UIA) framework for Windows.
+		 * Provides programmatic access to UI and can be used for accessibility notifications.
+		 */
+		SRAL_ENGINE_UIA = 1 << 6,
+
+		// --- Linux Speech Synthesis Engines ---
+		/** @brief Speech Dispatcher, a common daemon for speech synthesis on Linux systems. */
+		SRAL_ENGINE_SPEECH_DISPATCHER = 1 << 7,
+
+		// --- Apple Screen Readers (macOS, iOS, etc.) ---
+		/** @brief Apple VoiceOver, the built-in screen reader on macOS, iOS, and other Apple platforms. */
 		SRAL_ENGINE_VOICE_OVER = 1 << 8,
-		SRAL_ENGINE_ZDSR = 1 << 9
+
+		// --- Apple Speech Synthesis Engines (macOS, iOS, etc.) ---
+		/** @brief AVFoundation Speech Synthesizer (AVSpeechSynthesizer), for text-to-speech on Apple platforms. */
+		SRAL_ENGINE_AV_SPEECH = 1 << 9
 	};
 
 	/**
