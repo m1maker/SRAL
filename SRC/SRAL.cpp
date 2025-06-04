@@ -4,6 +4,7 @@
 #if defined(_WIN32)
 #define UNICODE
 #include "NVDA.h"
+#include "ZDSR.h"
 #include "SAPI.h"
 #include "Jaws.h"
 #include "UIA.h"
@@ -52,7 +53,8 @@ static const std::map<SRAL_Engines, std::string> g_engineNames = {
 	{ SRAL_ENGINE_UIA, "UIA" },
 	{ SRAL_ENGINE_AV_SPEECH, "AV Speech" },
 	{ SRAL_ENGINE_NARRATOR, "Narrator" },
-	{ SRAL_ENGINE_VOICE_OVER, "Voice Over" }
+	{ SRAL_ENGINE_VOICE_OVER, "Voice Over" },
+		{ SRAL_ENGINE_ZDSR, "ZDSR" }
 };
 
 
@@ -195,11 +197,12 @@ extern "C" SRAL_API bool SRAL_Initialize(int engines_exclude) {
 #if defined(_WIN32)
 	g_engines[SRAL_ENGINE_NVDA] = std::make_unique<Sral::Nvda>();
 	g_engines[SRAL_ENGINE_JAWS] = std::make_unique<Sral::Jaws>();
+	g_engines[SRAL_ENGINE_ZDSR] = std::make_unique<Sral::Zdsr>();
 	g_engines[SRAL_ENGINE_SAPI] = std::make_unique<Sral::Sapi>();
 	g_engines[SRAL_ENGINE_UIA] = std::make_unique<Sral::Uia>();
 #elif defined(__APPLE__)
-	g_engines[SRAL_ENGINE_AV_SPEECH] = std::make_unique<Sral::AvSpeech>();
 	g_engines[SRAL_ENGINE_VOICE_OVER] = std::make_unique<Sral::VoiceOver>();
+	g_engines[SRAL_ENGINE_AV_SPEECH] = std::make_unique<Sral::AvSpeech>();
 #else
 	g_engines[SRAL_ENGINE_SPEECH_DISPATCHER] = std::make_unique<Sral::SpeechDispatcher>();
 #endif
