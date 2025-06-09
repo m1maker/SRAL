@@ -198,8 +198,8 @@ extern "C" SRAL_API bool SRAL_Initialize(int engines_exclude) {
 	g_engines[SRAL_ENGINE_NVDA] = std::make_unique<Sral::Nvda>();
 	g_engines[SRAL_ENGINE_JAWS] = std::make_unique<Sral::Jaws>();
 	g_engines[SRAL_ENGINE_ZDSR] = std::make_unique<Sral::Zdsr>();
-	g_engines[SRAL_ENGINE_SAPI] = std::make_unique<Sral::Sapi>();
 	g_engines[SRAL_ENGINE_UIA] = std::make_unique<Sral::Uia>();
+	g_engines[SRAL_ENGINE_SAPI] = std::make_unique<Sral::Sapi>();
 #elif defined(__APPLE__)
 	g_engines[SRAL_ENGINE_VOICE_OVER] = std::make_unique<Sral::VoiceOver>();
 	g_engines[SRAL_ENGINE_AV_SPEECH] = std::make_unique<Sral::AvSpeech>();
