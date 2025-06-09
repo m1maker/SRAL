@@ -58,28 +58,29 @@ extern "C" {
 		/** @brief Microsoft Narrator, the built-in screen reader for Windows. */
 		SRAL_ENGINE_NARRATOR = 1 << 4,
 
-		// --- Windows Speech Synthesis Engines ---
-		/** @brief Microsoft Speech API (SAPI), for text-to-speech capabilities on Windows. */
-		SRAL_ENGINE_SAPI = 1 << 5,
-
 		// --- Windows Accessibility Frameworks ---
 		/**
 		 * @brief Microsoft UI Automation (UIA) framework for Windows.
 		 * Provides programmatic access to UI and can be used for accessibility notifications.
 		 */
-		SRAL_ENGINE_UIA = 1 << 6,
+		SRAL_ENGINE_UIA = 1 << 5,
 
-		// --- Linux Speech Synthesis Engines ---
-		/** @brief Speech Dispatcher, a common daemon for speech synthesis on Linux systems. */
-		SRAL_ENGINE_SPEECH_DISPATCHER = 1 << 7,
+		// --- Windows Speech Synthesis Engines ---
+/** @brief Microsoft Speech API (SAPI), for text-to-speech capabilities on Windows. */
+SRAL_ENGINE_SAPI = 1 << 6,
 
-		// --- Apple Screen Readers (macOS, iOS, etc.) ---
-		/** @brief Apple VoiceOver, the built-in screen reader on macOS, iOS, and other Apple platforms. */
-		SRAL_ENGINE_VOICE_OVER = 1 << 8,
 
-		// --- Apple Speech Synthesis Engines (macOS, iOS, etc.) ---
-		/** @brief AVFoundation Speech Synthesizer (AVSpeechSynthesizer), for text-to-speech on Apple platforms. */
-		SRAL_ENGINE_AV_SPEECH = 1 << 9
+// --- Linux Speech Synthesis Engines ---
+/** @brief Speech Dispatcher, a common daemon for speech synthesis on Linux systems. */
+SRAL_ENGINE_SPEECH_DISPATCHER = 1 << 7,
+
+// --- Apple Screen Readers (macOS, iOS, etc.) ---
+/** @brief Apple VoiceOver, the built-in screen reader on macOS, iOS, and other Apple platforms. */
+SRAL_ENGINE_VOICE_OVER = 1 << 8,
+
+// --- Apple Speech Synthesis Engines (macOS, iOS, etc.) ---
+/** @brief AVFoundation Speech Synthesizer (AVSpeechSynthesizer), for text-to-speech on Apple platforms. */
+SRAL_ENGINE_AV_SPEECH = 1 << 9
 	};
 
 	/**

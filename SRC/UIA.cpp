@@ -26,7 +26,7 @@ namespace Sral {
 		if (pCondition)pCondition->Release();
 
 		if (pAutomation)pAutomation->Release();
-
+		if (pElement) pElement->Release();
 		return true;
 	}
 
@@ -36,6 +36,12 @@ namespace Sral {
 			flags = NotificationProcessing_ImportantMostRecent;
 		std::wstring str;
 		UnicodeConvert(text, str);
+		if (pProvider) {
+			pProvider->Release();
+		}
+		if (pElement) {
+			pElement->Release();
+		}
 		pProvider = new Provider(GetForegroundWindow());
 
 		HRESULT hr = pAutomation->ElementFromHandle(GetForegroundWindow(), &pElement);
@@ -55,7 +61,19 @@ namespace Sral {
 	bool Uia::StopSpeech() {
 		return Speak("", true);
 	}
+
 	bool Uia::GetActive() {
-		return UiaClientsAreListening();
+		if (!UiaClientsAreListening()) {
+			return false;
+		}
+		BOOL screenReaderRunning;
+		BOOL result = SystemParametersInfo(SPI_GETSCREENREADER, 0, &screenReaderRunning, 0);
+		if (result && screenReaderRunning) {
+			HWND window = GetForegroundWindow();
+			DWORD windowPid;
+			GetWindowThreadProcessId(window, &windowPid);
+			return windowPid == GetCurrentProcessId();
+		}
+		return false;
 	}
 }
