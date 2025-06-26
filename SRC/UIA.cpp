@@ -5,8 +5,7 @@
 
 namespace Sral {
 	bool Uia::Initialize() {
-		HRESULT hr = CoInitialize(NULL);
-		hr = CoCreateInstance(CLSID_CUIAutomation, NULL, CLSCTX_INPROC_SERVER, IID_IUIAutomation, (void**)&pAutomation);
+		HRESULT hr = CoCreateInstance(CLSID_CUIAutomation, NULL, CLSCTX_INPROC_SERVER, IID_IUIAutomation, (void**)&pAutomation);
 		if (FAILED(hr)) {
 			return false;
 		}

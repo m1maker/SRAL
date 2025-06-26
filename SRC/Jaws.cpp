@@ -19,8 +19,9 @@ namespace Sral {
 		return true;
 	}
 	bool Jaws::GetActive() {
-		return (!!FindWindowW(L"JFWUI2", nullptr));
+		return (!!FindWindowW(L"JFWUI2", nullptr)) && pJawsApi;
 	}
+
 	bool Jaws::Speak(const char* text, bool interrupt) {
 		if (!GetActive())return false;
 		if (interrupt)pJawsApi->StopSpeech();

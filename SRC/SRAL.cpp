@@ -195,6 +195,7 @@ extern "C" SRAL_API void SRAL_UnregisterKeyboardHooks(void) {
 extern "C" SRAL_API bool SRAL_Initialize(int engines_exclude) {
 	if (g_initialized)return true;
 #if defined(_WIN32)
+	CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 	g_engines[SRAL_ENGINE_NVDA] = std::make_unique<Sral::Nvda>();
 	g_engines[SRAL_ENGINE_JAWS] = std::make_unique<Sral::Jaws>();
 	g_engines[SRAL_ENGINE_ZDSR] = std::make_unique<Sral::Zdsr>();
@@ -220,6 +221,9 @@ extern "C" SRAL_API void SRAL_Uninitialize(void) {
 	for (const auto& [value, ptr] : g_engines) {
 		ptr->Uninitialize();
 	}
+#ifdef _WIN32
+	CoUninitialize();
+#endif
 	g_currentEngine = nullptr;
 	g_engines.clear();
 	g_excludes = 0;
