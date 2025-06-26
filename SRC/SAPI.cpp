@@ -159,7 +159,6 @@ namespace Sral {
 			instance.reset();
 			return false;
 		}
-		CoInitialize(nullptr);
 
 		wfx.wFormatTag = WAVE_FORMAT_PCM;
 		wfx.nChannels = instance->channels;
