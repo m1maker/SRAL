@@ -91,12 +91,9 @@ else()
   target_link_libraries(${PROJECT_NAME} ${SpeechD_LIBRARIES})
   target_link_libraries(${PROJECT_NAME}_test ${SpeechD_LIBRARIES})
 
-  set(LIBS "/lib/x86_64-linux-gnu/libbrlapi.so")
+  pkg_check_modules(BrlAPI REQUIRED brltty)
+  set(LIBS "${BrlAPI_libdir}libbrlapi.so")
   target_link_libraries(${PROJECT_NAME} ${LIBS})
   target_link_libraries(${PROJECT_NAME}_test ${LIBS})
 
 endif()
-
-
-
-
