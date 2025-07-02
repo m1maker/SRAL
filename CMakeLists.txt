@@ -82,9 +82,6 @@ elseif (APPLE)
     "-framework AVFoundation"
   )
 else()
-  find_package(X11 REQUIRED)
-  target_link_libraries(${PROJECT_NAME} ${X11_LIBRARIES})
-  target_link_libraries(${PROJECT_NAME}_test ${X11_LIBRARIES})
   find_package(PkgConfig REQUIRED)
   pkg_check_modules(SpeechD REQUIRED speech-dispatcher)
 
