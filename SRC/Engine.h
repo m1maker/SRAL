@@ -3,6 +3,7 @@
 #pragma once
 #include <stdint.h>
 #include <vector>
+#include <string.h>
 
 namespace Sral {
 
@@ -42,7 +43,7 @@ namespace Sral {
 
 			size_t len = strlen(str) + 1;
 			char* cString = new char[len];
-			strcpy_s(cString, len, str);
+			strcpy(cString, str);
 			m_strings.push_back(cString);
 			return cString;
 		}
