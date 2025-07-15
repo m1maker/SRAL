@@ -111,7 +111,7 @@ SRAL_ENGINE_AV_SPEECH = 1 << 9
 		SRAL_PARAM_SPEECH_RATE,
 		SRAL_PARAM_SPEECH_VOLUME,
 		SRAL_PARAM_VOICE_INDEX,
-		SRAL_PARAM_VOICE_LIST,
+		SRAL_PARAM_VOICE_PROPERTIES,
 		SRAL_PARAM_VOICE_COUNT,
 		SRAL_PARAM_SYMBOL_LEVEL,
 		SRAL_PARAM_SAPI_TRIM_THRESHOLD,
@@ -120,6 +120,20 @@ SRAL_ENGINE_AV_SPEECH = 1 << 9
 		SRAL_PARAM_NVDA_IS_CONTROL_EX
 	};
 
+
+	/**
+* @struct SRAL_VoiceInfo
+* @brief Voice information values.
+*/
+
+
+	typedef struct {
+		int index;
+		const char* name;
+		const char* language;
+		const char* gender;
+		const char* vendor;
+	} SRAL_VoiceInfo;
 
 
 	/**
@@ -242,8 +256,8 @@ SRAL_ENGINE_AV_SPEECH = 1 << 9
 	/**
 	* Engine parameters
 	*Pointers to the value of parameters can be integer, logical/boolean (the same as int), and also
-	* could also be a const char** if we are getting a list of voices.
-	* The caller is responsable to free voice list
+	* could also be a const SRAL_VoiceInfo* array if we are getting a list of voices and it's properties.
+	* The caller is responsable to free SRAL_VoiceInfo array.
 	*/
 
 

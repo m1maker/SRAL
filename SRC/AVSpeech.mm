@@ -97,6 +97,7 @@ bool AvSpeech::Initialize() {
 }
 
 bool AvSpeech::Uninitialize() {
+	ReleaseAllStrings();
 	if (obj == nullptr) return false; // Check for nullptr
 	delete obj;
 	obj = nullptr; // Set to nullptr after deletion
@@ -144,12 +145,13 @@ bool AvSpeech::GetParameter(int param, void* value) {
 		*(int*)value = obj->GetVolume();
 		return true;
 	}
-	case SRAL_PARAM_VOICE_LIST: {
+	case SRAL_PARAM_VOICE_PROPERTIES: {
+		ReleaseAllStrings();
 		int voice_count = obj->GetVoiceCount();
-		char** voices = (char**)value;
+		SRAL_VoiceInfo* voices = (SRAL_VoiceInfo*)value;
 		for (int i = 0; i < voice_count; ++i) {
 			const char* desc = obj->GetVoiceName(i);
-			strcpy(voices[i], desc);
+			voices[i].name = AddString(desc);
 		}
 	return true;
 	}
