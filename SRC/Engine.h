@@ -2,6 +2,7 @@
 #define ENGINE_H_
 #pragma once
 #include <stdint.h>
+#include <vector>
 
 namespace Sral {
 
@@ -33,6 +34,25 @@ namespace Sral {
 		virtual bool GetParameter(int param, void* value);
 
 		bool paused;
+	protected:
+		std::vector<char*> m_strings;
+
+		inline const char* AddString(const char* str) {
+			if (!str) return nullptr;
+
+			size_t len = strlen(str) + 1;
+			char* cString = new char[len];
+			strcpy_s(cString, len, str);
+			m_strings.push_back(cString);
+			return cString;
+		}
+
+		inline void ReleaseAllStrings() {
+			for (auto str : m_strings) {
+				delete[] str;
+			}
+			m_strings.clear();
+		}
 	};
 }
 #endif

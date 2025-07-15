@@ -438,63 +438,41 @@ int main(void) {
 		if (SRAL_GetEngineParameter(SRAL_ENGINE_NONE, SRAL_PARAM_VOICE_COUNT, &voice_count)) {
 			printf("  Voice count: %d\n", voice_count);
 			if (voice_count > 0) {
-				char** voice_list_names = (char**)malloc((size_t)voice_count * sizeof(char*));
-				if (!voice_list_names) {
-					printf("  Failed to allocate memory for voice list pointers.\n");
-				}
-				else {
-					bool alloc_ok = true;
+				SRAL_VoiceInfo* voice_infos = (SRAL_VoiceInfo*)malloc(voice_count * sizeof(SRAL_VoiceInfo));
+				if (SRAL_GetEngineParameter(SRAL_ENGINE_NONE, SRAL_PARAM_VOICE_PROPERTIES, voice_infos)) {
+					printf("  Available voices:\n");
 					for (int i = 0; i < voice_count; ++i) {
-						voice_list_names[i] = (char*)malloc(128 * sizeof(char));
-						if (!voice_list_names[i]) {
-							printf("  Failed to allocate memory for voice name %d.\n", i);
-							for (int j = 0; j < i; ++j) free(voice_list_names[j]);
-							free(voice_list_names);
-							voice_list_names = NULL;
-							alloc_ok = false;
-							break;
-						}
-						voice_list_names[i][0] = '\0';
+						printf("    %d: %s\n", i, voice_infos[i].name);
+						printf("    %d: %s\n", i, voice_infos[i].language);
+						printf("    %d: %s\n", i, voice_infos[i].gender);
+						printf("    %d: %s\n", i, voice_infos[i].vendor);
+
 					}
 
-					if (alloc_ok && SRAL_GetEngineParameter(SRAL_ENGINE_NONE, SRAL_PARAM_VOICE_LIST, voice_list_names)) {
-						printf("  Available voices:\n");
-						for (int i = 0; i < voice_count; ++i) {
-							printf("    %d: %s\n", i, voice_list_names[i] ? voice_list_names[i] : "(null string)");
-						}
+					int current_voice_index = -1, original_voice_index = -1;
+					SRAL_GetEngineParameter(SRAL_ENGINE_NONE, SRAL_PARAM_VOICE_INDEX, &original_voice_index);
+					printf("  Current voice index: %d (%s)\n", original_voice_index, (original_voice_index >= 0 && original_voice_index < voice_count && voice_infos[original_voice_index].name) ? voice_infos[original_voice_index].name : "Unknown/Default");
 
-						int current_voice_index = -1, original_voice_index = -1;
-						SRAL_GetEngineParameter(SRAL_ENGINE_NONE, SRAL_PARAM_VOICE_INDEX, &original_voice_index);
-						printf("  Current voice index: %d (%s)\n", original_voice_index, (original_voice_index >= 0 && original_voice_index < voice_count && voice_list_names[original_voice_index]) ? voice_list_names[original_voice_index] : "Unknown/Default");
-
-						if (voice_count > 1) {
-							int new_voice_index = (original_voice_index + 1) % voice_count;
-							printf("  Attempting to set voice to index: %d (%s)\n", new_voice_index, voice_list_names[new_voice_index]);
-							if (SRAL_SetEngineParameter(SRAL_ENGINE_NONE, SRAL_PARAM_VOICE_INDEX, &new_voice_index)) {
-								SRAL_GetEngineParameter(SRAL_ENGINE_NONE, SRAL_PARAM_VOICE_INDEX, &current_voice_index);
-								printf("  New voice index confirmed by get: %d\n", current_voice_index);
-								CHECK(current_voice_index == new_voice_index, "Voice index set and get matches", "Voice index set/get mismatch");
-								SRAL_Speak("Testing newly selected voice.", true);
-								sleep_ms(3000);
-								if (original_voice_index != -1) {
-									SRAL_SetEngineParameter(SRAL_ENGINE_NONE, SRAL_PARAM_VOICE_INDEX, &original_voice_index);
-									printf("  Restored original voice index to: %d\n", original_voice_index);
-								}
-							}
-							else {
-								printf("  Failed to set VOICE_INDEX.\n");
+					if (voice_count > 1) {
+						int new_voice_index = (original_voice_index + 1) % voice_count;
+						printf("  Attempting to set voice to index: %d (%s)\n", new_voice_index, voice_infos[new_voice_index].name);
+						if (SRAL_SetEngineParameter(SRAL_ENGINE_NONE, SRAL_PARAM_VOICE_INDEX, &new_voice_index)) {
+							SRAL_GetEngineParameter(SRAL_ENGINE_NONE, SRAL_PARAM_VOICE_INDEX, &current_voice_index);
+							printf("  New voice index confirmed by get: %d\n", current_voice_index);
+							CHECK(current_voice_index == new_voice_index, "Voice index set and get matches", "Voice index set/get mismatch");
+							SRAL_Speak("Testing newly selected voice.", true);
+							sleep_ms(3000);
+							if (original_voice_index != -1) {
+								SRAL_SetEngineParameter(SRAL_ENGINE_NONE, SRAL_PARAM_VOICE_INDEX, &original_voice_index);
+								printf("  Restored original voice index to: %d\n", original_voice_index);
 							}
 						}
-					}
-					else if (alloc_ok) {
-						printf("  Failed to get VOICE_LIST.\n");
-					}
-
-					if (voice_list_names) {
-						for (int i = 0; i < voice_count; ++i) if (voice_list_names[i]) free(voice_list_names[i]);
-						free(voice_list_names);
+						else {
+							printf("  Failed to set VOICE_INDEX.\n");
+						}
 					}
 				}
+				if (voice_infos) free(voice_infos);
 			}
 		}
 		else {

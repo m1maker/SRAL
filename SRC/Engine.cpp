@@ -7,6 +7,7 @@ namespace Sral {
 
 	}
 	Engine::~Engine() {
+		ReleaseAllStrings();
 		Uninitialize();
 	}
 

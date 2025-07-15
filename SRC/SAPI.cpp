@@ -180,6 +180,7 @@ namespace Sral {
 	}
 
 	bool Sapi::Uninitialize() {
+		ReleaseAllStrings();
 		this->voiceIndex = 0;
 		if (!instance || g_player == nullptr)return false;
 		g_threadStarted.store(false);
@@ -317,14 +318,21 @@ namespace Sral {
 		case SRAL_PARAM_SPEECH_VOLUME: {
 			return blastspeak_get_voice_volume(&*instance, (long*)value);
 		}
-		case SRAL_PARAM_VOICE_LIST: {
-			char** voices = (char**)value;
-			for (int i = 0; i < instance->voice_count; ++i) {
-				const char* voice_desc = blastspeak_get_voice_description(&*instance, i);
-				strcpy(voices[i], voice_desc);
+		case SRAL_PARAM_VOICE_PROPERTIES: {
+			ReleaseAllStrings();
+			SRAL_VoiceInfo* voiceProperties = (SRAL_VoiceInfo*)value;
+			int index = 0;
+			for (index; voiceProperties && instance && index < instance->voice_count; ++index) {
+				voiceProperties[index].index = index;
+				voiceProperties[index].name = AddString(blastspeak_get_voice_description(&*instance, index));
+				voiceProperties[index].language = AddString(blastspeak_get_voice_languages(&*instance, index));
+				voiceProperties[index].gender = AddString(blastspeak_get_voice_attribute(&*instance, index, "Gender"));
+				voiceProperties[index].vendor = AddString(blastspeak_get_voice_attribute(&*instance, index, "Vendor"));
 			}
+
 			return true;
 		}
+
 		case SRAL_PARAM_VOICE_COUNT:
 			*(int*)value = instance->voice_count;
 			return true;

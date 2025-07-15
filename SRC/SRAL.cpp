@@ -252,7 +252,7 @@ static Sral::Engine* get_engine(int engine) {
 
 #ifdef _WIN32
 // This is used for find the Windows Narrator process
-BOOL FindProcess(const wchar_t* name) {
+static BOOL FindProcess(const wchar_t* name) {
 	HANDLE hProcessSnap;
 	PROCESSENTRY32 pe32;
 
