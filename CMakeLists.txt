@@ -14,6 +14,7 @@ if (POLICY CMP0141)
 endif()
 
 project ("SRAL")
+option (BUILD_SRAL_TEST "Build SRAL examples/tests" ON)
 add_library(${PROJECT_NAME}_obj OBJECT)
 target_sources(${PROJECT_NAME}_obj PRIVATE
   "SRC/SRAL.cpp" "SRC/Engine.h" "SRC/Engine.cpp")
@@ -57,12 +58,16 @@ install(TARGETS ${PROJECT_NAME}
 install(TARGETS ${PROJECT_NAME}_static DESTINATION "lib")
 
 
+if (BUILD_SRAL_TEST)
 add_executable(${PROJECT_NAME}_test "Examples/C/SRALExample.c" "Include/SRAL.h")
 
 target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME}_static)
 
+endif()
 if (WIN32)
+if (BUILD_SRAL_TEST)
  add_executable(${PROJECT_NAME}_NVDAControleExConsole "Examples/C/NVDAControlExConsole.c" "Dep/nvda_control.c")
+endif()
  set(LIBS "uiautomationcore.lib")
   target_link_libraries(${PROJECT_NAME} ${LIBS})
   target_link_libraries(${PROJECT_NAME}_static ${LIBS})
@@ -76,21 +81,27 @@ elseif (APPLE)
     "-framework AVFoundation"
   )
 
+if (BUILD_SRAL_TEST)
   target_link_libraries(${PROJECT_NAME}_test
     "-framework AppKit"
     "-framework Foundation"
     "-framework AVFoundation"
   )
+endif()
 else()
   find_package(PkgConfig REQUIRED)
   pkg_check_modules(SpeechD REQUIRED speech-dispatcher)
 
   target_link_libraries(${PROJECT_NAME} ${SpeechD_LIBRARIES})
+if (BUILD_SRAL_TEST)
   target_link_libraries(${PROJECT_NAME}_test ${SpeechD_LIBRARIES})
 
+endif()
 find_library(BRLAPI "libbrlapi.so")
   set(LIBS "${BRLAPI}")
   target_link_libraries(${PROJECT_NAME} ${LIBS})
+if (BUILD_SRAL_TEST)
   target_link_libraries(${PROJECT_NAME}_test ${LIBS})
+endif()
 
 endif()
