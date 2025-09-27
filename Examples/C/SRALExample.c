@@ -1,7 +1,5 @@
-#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h> // For malloc, free
 #include <string.h> // For strcmp, strcpy
 
 // Define SRAL_STATIC if linking against a static SRAL library
@@ -240,7 +238,7 @@ int main(void) {
 			printf("  Channels: %d\n", channels);
 			printf("  Sample Rate: %d Hz\n", sample_rate);
 			printf("  Bits Per Sample: %d\n", bits_per_sample);
-			free(pcm_buffer); // SRAL user is responsible for freeing this memory
+			SRAL_free(pcm_buffer); // SRAL user is responsible for freeing this memory
 			printf("  PCM buffer freed.\n");
 		}
 		else {
@@ -258,7 +256,7 @@ int main(void) {
 					printf("  Channels: %d\n", channels);
 					printf("  Sample Rate: %d Hz\n", sample_rate);
 					printf("  Bits Per Sample: %d\n", bits_per_sample);
-					free(pcm_buffer);
+					SRAL_free(pcm_buffer);
 					printf("  PCM buffer freed.\n");
 				}
 				else {
@@ -438,7 +436,7 @@ int main(void) {
 		if (SRAL_GetEngineParameter(SRAL_ENGINE_NONE, SRAL_PARAM_VOICE_COUNT, &voice_count)) {
 			printf("  Voice count: %d\n", voice_count);
 			if (voice_count > 0) {
-				SRAL_VoiceInfo* voice_infos = (SRAL_VoiceInfo*)malloc(voice_count * sizeof(SRAL_VoiceInfo));
+				SRAL_VoiceInfo* voice_infos = (SRAL_VoiceInfo*)SRAL_malloc(voice_count * sizeof(SRAL_VoiceInfo));
 				if (SRAL_GetEngineParameter(SRAL_ENGINE_NONE, SRAL_PARAM_VOICE_PROPERTIES, voice_infos)) {
 					printf("  Available voices:\n");
 					for (int i = 0; i < voice_count; ++i) {
@@ -472,7 +470,7 @@ int main(void) {
 						}
 					}
 				}
-				if (voice_infos) free(voice_infos);
+				if (voice_infos) SRAL_free(voice_infos);
 			}
 		}
 		else {
