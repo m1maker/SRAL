@@ -136,6 +136,28 @@ SRAL_ENGINE_AV_SPEECH = 1 << 9
 	} SRAL_VoiceInfo;
 
 
+
+	/**
+* Functions for memory management.
+*/
+
+/**
+* @brief Allocate the memory.
+* @param size The size in bytes.
+* @return a pointer to the allocated buffer, if allocation was successful, false otherwise.
+* The caller is responsable to free the memory
+*/
+
+	SRAL_API void* SRAL_malloc(size_t size);
+
+/**
+* @brief Free the allocated memory.
+* @param memory A pointer to the allocated memory.
+*/
+
+	SRAL_API void SRAL_free(void* memory);
+
+
 	/**
 * Functions for interacting with the currently available and active engine (auto update).
 * However, for example, if the engine

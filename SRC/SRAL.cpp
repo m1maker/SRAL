@@ -54,7 +54,7 @@ static const std::map<SRAL_Engines, std::string> g_engineNames = {
 	{ SRAL_ENGINE_AV_SPEECH, "AV Speech" },
 	{ SRAL_ENGINE_NARRATOR, "Narrator" },
 	{ SRAL_ENGINE_VOICE_OVER, "Voice Over" },
-		{ SRAL_ENGINE_ZDSR, "ZDSR" }
+	{ SRAL_ENGINE_ZDSR, "ZDSR" }
 };
 
 
@@ -191,6 +191,17 @@ extern "C" SRAL_API void SRAL_UnregisterKeyboardHooks(void) {
 	return;
 }
 #endif
+
+
+
+extern "C" SRAL_API void* SRAL_malloc(size_t size) {
+	return malloc(size);
+}
+
+extern "C" void SRAL_free(void* memory) {
+	free(memory);
+}
+
 
 extern "C" SRAL_API bool SRAL_Initialize(int engines_exclude) {
 	if (g_initialized)return true;
