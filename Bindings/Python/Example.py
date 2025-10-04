@@ -79,8 +79,8 @@ def main():
         print(f"Current speech rate: {current_rate}")
     
     if features & SRALFeature.SPEECH_RATE.value:
-        print("Setting speech rate to 50...")
-        sral.set_engine_parameter(current_engine, SRALParam.SPEECH_RATE, 50)
+        print("Setting speech rate to 10...")
+        sral.set_engine_parameter(current_engine, SRALParam.SPEECH_RATE, 10)
         sral.speak("This is spoken at a different rate.", interrupt=True)
         time.sleep(2)
         
@@ -111,10 +111,7 @@ def main():
     if features & SRALFeature.SSML.value:
         ssml_text = """
         <speak>
-            This is <prosody rate="slow">slow speech</prosody>
-            and this is <prosody rate="fast">fast speech</prosody>.
-            <break time="500ms"/>
-            Now with <prosody pitch="high">high pitch</prosody>.
+            Test
         </speak>
         """
         print("Speaking SSML content...")

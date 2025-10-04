@@ -309,21 +309,19 @@ class SRAL:
         sample_rate = ctypes.c_int(0)
         bits_per_sample = ctypes.c_int(0)
 
-        with SRALMemory(
-            _sral_lib.SRAL_SpeakToMemory(
-                text.encode('utf-8'),
-                ctypes.byref(buffer_size),
-                ctypes.byref(channels),
-                ctypes.byref(sample_rate),
-                ctypes.byref(bits_per_sample)
-            ), is_ptr=True
-        ) as pcm_buffer_ptr:
-            if pcm_buffer_ptr:
-                mem_view = memoryview(
-                    (ctypes.c_char * buffer_size.value).from_address(pcm_buffer_ptr)
-                )
-                return mem_view, buffer_size.value, channels.value, sample_rate.value, bits_per_sample.value
-            return None, 0, 0, 0, 0
+        pcm_buffer_ptr = _sral_lib.SRAL_SpeakToMemory(
+            text.encode('utf-8'),
+            ctypes.byref(buffer_size),
+            ctypes.byref(channels),
+            ctypes.byref(sample_rate),
+            ctypes.byref(bits_per_sample)
+        )
+        if pcm_buffer_ptr:
+            mem_view = memoryview(
+                (ctypes.c_char * buffer_size.value).from_address(pcm_buffer_ptr)
+            )
+            return mem_view, buffer_size.value, channels.value, sample_rate.value, bits_per_sample.value
+        return None, 0, 0, 0, 0
 
 
     def speak_ssml(self, ssml: str, interrupt: bool = True) -> bool:
@@ -491,28 +489,24 @@ class SRAL:
             voice_count = self.get_engine_parameter(engine, SRALParam.VOICE_COUNT)
             if voice_count is None or voice_count <= 0:
                 return []
-
-            voice_info_array_type = SRALVoiceInfo * voice_count
-            p_voice_info_array = ctypes.POINTER(voice_info_array_type)()
-
+            voice_array_type = SRALVoiceInfo * voice_count
+            voice_array = voice_array_type()
             success = _sral_lib.SRAL_GetEngineParameter(
                 engine.value,
                 param.value,
-                ctypes.byref(p_voice_info_array)
+                ctypes.byref(voice_array)
             )
-
-            if success and p_voice_info_array:
+            if success:
                 voices = []
                 for i in range(voice_count):
-                    voice_c = p_voice_info_array.contents[i]
+                    voice_info = voice_array[i]
                     voices.append({
-                        "index": voice_c.index,
-                        "name": voice_c.name.decode('utf-8') if voice_c.name else None,
-                        "language": voice_c.language.decode('utf-8') if voice_c.language else None,
-                        "gender": voice_c.gender.decode('utf-8') if voice_c.gender else None,
-                        "vendor": voice_c.vendor.decode('utf-8') if voice_c.vendor else None,
+                        "index": voice_info.index,
+                        "name": voice_info.name.decode('utf-8') if voice_info.name else None,
+                        "language": voice_info.language.decode('utf-8') if voice_info.language else None,
+                        "gender": voice_info.gender.decode('utf-8') if voice_info.gender else None,
+                        "vendor": voice_info.vendor.decode('utf-8') if voice_info.vendor else None,
                     })
-                _sral_lib.SRAL_free(p_voice_info_array)
                 return voices
             return []
         else:
