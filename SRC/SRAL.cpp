@@ -44,19 +44,6 @@ private:
 
 
 
-static const std::map<SRAL_Engines, std::string> g_engineNames = {
-	{ SRAL_ENGINE_NONE, "None" },
-	{ SRAL_ENGINE_NVDA, "NVDA" },
-	{ SRAL_ENGINE_SAPI, "SAPI" },
-	{ SRAL_ENGINE_JAWS, "JAWS" },
-	{ SRAL_ENGINE_SPEECH_DISPATCHER, "Speech Dispatcher" },
-	{ SRAL_ENGINE_UIA, "UIA" },
-	{ SRAL_ENGINE_AV_SPEECH, "AV Speech" },
-	{ SRAL_ENGINE_NARRATOR, "Narrator" },
-	{ SRAL_ENGINE_VOICE_OVER, "Voice Over" },
-	{ SRAL_ENGINE_ZDSR, "ZDSR" }
-};
-
 
 static Sral::Engine* g_currentEngine = nullptr;
 static std::map<SRAL_Engines, std::unique_ptr<Sral::Engine>> g_engines;
@@ -84,13 +71,13 @@ static uint64_t g_lastDelayTime = 0;
 
 static void output_thread() {
 	g_outputThreadRunning = true;
-	static Timer timer;
-	timer.restart();
+	static Timer s_timer;
+	s_timer.restart();
 	while (g_delayOperation && !g_delayedOutputs.empty()) {
 		for (const QueuedOutput& qout : g_delayedOutputs) {
-			timer.restart();
-			while (timer.elapsed() < qout.time && g_delayOperation) {
-				std::this_thread::sleep_for(std::chrono::milliseconds(5));
+			s_timer.restart();
+			while (s_timer.elapsed() < qout.time && g_delayOperation) {
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			}
 			if (qout.speak) {
 				if (qout.ssml)
@@ -166,8 +153,8 @@ extern "C" SRAL_API bool SRAL_RegisterKeyboardHooks(void) {
 	g_keyboardHookThread = true;
 	g_hookThread = std::thread(hook_thread);
 	g_hookThread.detach();
-	static Timer timer;
-	while (timer.elapsed() < 3000) {
+	static Timer s_timer;
+	while (s_timer.elapsed() < 3000) {
 		Sleep(5);
 		if (g_keyboardHook != nullptr) {
 			return true;
@@ -201,6 +188,8 @@ extern "C" SRAL_API void* SRAL_malloc(size_t size) {
 extern "C" void SRAL_free(void* memory) {
 	free(memory);
 }
+
+
 
 
 extern "C" SRAL_API bool SRAL_Initialize(int engines_exclude) {
@@ -554,16 +543,20 @@ extern "C" SRAL_API int SRAL_GetActiveEngines(void) {
 
 
 extern "C" SRAL_API const char* SRAL_GetEngineName(int engine) {
-	auto it = g_engineNames.find(static_cast<SRAL_Engines>(engine));
-	if (it != g_engineNames.end()) {
-		return it->second.c_str();
+	switch (static_cast<SRAL_Engines>(engine)) {
+		case SRAL_ENGINE_NONE: return "None";
+		case SRAL_ENGINE_NVDA: return "NVDA";
+		case SRAL_ENGINE_SAPI: return "SAPI";
+		case SRAL_ENGINE_JAWS: return "JAWS";
+		case SRAL_ENGINE_SPEECH_DISPATCHER: return "Speech Dispatcher";
+		case SRAL_ENGINE_UIA: return "UIA";
+		case SRAL_ENGINE_AV_SPEECH: return "AV Speech";
+		case SRAL_ENGINE_NARRATOR: return "Narrator";
+		case SRAL_ENGINE_VOICE_OVER: return "Voice Over";
+		case SRAL_ENGINE_ZDSR: return "ZDSR";
+		default: return "Unknown";
 	}
-	else {
-		return "";
-	}
-	return "";
 }
-
 
 extern "C" SRAL_API bool SRAL_SetEnginesExclude(int engines_exclude) {
 	if (!SRAL_IsInitialized()) {
