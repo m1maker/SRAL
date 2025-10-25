@@ -52,7 +52,7 @@ static int g_excludes{SRAL_ENGINE_NONE};
 static bool g_initialized{false};
 
 struct QueuedOutput {
-	const char* text;
+	std::string text;
 	bool interrupt;
 	bool braille;
 	bool speak;
@@ -98,13 +98,13 @@ static void output_thread() {
 
 		if (current_output.speak) {
 			if (current_output.ssml)
-				current_output.engine->SpeakSsml(current_output.text, current_output.interrupt);
+				current_output.engine->SpeakSsml(current_output.text.c_str(), current_output.interrupt);
 			else
-				current_output.engine->Speak(current_output.text, current_output.interrupt);
+				current_output.engine->Speak(current_output.text.c_str(), current_output.interrupt);
 
 		}
 		else if (current_output.braille)
-			current_output.engine->Braille(current_output.text);
+			current_output.engine->Braille(current_output.text.c_str());
 
 	}
 	std::unique_lock<std::mutex> lock(g_delayedOutputsMutex);
@@ -423,7 +423,7 @@ extern "C" SRAL_API bool SRAL_SpeakEx(int engine, const char* text, bool interru
 		return e->Speak(text, interrupt);
 	else {
 		QueuedOutput qout;
-		qout.text = text;
+		qout.text = std::string(text);
 		qout.interrupt = interrupt;
 		qout.braille = false;
 		qout.speak = true;
@@ -456,7 +456,7 @@ extern "C" SRAL_API bool SRAL_SpeakSsmlEx(int engine, const char* ssml, bool int
 		return e->SpeakSsml(ssml, interrupt);
 	else {
 		QueuedOutput qout;
-		qout.text = ssml;
+		qout.text = std::string(ssml);
 		qout.interrupt = interrupt;
 		qout.braille = false;
 		qout.speak = true;
