@@ -17,6 +17,7 @@
 #include "SpeechDispatcher.h"
 #endif
 #include <map>
+#include <mutex>
 #include <vector>
 #include <string>
 #include <chrono>
@@ -45,10 +46,10 @@ private:
 
 
 
-static Sral::Engine* g_currentEngine = nullptr;
+static Sral::Engine* g_currentEngine{nullptr};
 static std::map<SRAL_Engines, std::unique_ptr<Sral::Engine>> g_engines;
-static int g_excludes = 0;
-static bool g_initialized = false;
+static int g_excludes{SRAL_ENGINE_NONE};
+static bool g_initialized{false};
 
 struct QueuedOutput {
 	const char* text;
@@ -61,47 +62,59 @@ struct QueuedOutput {
 };
 
 static std::vector<QueuedOutput> g_delayedOutputs;
-static bool g_delayOperation = false;
-static bool g_outputThreadRunning = false;
+static std::mutex g_delayedOutputsMutex;
+static std::atomic<bool> g_delayOperation{false};
+static std::atomic<bool> g_outputThreadRunning{false};
 
 static std::thread g_outputThread;
 
-static uint64_t g_lastDelayTime = 0;
+static std::atomic<uint64_t> g_lastDelayTime{0};
 
 
 static void output_thread() {
-	g_outputThreadRunning = true;
+	g_outputThreadRunning.store(true);
 	static Timer s_timer;
 	s_timer.restart();
-	while (g_delayOperation && !g_delayedOutputs.empty()) {
-		for (const QueuedOutput& qout : g_delayedOutputs) {
-			s_timer.restart();
-			while (s_timer.elapsed() < qout.time && g_delayOperation) {
-				std::this_thread::sleep_for(std::chrono::milliseconds(1));
-			}
-			if (qout.speak) {
-				if (qout.ssml)
-					qout.engine->SpeakSsml(qout.text, qout.interrupt);
-				else
-					qout.engine->Speak(qout.text, qout.interrupt);
+	while (g_delayOperation.load()) {
+		QueuedOutput current_output;
+		{
+			std::unique_lock<std::mutex> lock(g_delayedOutputsMutex);
 
+			if (!g_delayOperation.load() || g_delayedOutputs.empty()) {
+				break;
 			}
-			else if (qout.braille)
-				qout.engine->Braille(qout.text);
+
+			current_output = g_delayedOutputs.front();
+			g_delayedOutputs.erase(g_delayedOutputs.begin());
 		}
-		if (!g_delayedOutputs.empty()) {
-			g_delayedOutputs.clear();
-			g_delayOperation = false;
-			break;
+
+		s_timer.restart();
+		while (s_timer.elapsed() < current_output.time && g_delayOperation.load()) {
+			if (current_output.engine->IsSpeaking()) {
+				s_timer.restart();
+			}
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
+
+		if (current_output.speak) {
+			if (current_output.ssml)
+				current_output.engine->SpeakSsml(current_output.text, current_output.interrupt);
+			else
+				current_output.engine->Speak(current_output.text, current_output.interrupt);
+
+		}
+		else if (current_output.braille)
+			current_output.engine->Braille(current_output.text);
+
 	}
-	g_outputThreadRunning = false;
+	std::unique_lock<std::mutex> lock(g_delayedOutputsMutex);
+	g_outputThreadRunning.store(false);
 }
 
 
 
-static bool g_keyboardHookThread = false;
-static bool g_shiftPressed = false;
+static std::atomic<bool> g_keyboardHookThread{false};
+static std::atomic<bool> g_shiftPressed{false};
 
 #if defined(_WIN32)
 static HHOOK g_keyboardHook;
@@ -115,17 +128,17 @@ static LRESULT CALLBACK KeyboardHookProc(int nCode, WPARAM wParam, LPARAM lParam
 				if ((pKeyInfo->vkCode == VK_LCONTROL || pKeyInfo->vkCode == VK_RCONTROL) && ptr->GetKeyFlags() & Sral::HANDLE_INTERRUPT) {
 					ptr->StopSpeech();
 				}
-				else if ((pKeyInfo->vkCode == VK_LSHIFT || pKeyInfo->vkCode == VK_RSHIFT) && ptr->GetKeyFlags() & Sral::HANDLE_PAUSE_RESUME && g_shiftPressed == false) {
+				else if ((pKeyInfo->vkCode == VK_LSHIFT || pKeyInfo->vkCode == VK_RSHIFT) && ptr->GetKeyFlags() & Sral::HANDLE_PAUSE_RESUME && !g_shiftPressed.load()) {
 					if (ptr->paused)
 						ptr->ResumeSpeech();
 					else
 						ptr->PauseSpeech();
-					g_shiftPressed = true;
+					g_shiftPressed.store(true);
 				}
 			}
 			else if (wParam == WM_KEYUP) {
 				if (pKeyInfo->vkCode == VK_LSHIFT || pKeyInfo->vkCode == VK_RSHIFT) {
-					g_shiftPressed = false;
+					g_shiftPressed.store(false);
 				}
 			}
 		}
@@ -140,7 +153,7 @@ static void hook_thread() {
 	if (g_keyboardHook == nullptr)return;
 	MSG msg;
 
-	while (g_keyboardHookThread) {
+	while (g_keyboardHookThread.load()) {
 		if (GetMessageW(&msg, nullptr, 0, 0)) {
 			DispatchMessageW(&msg);
 			TranslateMessage(&msg);
@@ -148,9 +161,10 @@ static void hook_thread() {
 	}
 	UnhookWindowsHookEx(g_keyboardHook);
 }
+
 extern "C" SRAL_API bool SRAL_RegisterKeyboardHooks(void) {
-	if (g_keyboardHookThread)return g_keyboardHookThread;
-	g_keyboardHookThread = true;
+	if (g_keyboardHookThread.load()) return true;
+	g_keyboardHookThread.store(true);
 	g_hookThread = std::thread(hook_thread);
 	g_hookThread.detach();
 	static Timer s_timer;
@@ -165,7 +179,7 @@ extern "C" SRAL_API bool SRAL_RegisterKeyboardHooks(void) {
 
 extern "C" SRAL_API void SRAL_UnregisterKeyboardHooks(void) {
 	PostMessage(0, WM_KEYUP, 0, 0);
-	g_keyboardHookThread = false;
+	g_keyboardHookThread.store(false);
 	if (g_hookThread.joinable()) {
 		g_hookThread.join();
 	}
@@ -226,11 +240,11 @@ extern "C" SRAL_API void SRAL_Uninitialize(void) {
 #endif
 	g_currentEngine = nullptr;
 	g_engines.clear();
-	g_excludes = 0;
+	g_excludes = SRAL_ENGINE_NONE;
 	if (g_outputThread.joinable()) {
 		g_outputThread.join();
 	}
-	if (g_keyboardHookThread) {
+	if (g_keyboardHookThread.load()) {
 		SRAL_UnregisterKeyboardHooks();
 	}
 	g_initialized = false;
@@ -317,6 +331,7 @@ extern "C" SRAL_API void* SRAL_SpeakToMemory(const char* text, uint64_t* buffer_
 	if (g_currentEngine == nullptr)		return nullptr;
 	return SRAL_SpeakToMemoryEx(g_currentEngine->GetNumber(), text, buffer_size, channels, sample_rate, bits_per_sample);
 }
+
 extern "C" SRAL_API bool SRAL_SpeakSsml(const char* ssml, bool interrupt) {
 	speech_engine_update();
 	if (g_currentEngine == nullptr)		return false;
@@ -328,6 +343,7 @@ extern "C" SRAL_API bool SRAL_Braille(const char* text) {
 	if (g_currentEngine == nullptr)return false;
 	return SRAL_BrailleEx(g_currentEngine->GetNumber(), text);
 }
+
 extern "C" SRAL_API bool SRAL_Output(const char* text, bool interrupt) {
 	speech_engine_update();
 	if (g_currentEngine == nullptr)return false;
@@ -339,11 +355,13 @@ extern "C" SRAL_API bool SRAL_StopSpeech(void) {
 	if (g_currentEngine == nullptr)return false;
 	return SRAL_StopSpeechEx(g_currentEngine->GetNumber());
 }
+
 extern "C" SRAL_API bool SRAL_PauseSpeech(void) {
 	speech_engine_update();
 	if (g_currentEngine == nullptr)return false;
 	return SRAL_PauseSpeechEx(g_currentEngine->GetNumber());
 }
+
 extern "C" SRAL_API bool SRAL_ResumeSpeech(void) {
 	speech_engine_update();
 	if (g_currentEngine == nullptr)return false;
@@ -361,6 +379,7 @@ extern "C" SRAL_API int SRAL_GetCurrentEngine(void) {
 	if (g_currentEngine == nullptr)return SRAL_ENGINE_NONE;
 	return g_currentEngine->GetNumber();
 }
+
 extern "C" SRAL_API int SRAL_GetEngineFeatures(int engine) {
 	if (engine == 0) {
 		if (g_currentEngine == nullptr)return -1;
@@ -400,7 +419,7 @@ extern "C" SRAL_API bool SRAL_GetEngineParameter(int engine, int param, void* va
 extern "C" SRAL_API bool SRAL_SpeakEx(int engine, const char* text, bool interrupt) {
 	Sral::Engine* e = get_engine(engine);
 	if (e == nullptr)return false;
-	if (!g_delayOperation)
+	if (!g_delayOperation.load())
 		return e->Speak(text, interrupt);
 	else {
 		QueuedOutput qout;
@@ -411,7 +430,10 @@ extern "C" SRAL_API bool SRAL_SpeakEx(int engine, const char* text, bool interru
 		qout.ssml = false;
 		qout.engine = e;
 		qout.time = g_lastDelayTime;
-		g_delayedOutputs.push_back(qout);
+		{
+			std::unique_lock<std::mutex> lock(g_delayedOutputsMutex);
+			g_delayedOutputs.push_back(qout);
+		}
 		if (!g_outputThreadRunning) {
 			g_outputThread = std::thread(output_thread);
 			g_outputThread.detach();
@@ -420,6 +442,7 @@ extern "C" SRAL_API bool SRAL_SpeakEx(int engine, const char* text, bool interru
 	}
 	return false;
 }
+
 extern "C" SRAL_API void* SRAL_SpeakToMemoryEx(int engine, const char* text, uint64_t* buffer_size, int* channels, int* sample_rate, int* bits_per_sample) {
 	Sral::Engine* e = get_engine(engine);
 	if (e == nullptr)return nullptr;
@@ -429,7 +452,7 @@ extern "C" SRAL_API void* SRAL_SpeakToMemoryEx(int engine, const char* text, uin
 extern "C" SRAL_API bool SRAL_SpeakSsmlEx(int engine, const char* ssml, bool interrupt) {
 	Sral::Engine* e = get_engine(engine);
 	if (e == nullptr)return false;
-	if (!g_delayOperation)
+	if (!g_delayOperation.load())
 		return e->SpeakSsml(ssml, interrupt);
 	else {
 		QueuedOutput qout;
@@ -440,7 +463,10 @@ extern "C" SRAL_API bool SRAL_SpeakSsmlEx(int engine, const char* ssml, bool int
 		qout.ssml = true;
 		qout.engine = e;
 		qout.time = g_lastDelayTime;
-		g_delayedOutputs.push_back(qout);
+		{
+			std::unique_lock<std::mutex> lock(g_delayedOutputsMutex);
+			g_delayedOutputs.push_back(qout);
+		}
 		if (!g_outputThreadRunning) {
 			g_outputThread = std::thread(output_thread);
 			g_outputThread.detach();
@@ -455,6 +481,7 @@ extern "C" SRAL_API bool SRAL_BrailleEx(int engine, const char* text) {
 	if (e == nullptr)return false;
 	return e->Braille(text);
 }
+
 extern "C" SRAL_API bool SRAL_OutputEx(int engine, const char* text, bool interrupt) {
 	Sral::Engine* e = get_engine(engine);
 	if (e == nullptr)return false;
@@ -462,12 +489,16 @@ extern "C" SRAL_API bool SRAL_OutputEx(int engine, const char* text, bool interr
 	const bool braille = e->Braille(text);
 	return speech || braille;
 }
+
 extern "C" SRAL_API bool SRAL_StopSpeechEx(int engine) {
 	Sral::Engine* e = get_engine(engine);
 	if (e == nullptr)return false;
-	if (g_delayOperation) {
-		g_delayedOutputs.clear();
-		g_delayOperation = false;
+	if (g_delayOperation.load()) {
+		{
+			std::unique_lock<std::mutex> lock(g_delayedOutputsMutex);
+			g_delayedOutputs.clear();
+		}
+		g_delayOperation.store(false);
 		if (g_outputThread.joinable()) {
 			g_outputThread.join();
 		}
@@ -479,8 +510,8 @@ extern "C" SRAL_API bool SRAL_StopSpeechEx(int engine) {
 extern "C" SRAL_API bool SRAL_PauseSpeechEx(int engine) {
 	Sral::Engine* e = get_engine(engine);
 	if (e == nullptr)return false;
-	if (g_delayOperation) {
-		g_delayOperation = false;
+	if (g_delayOperation.load()) {
+		g_delayOperation.store(false);
 		if (g_outputThread.joinable()) {
 			g_outputThread.join();
 		}
@@ -493,11 +524,14 @@ extern "C" SRAL_API bool SRAL_PauseSpeechEx(int engine) {
 extern "C" SRAL_API bool SRAL_ResumeSpeechEx(int engine) {
 	Sral::Engine* e = get_engine(engine);
 	if (e == nullptr)return false;
-	if (g_delayedOutputs.size() != 0) {
-		g_delayOperation = true;
-		if (!g_outputThreadRunning) {
-			g_outputThread = std::thread(output_thread);
-			g_outputThread.detach();
+	{
+		std::unique_lock<std::mutex> lock(g_delayedOutputsMutex);
+		if (!g_delayedOutputs.empty()) {
+			g_delayOperation.store(true);
+			if (!g_outputThreadRunning) {
+				g_outputThread = std::thread(output_thread);
+				g_outputThread.detach();
+			}
 		}
 	}
 	return e->ResumeSpeech();
@@ -518,7 +552,7 @@ extern "C" SRAL_API bool SRAL_IsInitialized(void) {
 
 extern "C" SRAL_API void SRAL_Delay(int time) {
 	g_lastDelayTime = time;
-	g_delayOperation = true;
+	g_delayOperation.store(true);
 }
 
 extern "C" SRAL_API int SRAL_GetAvailableEngines(void) {
