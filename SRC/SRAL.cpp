@@ -49,6 +49,7 @@ private:
 static Sral::Engine* g_currentEngine{nullptr};
 static std::map<SRAL_Engines, std::unique_ptr<Sral::Engine>> g_engines;
 static int g_excludes{SRAL_ENGINE_NONE};
+static int g_enginesFailedToInitialize{SRAL_ENGINE_NONE};
 static bool g_initialized{false};
 
 struct QueuedOutput {
@@ -163,6 +164,7 @@ static void hook_thread() {
 }
 
 extern "C" SRAL_API bool SRAL_RegisterKeyboardHooks(void) {
+	if (!SRAL_IsInitialized()) return false;
 	if (g_keyboardHookThread.load()) return true;
 	g_keyboardHookThread.store(true);
 	g_hookThread = std::thread(hook_thread);
@@ -178,6 +180,7 @@ extern "C" SRAL_API bool SRAL_RegisterKeyboardHooks(void) {
 }
 
 extern "C" SRAL_API void SRAL_UnregisterKeyboardHooks(void) {
+	if (!SRAL_IsInitialized()) return false;
 	PostMessage(0, WM_KEYUP, 0, 0);
 	g_keyboardHookThread.store(false);
 	if (g_hookThread.joinable()) {
@@ -221,11 +224,20 @@ extern "C" SRAL_API bool SRAL_Initialize(int engines_exclude) {
 #else
 	g_engines[SRAL_ENGINE_SPEECH_DISPATCHER] = std::make_unique<Sral::SpeechDispatcher>();
 #endif
+	// Here we need to check that at least one engine has been initialized.
+	// Otherwise, if none of them are running, there is no point in returning true.
+	bool success = false;
 	for (const auto& [value, ptr] : g_engines) {
-		ptr->Initialize();
+		if (!ptr->Initialize()) {
+			g_enginesFailedToInitialize |= ptr->GetNumber();
+		}
+		else {
+			success = true;
+		}
 	}
-	g_initialized = true;
 
+	g_initialized = success;
+	if (!g_initialized) return false;
 	SRAL_SetEnginesExclude(engines_exclude);
 	return g_initialized;
 }
@@ -241,6 +253,7 @@ extern "C" SRAL_API void SRAL_Uninitialize(void) {
 	g_currentEngine = nullptr;
 	g_engines.clear();
 	g_excludes = SRAL_ENGINE_NONE;
+	g_enginesFailedToInitialize = SRAL_ENGINE_NONE;
 	if (g_outputThread.joinable()) {
 		g_outputThread.join();
 	}
@@ -551,6 +564,7 @@ extern "C" SRAL_API bool SRAL_IsInitialized(void) {
 
 
 extern "C" SRAL_API void SRAL_Delay(int time) {
+	if (!SRAL_IsInitialized()) return;
 	g_lastDelayTime = time;
 	g_delayOperation.store(true);
 }
@@ -593,9 +607,7 @@ extern "C" SRAL_API const char* SRAL_GetEngineName(int engine) {
 }
 
 extern "C" SRAL_API bool SRAL_SetEnginesExclude(int engines_exclude) {
-	if (!SRAL_IsInitialized()) {
-		return false;
-	}
+	if (!SRAL_IsInitialized()) return false;
 	g_excludes = engines_exclude;
 	speech_engine_update();
 	return true;
