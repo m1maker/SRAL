@@ -180,7 +180,7 @@ extern "C" SRAL_API bool SRAL_RegisterKeyboardHooks(void) {
 }
 
 extern "C" SRAL_API void SRAL_UnregisterKeyboardHooks(void) {
-	if (!SRAL_IsInitialized()) return false;
+	if (!SRAL_IsInitialized()) return;
 	PostMessage(0, WM_KEYUP, 0, 0);
 	g_keyboardHookThread.store(false);
 	if (g_hookThread.joinable()) {
