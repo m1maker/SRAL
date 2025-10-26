@@ -31,7 +31,7 @@ namespace Sral {
 		}
 
 	private:
-		SPDConnection* Speech = nullptr;
+		SPDConnection* speech = nullptr;
 		bool enableSpelling = false;
 		bool brailleInitialized = false;
 	};

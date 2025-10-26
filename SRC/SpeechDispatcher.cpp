@@ -9,8 +9,8 @@ namespace Sral {
 		if (address == nullptr) {
 			return false;
 		}
-		Speech = spd_open2("SRAL", nullptr, nullptr, SPD_MODE_THREADED, address, true, nullptr);
-		if (Speech == nullptr) {
+		speech = spd_open2("SRAL", nullptr, nullptr, SPD_MODE_THREADED, address, true, nullptr);
+		if (speech == nullptr) {
 			return false;
 		}
 
@@ -19,12 +19,12 @@ namespace Sral {
 		return true;
 	}
 	bool SpeechDispatcher::GetActive() {
-		return Speech != nullptr;
+		return speech != nullptr;
 	}
 	bool SpeechDispatcher::Uninitialize() {
-		if (Speech == nullptr)return false;
-		spd_close(Speech);
-		Speech = nullptr;
+		if (speech == nullptr)return false;
+		spd_close(speech);
+		speech = nullptr;
 
 		if (brailleInitialized) {
 			brlapi_leaveTtyMode();
@@ -34,10 +34,10 @@ namespace Sral {
 		return true;
 	}
 	bool SpeechDispatcher::Speak(const char* text, bool interrupt) {
-		if (Speech == nullptr)return false;
+		if (speech == nullptr)return false;
 		if (interrupt) {
-			spd_stop(Speech);
-			spd_cancel(Speech);
+			spd_stop(speech);
+			spd_cancel(speech);
 		}
 		if (this->paused) {
 			this->ResumeSpeech();
@@ -45,14 +45,14 @@ namespace Sral {
 
 		}
 		if (!enableSpelling) {
-			return spd_say(Speech, SPD_IMPORTANT, text) != -1;
+			return spd_say(speech, SPD_IMPORTANT, text) != -1;
 		}
 		else {
 			utf8_iter iter;
 			bool result = true;
 			utf8_init(&iter, text);
 			while (utf8_next(&iter) && result) {
-				result = (spd_char(Speech, SPD_IMPORTANT, utf8_getchar(&iter)) != -1);
+				result = (spd_char(speech, SPD_IMPORTANT, utf8_getchar(&iter)) != -1);
 			}
 			return result;
 		}
@@ -65,16 +65,16 @@ namespace Sral {
 	}
 
 	bool SpeechDispatcher::SetParameter(int param, const void* value) {
-		if (Speech == nullptr)return false;
+		if (speech == nullptr)return false;
 		switch (param) {
 		case SRAL_PARAM_SYMBOL_LEVEL:
-			spd_set_punctuation(Speech, static_cast<SPDPunctuation>(*reinterpret_cast<const int*>(value)));
+			spd_set_punctuation(speech, static_cast<SPDPunctuation>(*reinterpret_cast<const int*>(value)));
 			break;
 		case SRAL_PARAM_SPEECH_RATE:
-			spd_set_voice_rate(Speech, *reinterpret_cast<const int*>(value));
+			spd_set_voice_rate(speech, *reinterpret_cast<const int*>(value));
 			break;
 		case SRAL_PARAM_SPEECH_VOLUME:
-			spd_set_volume(Speech, *reinterpret_cast<const int*>(value));
+			spd_set_volume(speech, *reinterpret_cast<const int*>(value));
 			break;
 		case SRAL_PARAM_ENABLE_SPELLING:
 			this->enableSpelling = *reinterpret_cast<const bool*>(value);
@@ -86,13 +86,13 @@ namespace Sral {
 	}
 
 	bool SpeechDispatcher::GetParameter(int param, void* value) {
-		if (Speech == nullptr)return false;
+		if (speech == nullptr)return false;
 		switch (param) {
 		case SRAL_PARAM_SPEECH_RATE:
-			*(int*)value = spd_get_voice_rate(Speech);
+			*(int*)value = spd_get_voice_rate(speech);
 			return true;
 		case SRAL_PARAM_SPEECH_VOLUME:
-			*(int*)value = spd_get_volume(Speech);
+			*(int*)value = spd_get_volume(speech);
 			return true;
 		case SRAL_PARAM_ENABLE_SPELLING:
 			*(bool*)value = this->enableSpelling;
@@ -104,20 +104,20 @@ namespace Sral {
 	}
 
 	bool SpeechDispatcher::StopSpeech() {
-		if (Speech == nullptr)return false;
-		spd_stop(Speech);
-		spd_cancel(Speech);
+		if (speech == nullptr)return false;
+		spd_stop(speech);
+		spd_cancel(speech);
 		return true;
 	}
 	bool SpeechDispatcher::PauseSpeech() {
 		if (!GetActive())return false;
 		this->paused = true;
-		return spd_pause_all(Speech) == 0;
+		return spd_pause(speech) == 0;
 	}
 	bool SpeechDispatcher::ResumeSpeech() {
 		if (!GetActive())return false;
 		this->paused = false;
-		return spd_resume_all(Speech) == 0;
+		return spd_resume(speech) == 0;
 	}
 
 
