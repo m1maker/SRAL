@@ -43,7 +43,7 @@ namespace Sral {
 			std::string text_str(text);
 			XmlEncode(text_str);
 			std::string final = "<speak>" + text_str + "</speak>";
-			return spd_say(speech, SPD_IMPORTANT, text_str.c_str()) != -1;
+			return this->SpeakSsml(text_str.c_str(), interrupt);
 		}
 		else {
 			utf8_iter iter;
