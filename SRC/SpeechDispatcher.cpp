@@ -46,6 +46,11 @@ namespace Sral {
 			return this->SpeakSsml(text_str.c_str(), interrupt);
 		}
 		else {
+			if (interrupt) {
+				spd_stop(speech);
+				spd_cancel(speech);
+			}
+
 			utf8_iter iter;
 			bool result = true;
 			utf8_init(&iter, text);
