@@ -234,18 +234,14 @@ namespace Sral {
 			speechThread = std::thread(sapi_thread);
 			speechThread.detach();
 		}
-		std::string text_str(text);
-		unsigned long bytes;
-		char* audio_ptr = blastspeak_speak_to_memory(&*instance, &bytes, text_str.c_str());
-		if (audio_ptr == nullptr)
-			return false;
 
-		char* final = trim(audio_ptr, &bytes, &wfx, this->trimThreshold);
-		if (final == nullptr)
-			return false;
+		uint64_t buffer_size = 0;
+		char* data = (char*)this->SpeakToMemory(text, &buffer_size, nullptr, nullptr, nullptr);
+		if (!data || buffer_size == 0) return false;
+
 		PCMData dat = { 0, 0 };
-		dat.data = (unsigned char*)final;
-		dat.size = bytes;
+		dat.data = (unsigned char*)data;
+		dat.size = buffer_size;
 		if (this->paused) {
 			this->paused = false;
 			if (!interrupt)
@@ -258,6 +254,7 @@ namespace Sral {
 		g_dataQueueCv.notify_one();
 		return true;
 	}
+
 	void* Sapi::SpeakToMemory(const char* text, uint64_t* buffer_size, int* channels, int* sample_rate, int* bits_per_sample) {
 		if (instance == nullptr)return nullptr;
 		std::string text_str(text);
@@ -267,10 +264,10 @@ namespace Sral {
 			return nullptr;
 
 		char* final = trim(audio_ptr, &bytes, &wfx, this->trimThreshold);
-		*buffer_size = bytes;
-		*channels = instance->channels;
-		*sample_rate = instance->sample_rate;
-		*bits_per_sample = instance->bits_per_sample;
+		if (buffer_size) *buffer_size = bytes;
+		if (channels) *channels = instance->channels;
+		if (sample_rate) *sample_rate = instance->sample_rate;
+		if (bits_per_sample) *bits_per_sample = instance->bits_per_sample;
 		return final;
 	}
 
