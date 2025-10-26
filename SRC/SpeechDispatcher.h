@@ -8,6 +8,8 @@ namespace Sral {
 	class SpeechDispatcher final : public Engine {
 	public:
 		bool Speak(const char* text, bool interrupt)override;
+		bool SpeakSsml(const char* ssml, bool interrupt)override;
+
 		bool Braille(const char* text)override;
 
 		bool SetParameter(int param, const void* value)override;
@@ -24,7 +26,7 @@ namespace Sral {
 		bool Initialize()override;
 		bool Uninitialize()override;
 		int GetFeatures()override {
-			return SRAL_SUPPORTS_SPEECH | SRAL_SUPPORTS_BRAILLE | SRAL_SUPPORTS_SPEECH_RATE | SRAL_SUPPORTS_SPEECH_VOLUME | SRAL_SUPPORTS_PAUSE_SPEECH | SRAL_SUPPORTS_SPELLING;
+			return SRAL_SUPPORTS_SPEECH | SRAL_SUPPORTS_BRAILLE | SRAL_SUPPORTS_SPEECH_RATE | SRAL_SUPPORTS_SPEECH_VOLUME | SRAL_SUPPORTS_PAUSE_SPEECH | SRAL_SUPPORTS_SPELLING | SRAL_SUPPORTS_SSML;
 		}
 		int GetKeyFlags()override {
 			return HANDLE_INTERRUPT | HANDLE_PAUSE_RESUME;

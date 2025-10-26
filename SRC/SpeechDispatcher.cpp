@@ -2,6 +2,7 @@
 #include "../Dep/utf-8.h"
 #include "SpeechDispatcher.h"
 #include <brlapi.h>
+#include "Encoding.h"
 
 namespace Sral {
 	bool SpeechDispatcher::Initialize() {
@@ -14,10 +15,13 @@ namespace Sral {
 			return false;
 		}
 
+		spd_set_data_mode(speech, SPD_DATA_SSML);
+
 		brailleInitialized = brlapi_openConnection(nullptr, nullptr) < 0 ? false : true;
 		brlapi_enterTtyMode(BRLAPI_TTY_DEFAULT, nullptr);
 		return true;
 	}
+
 	bool SpeechDispatcher::GetActive() {
 		return speech != nullptr;
 	}
@@ -33,19 +37,13 @@ namespace Sral {
 		}
 		return true;
 	}
-	bool SpeechDispatcher::Speak(const char* text, bool interrupt) {
-		if (speech == nullptr)return false;
-		if (interrupt) {
-			spd_stop(speech);
-			spd_cancel(speech);
-		}
-		if (this->paused) {
-			this->ResumeSpeech();
-			this->paused = false;
 
-		}
+	bool SpeechDispatcher::Speak(const char* text, bool interrupt) {
 		if (!enableSpelling) {
-			return spd_say(speech, SPD_IMPORTANT, text) != -1;
+			std::string text_str(text);
+			XmlEncode(text_str);
+			std::string final = "<speak>" + text_str + "</speak>";
+			return spd_say(speech, SPD_IMPORTANT, text_str.c_str()) != -1;
 		}
 		else {
 			utf8_iter iter;
@@ -57,6 +55,21 @@ namespace Sral {
 			return result;
 		}
 		return false;
+	}
+
+	bool SpeechDispatcher::SpeakSsml(const char* ssml, bool interrupt) {
+		if (speech == nullptr)return false;
+		if (interrupt) {
+			spd_stop(speech);
+			spd_cancel(speech);
+		}
+		if (this->paused) {
+			this->ResumeSpeech();
+			this->paused = false;
+
+		}
+
+		return spd_say(speech, SPD_IMPORTANT, ssml) != -1;
 	}
 
 	bool SpeechDispatcher::Braille(const char* text) {

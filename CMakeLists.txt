@@ -19,6 +19,7 @@ project ("SRAL")
 option (BUILD_SRAL_TEST "Build SRAL examples/tests" ON)
 add_library(${PROJECT_NAME}_obj OBJECT)
 target_sources(${PROJECT_NAME}_obj PRIVATE
+  "SRC/Encoding.h" "SRC/Encoding.cpp"
   "SRC/SRAL.cpp" "SRC/Engine.h" "SRC/Engine.cpp")
 target_sources(${PROJECT_NAME}_obj PUBLIC
   FILE_SET HEADERS
@@ -26,7 +27,6 @@ target_sources(${PROJECT_NAME}_obj PUBLIC
   FILES "${INCLUDES}/SRAL.h")
 if(WIN32)
   target_sources(${PROJECT_NAME}_obj PRIVATE
-    "SRC/Encoding.h" "SRC/Encoding.cpp"
     "SRC/NVDA.h" "SRC/NVDA.cpp" "SRC/SAPI.h" "SRC/SAPI.cpp"
     "Dep/blastspeak.h" "Dep/blastspeak.c" "Dep/fsapi.h" "Dep/fsapi.c" "Dep/nvda_control.h" "Dep/nvda_control.c"
     "SRC/Jaws.h" "SRC/Jaws.cpp" "SRC/UIA.cpp"

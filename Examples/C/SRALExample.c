@@ -207,7 +207,7 @@ int main(void) {
 
 	if (current_engine_features & SRAL_SUPPORTS_SSML) {
 		TEST_SECTION("SRAL_SpeakSsml (Default Engine)");
-		const char* ssml_test = "<speak>This is SSML text.</speak>";
+		const char* ssml_test = "<speak>This is <prosody pitch='150%'>SSML</prosody> text.</speak>";
 		CHECK_SRAL(SRAL_SpeakSsml(ssml_test, true), "SRAL_SpeakSsml");
 		sleep_ms(3000);
 
