@@ -110,6 +110,8 @@ static void output_thread() {
 			current_output.engine->Braille(current_output.text.c_str());
 
 	}
+	g_delayOperation = false;
+	g_lastDelayTime = 0;
 	g_outputThreadRunning.store(false);
 }
 
