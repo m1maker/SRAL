@@ -16,6 +16,8 @@ bool UnicodeConvert(const std::string& input, std::wstring& output) {
 	}
 	output.assign(wide_string.begin(), wide_string.end() - 1); // Remove null terminator
 	return true;
+#else
+	return false;
 #endif
 }
 
@@ -31,6 +33,8 @@ bool UnicodeConvert(const std::wstring& input, std::string& output) {
 	}
 	output.assign(multi_byte_string.begin(), multi_byte_string.end() - 1); // Remove null terminator
 	return true;
+#else
+	return false;
 #endif
 }
 

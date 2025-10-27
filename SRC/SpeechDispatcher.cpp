@@ -4,11 +4,39 @@
 #include <brlapi.h>
 #include "Encoding.h"
 #include <atomic>
-#include <stdio.h>
+#include <locale.h>
 
 std::atomic<bool> g_isSpeaking{false};
 
 namespace Sral {
+
+	// Tell me! How do I get a current voice in SPD?
+	// I couldn't find anything better than choosing the first available voice based on locale.
+	// If someone can do this differently and better, I would be very grateful!
+	int SpeechDispatcher::SetVoiceIndex() {
+		RefreshVoiceList();
+		if (!m_voiceList || m_voiceCount == 0) return 0;
+
+		const char* system_locale = setlocale(LC_ALL, "");
+		if (!system_locale) return 0;
+
+		std::string system_lang = system_locale;
+		system_lang = system_lang.substr(0, 5);
+		size_t index = system_lang.find('_');
+		if (index != std::string::npos) system_lang[index] = '-';
+		for (int i = 0; i < m_voiceCount; ++i) {
+			if (m_voiceList[i] && m_voiceList[i]->language) {
+				std::string voice_lang = m_voiceList[i]->language;
+				voice_lang = voice_lang.substr(0, 5);
+				if (voice_lang == system_lang) {
+					return i;
+				}
+			}
+		}
+
+		return 0;
+	}
+
 	bool SpeechDispatcher::Initialize() {
 		const auto* address = spd_get_default_address(nullptr);
 		if (address == nullptr) {
@@ -28,6 +56,8 @@ namespace Sral {
 		spd_set_notification_on(speech, SPD_END);
 		spd_set_notification_on(speech, SPD_CANCEL);
 
+		int index = this->SetVoiceIndex();
+		this->SetParameter(SRAL_PARAM_VOICE_INDEX, &index);
 		brailleInitialized = brlapi_openConnection(nullptr, nullptr) < 0 ? false : true;
 		brlapi_enterTtyMode(BRLAPI_TTY_DEFAULT, nullptr);
 		return true;
@@ -40,6 +70,9 @@ namespace Sral {
 	bool SpeechDispatcher::Uninitialize() {
 		if (speech == nullptr)return false;
 		g_isSpeaking.store(false);
+		ReleaseAllStrings();
+		ClearVoiceList();
+		m_voiceIndex = 0;
 		spd_close(speech);
 		speech = nullptr;
 
@@ -114,6 +147,17 @@ namespace Sral {
 		case SRAL_PARAM_ENABLE_SPELLING:
 			this->enableSpelling = *reinterpret_cast<const bool*>(value);
 			break;
+		case SRAL_PARAM_VOICE_INDEX: {
+			RefreshVoiceList();
+			if (!m_voiceList) return false;
+			int index = *reinterpret_cast<const int*>(value);
+			if (spd_set_synthesis_voice(speech, m_voiceList[index]->name) == 0) {
+				m_voiceIndex = index;
+				return true;
+			}
+			break;
+		}
+
 		default:
 			return false;
 		}
@@ -132,6 +176,31 @@ namespace Sral {
 		case SRAL_PARAM_ENABLE_SPELLING:
 			*(bool*)value = this->enableSpelling;
 			return true;
+		case SRAL_PARAM_VOICE_PROPERTIES: {
+			ReleaseAllStrings();
+			SRAL_VoiceInfo* voiceProperties = (SRAL_VoiceInfo*)value;
+			int index = 0;
+			RefreshVoiceList();
+			for (index; voiceProperties && m_voiceList && index < m_voiceCount; ++index) {
+				voiceProperties[index].index = index;
+				voiceProperties[index].name = AddString(m_voiceList[index]->name);
+				voiceProperties[index].language = AddString(m_voiceList[index]->language);
+				voiceProperties[index].gender = AddString(m_voiceList[index]->variant);
+				voiceProperties[index].vendor = AddString("Unknown");
+			}
+
+			return true;
+		}
+
+		case SRAL_PARAM_VOICE_COUNT:
+			RefreshVoiceList();
+			*(int*)value = m_voiceCount;
+			return true;
+
+		case SRAL_PARAM_VOICE_INDEX:
+			*(int*)value = m_voiceIndex;
+			return true;
+
 		default:
 			return false;
 		}
