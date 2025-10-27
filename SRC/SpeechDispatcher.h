@@ -12,6 +12,8 @@ namespace Sral {
 
 		bool Braille(const char* text)override;
 
+		bool IsSpeaking()override;
+
 		bool SetParameter(int param, const void* value)override;
 		bool GetParameter(int param, void* value) override;
 
@@ -29,13 +31,15 @@ namespace Sral {
 			return SRAL_SUPPORTS_SPEECH | SRAL_SUPPORTS_BRAILLE | SRAL_SUPPORTS_SPEECH_RATE | SRAL_SUPPORTS_SPEECH_VOLUME | SRAL_SUPPORTS_PAUSE_SPEECH | SRAL_SUPPORTS_SPELLING | SRAL_SUPPORTS_SSML;
 		}
 		int GetKeyFlags()override {
-			return HANDLE_INTERRUPT | HANDLE_PAUSE_RESUME;
+			return HANDLE_NONE;
 		}
 
 	private:
 		SPDConnection* speech = nullptr;
 		bool enableSpelling = false;
 		bool brailleInitialized = false;
+
+		static void SpeechNotificationCallback(size_t msg_id, size_t client_id, SPDNotificationType type);
 	};
 }
 #endif

@@ -3,6 +3,10 @@
 #include "SpeechDispatcher.h"
 #include <brlapi.h>
 #include "Encoding.h"
+#include <atomic>
+#include <stdio.h>
+
+std::atomic<bool> g_isSpeaking{false};
 
 namespace Sral {
 	bool SpeechDispatcher::Initialize() {
@@ -17,6 +21,13 @@ namespace Sral {
 
 		spd_set_data_mode(speech, SPD_DATA_SSML);
 
+		speech->callback_begin = &SpeechDispatcher::SpeechNotificationCallback;
+		speech->callback_end = &SpeechDispatcher::SpeechNotificationCallback;
+		speech->callback_cancel = &SpeechDispatcher::SpeechNotificationCallback;
+		spd_set_notification_on(speech, SPD_BEGIN);
+		spd_set_notification_on(speech, SPD_END);
+		spd_set_notification_on(speech, SPD_CANCEL);
+
 		brailleInitialized = brlapi_openConnection(nullptr, nullptr) < 0 ? false : true;
 		brlapi_enterTtyMode(BRLAPI_TTY_DEFAULT, nullptr);
 		return true;
@@ -25,8 +36,10 @@ namespace Sral {
 	bool SpeechDispatcher::GetActive() {
 		return speech != nullptr;
 	}
+
 	bool SpeechDispatcher::Uninitialize() {
 		if (speech == nullptr)return false;
+		g_isSpeaking.store(false);
 		spd_close(speech);
 		speech = nullptr;
 
@@ -82,6 +95,10 @@ namespace Sral {
 		return brlapi_writeText(0, text);
 	}
 
+	bool SpeechDispatcher::IsSpeaking() {
+		return g_isSpeaking.load();
+	}
+
 	bool SpeechDispatcher::SetParameter(int param, const void* value) {
 		if (speech == nullptr)return false;
 		switch (param) {
@@ -127,17 +144,31 @@ namespace Sral {
 		spd_cancel(speech);
 		return true;
 	}
+
 	bool SpeechDispatcher::PauseSpeech() {
 		if (!GetActive())return false;
 		this->paused = true;
 		return spd_pause(speech) == 0;
 	}
+
 	bool SpeechDispatcher::ResumeSpeech() {
 		if (!GetActive())return false;
 		this->paused = false;
 		return spd_resume(speech) == 0;
 	}
 
-
+	void SpeechDispatcher::SpeechNotificationCallback(size_t msg_id, size_t client_id, SPDNotificationType type) {
+		switch (type) {
+			case SPD_EVENT_BEGIN:
+				g_isSpeaking.store(true);
+				break;
+			case SPD_EVENT_END:
+			case SPD_EVENT_CANCEL:
+				g_isSpeaking.store(false);
+				break;
+			default:
+				return;
+		}
+	}
 }
 
