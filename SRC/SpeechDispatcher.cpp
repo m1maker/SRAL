@@ -87,6 +87,7 @@ namespace Sral {
 	bool SpeechDispatcher::Speak(const char* text, bool interrupt) {
 		if (!enableSpelling) {
 			std::string text_str(text);
+			if (text_str.empty()) return false;
 			XmlEncode(text_str);
 			std::string final = "<speak>" + text_str + "</speak>";
 			return this->SpeakSsml(text_str.c_str(), interrupt);
