@@ -41,8 +41,10 @@ endif()
 
 set_property(TARGET ${PROJECT_NAME}_obj
   PROPERTY POSITION_INDEPENDENT_CODE on)
+# TODO: Probably we shouldn't simply suppress these warnings
+target_compile_definitions(${PROJECT_NAME}_obj PRIVATE _CRT_SECURE_NO_WARNINGS)
 
-add_library(${PROJECT_NAME} SHARED
+  add_library(${PROJECT_NAME} SHARED
   $<TARGET_OBJECTS:${PROJECT_NAME}_obj>)
 add_library(${PROJECT_NAME}_static STATIC
   $<TARGET_OBJECTS:${PROJECT_NAME}_obj>)

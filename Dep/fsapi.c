@@ -9,10 +9,10 @@
 /* at Wed Aug 28 17:26:05 2013
  */
 /* Compiler settings for ..\..\FSAPI.IDL:
-    Oicf, W1, Zp8, env=Win32 (32b run), target_arch=X86 8.00.0595 
+    Oicf, W1, Zp8, env=Win32 (32b run), target_arch=X86 8.00.0595
     protocol : dce , ms_ext, c_ext, robust
-    error checks: allocation ref bounds_check enum stub_data 
-    VC __declspec() decoration level: 
+    error checks: allocation ref bounds_check enum stub_data
+    VC __declspec() decoration level:
          __declspec(uuid()), __declspec(selectany), __declspec(novtable)
          DECLSPEC_UUID(), MIDL_INTERFACE()
 */
@@ -23,7 +23,7 @@
 
 #ifdef __cplusplus
 extern "C"{
-#endif 
+#endif
 
 
 #include <rpc.h>
@@ -65,7 +65,7 @@ typedef IID CLSID;
 #define MIDL_DEFINE_GUID(type,name,l,w1,w2,b1,b2,b3,b4,b5,b6,b7,b8) \
         const type name = {l,w1,w2,{b1,b2,b3,b4,b5,b6,b7,b8}}
 
-#endif !_MIDL_USE_GUIDDEF_
+#endif // !_MIDL_USE_GUIDDEF_
 
 MIDL_DEFINE_GUID(IID, LIBID_FSAPILib,0xF152C4EF,0xB92F,0x4139,0xA9,0x01,0xE8,0xF1,0xE2,0x8C,0xC8,0xE0);
 

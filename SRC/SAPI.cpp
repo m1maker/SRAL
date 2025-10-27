@@ -319,7 +319,7 @@ namespace Sral {
 			ReleaseAllStrings();
 			SRAL_VoiceInfo* voiceProperties = (SRAL_VoiceInfo*)value;
 			int index = 0;
-			for (index; voiceProperties && instance && index < instance->voice_count; ++index) {
+			for (; voiceProperties && instance && index < instance->voice_count; ++index) {
 				voiceProperties[index].index = index;
 				voiceProperties[index].name = AddString(blastspeak_get_voice_description(&*instance, index));
 				voiceProperties[index].language = AddString(blastspeak_get_voice_languages(&*instance, index));
