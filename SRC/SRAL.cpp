@@ -97,6 +97,8 @@ static void output_thread() {
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
 
+		if (!g_delayOperation.load()) break;
+
 		if (current_output.speak) {
 			if (current_output.ssml)
 				current_output.engine->SpeakSsml(current_output.text.c_str(), current_output.interrupt);
