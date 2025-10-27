@@ -110,7 +110,6 @@ static void output_thread() {
 			current_output.engine->Braille(current_output.text.c_str());
 
 	}
-	std::unique_lock<std::mutex> lock(g_delayedOutputsMutex);
 	g_outputThreadRunning.store(false);
 }
 
