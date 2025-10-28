@@ -127,10 +127,36 @@ int read_arrow_key() {
 
 #else
 int read_arrow_key() {
-	if (_kbhit()) {
-		return _getch();
+	if (!_kbhit()) {
+		return static_cast<int>(KEY_CODE_NONE);
 	}
-	return 0;
+
+	int c = _getch();
+	if (c == EOF) {
+		return static_cast<int>(KEY_CODE_NONE);
+	}
+
+	if (c == 0 || c == 224) {
+		if (_kbhit()) {
+			int c2 = _getch();
+			switch (c2) {
+				case 72: return static_cast<int>(KEY_CODE_ARROW_UP);
+				case 80: return static_cast<int>(KEY_CODE_ARROW_DOWN);
+				case 75: return static_cast<int>(KEY_CODE_ARROW_LEFT);
+				case 77: return static_cast<int>(KEY_CODE_ARROW_RIGHT);
+				default: return c;
+			}
+		}
+
+		return c;
+	}
+
+	if (c == 27) return static_cast<int>(KEY_CODE_ESCAPE);
+	if (c == 9) return static_cast<int>(KEY_CODE_TAB);
+	if (c == 13) return static_cast<int>(KEY_CODE_ENTER);
+	if (c == 32) return static_cast<int>(KEY_CODE_SPACE);
+
+	return c;
 }
 
 #endif
