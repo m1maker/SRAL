@@ -37,6 +37,7 @@ enum EKeyCode : unsigned int {
 	KEY_CODE_NONE = 0,
 	KEY_CODE_ESCAPE = 27,
 	KEY_CODE_TAB = 9,
+	KEY_CODE_SHIFT_TAB = KEY_CODE_TAB + 0x41f,
 	KEY_CODE_ENTER = 13,
 	KEY_CODE_SPACE = 32,
 	KEY_CODE_Q = 'q',
@@ -110,6 +111,8 @@ int read_arrow_key() {
 						case 'B': return static_cast<int>(KEY_CODE_ARROW_DOWN);
 						case 'C': return static_cast<int>(KEY_CODE_ARROW_RIGHT);
 						case 'D': return static_cast<int>(KEY_CODE_ARROW_LEFT);
+						case 'Z': return static_cast<int>(KEY_CODE_SHIFT_TAB);
+
 						default: return c;
 					}
 				}
@@ -638,7 +641,7 @@ namespace Gui {
 				case KEY_CODE_TAB:
 					MoveFocusForward();
 					break;
-				case 112313:
+				case KEY_CODE_SHIFT_TAB:
 					MoveFocusBackward();
 					break;
 				case KEY_CODE_ENTER:
