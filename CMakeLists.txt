@@ -44,21 +44,30 @@ set_property(TARGET ${PROJECT_NAME}_obj
 # TODO: Probably we shouldn't simply suppress these warnings
 target_compile_definitions(${PROJECT_NAME}_obj PRIVATE _CRT_SECURE_NO_WARNINGS)
 
+if(BUILD_SHARED_LIBS)
   add_library(${PROJECT_NAME} SHARED
   $<TARGET_OBJECTS:${PROJECT_NAME}_obj>)
+  endif()
+
 add_library(${PROJECT_NAME}_static STATIC
   $<TARGET_OBJECTS:${PROJECT_NAME}_obj>)
 
+  if(BUILD_SHARED_LIBS)
 target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDES})
+endif()
+
 target_include_directories(${PROJECT_NAME}_static PUBLIC ${INCLUDES})
 
 install(TARGETS ${PROJECT_NAME}_obj FILE_SET HEADERS
   INCLUDES DESTINATION "include")
 
+  if(BUILD_SHARED_LIBS)
 install(TARGETS ${PROJECT_NAME}
   RUNTIME DESTINATION "bin"
   LIBRARY DESTINATION "lib"
   ARCHIVE DESTINATION "lib")
+  endif()
+
 install(TARGETS ${PROJECT_NAME}_static DESTINATION "lib")
 
 
@@ -73,17 +82,21 @@ if (BUILD_SRAL_TEST)
  add_executable(${PROJECT_NAME}_NVDAControleExConsole "Examples/C/NVDAControlExConsole.c" "Dep/nvda_control.c")
 endif()
  set(LIBS "uiautomationcore.lib")
+ if(BUILD_SHARED_LIBS)
   target_link_libraries(${PROJECT_NAME} ${LIBS})
+  endif()
   target_link_libraries(${PROJECT_NAME}_static ${LIBS})
 elseif (APPLE)
   enable_language(OBJCXX)
   set(CMAKE_C_COMPILER clang)
   set(CMAKE_CXX_COMPILER clang++)
+  if(BUILD_SHARED_LIBS)
   target_link_libraries(${PROJECT_NAME}
     "-framework AppKit"
     "-framework Foundation"
     "-framework AVFoundation"
   )
+  endif()
 
 if (BUILD_SRAL_TEST)
   target_link_libraries(${PROJECT_NAME}_test
@@ -96,14 +109,18 @@ else()
   find_package(PkgConfig REQUIRED)
   pkg_check_modules(SpeechD REQUIRED speech-dispatcher)
 
+  if(BUILD_SHARED_LIBS)
   target_link_libraries(${PROJECT_NAME} ${SpeechD_LIBRARIES})
+  endif()
 if (BUILD_SRAL_TEST)
   target_link_libraries(${PROJECT_NAME}_test ${SpeechD_LIBRARIES})
 
 endif()
 find_library(BRLAPI "libbrlapi.so")
   set(LIBS "${BRLAPI}")
+  if(BUILD_SHARED_LIBS)
   target_link_libraries(${PROJECT_NAME} ${LIBS})
+  endif()
 if (BUILD_SRAL_TEST)
   target_link_libraries(${PROJECT_NAME}_test ${LIBS})
 endif()
