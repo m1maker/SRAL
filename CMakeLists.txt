@@ -63,7 +63,7 @@ install(TARGETS ${PROJECT_NAME}_static DESTINATION "lib")
 
 
 if (BUILD_SRAL_TEST)
-add_executable(${PROJECT_NAME}_test "Examples/C/SRALExample.c" "Include/SRAL.h")
+add_executable(${PROJECT_NAME}_test "Examples/CPP/SRALExample.cpp" "Include/SRAL.h")
 
 target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME}_static)
 
