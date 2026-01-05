@@ -7,7 +7,9 @@
 #include "ZDSR.h"
 #include "SAPI.h"
 #include "Jaws.h"
+#ifndef SRAL_NO_UIA
 #include "UIA.h"
+#endif
 #include <windows.h>
 #include <tlhelp32.h>
 #elif defined(__APPLE__)
@@ -219,7 +221,9 @@ extern "C" SRAL_API bool SRAL_Initialize(int engines_exclude) {
 	g_engines[SRAL_ENGINE_NVDA] = std::make_unique<Sral::Nvda>();
 	g_engines[SRAL_ENGINE_JAWS] = std::make_unique<Sral::Jaws>();
 	g_engines[SRAL_ENGINE_ZDSR] = std::make_unique<Sral::Zdsr>();
+#ifndef SRAL_NO_UIA
 	g_engines[SRAL_ENGINE_UIA] = std::make_unique<Sral::Uia>();
+#endif
 	g_engines[SRAL_ENGINE_SAPI] = std::make_unique<Sral::Sapi>();
 #elif defined(__APPLE__)
 	g_engines[SRAL_ENGINE_VOICE_OVER] = std::make_unique<Sral::VoiceOver>();
@@ -317,7 +321,7 @@ static BOOL FindProcess(const wchar_t* name) {
 #endif
 static void speech_engine_update() {
 	if (!g_currentEngine || !g_currentEngine->GetActive() || g_currentEngine->GetNumber() == SRAL_ENGINE_SAPI || g_currentEngine->GetNumber() == SRAL_ENGINE_UIA || g_currentEngine->GetNumber() == SRAL_ENGINE_AV_SPEECH) {
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(SRAL_NO_UIA)
 		if (FindProcess(L"narrator.exe") == TRUE) {
 			g_currentEngine = get_engine(SRAL_ENGINE_UIA);
 			return;
@@ -330,10 +334,10 @@ static void speech_engine_update() {
 					break;
 				}
 			}
+#if defined(_WIN32) && !defined(SRAL_NO_UIA)
 		}
-#ifdef _WIN32
-	}
 #endif
+	}
 }
 
 extern "C" SRAL_API bool SRAL_Speak(const char* text, bool interrupt) {
