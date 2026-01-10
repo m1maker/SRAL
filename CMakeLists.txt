@@ -4,7 +4,10 @@
 cmake_minimum_required (VERSION 3.25)
 set(CMAKE_CXX_STANDARD 20)
 
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+# Allow runtime library to be set externally; default to dynamic if not set
+if(NOT CMAKE_MSVC_RUNTIME_LIBRARY)
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+endif()
 set(INCLUDES "Include")
 
 # Enable Hot Reload for MSVC compilers if supported.
@@ -17,6 +20,7 @@ endif()
 
 project ("SRAL")
 option (BUILD_SRAL_TEST "Build SRAL examples/tests" ON)
+option (SRAL_DISABLE_UIA "Disable UIA (UI Automation) support" OFF)
 add_library(${PROJECT_NAME}_obj OBJECT)
 target_sources(${PROJECT_NAME}_obj PRIVATE
   "SRC/Encoding.h" "SRC/Encoding.cpp"
@@ -29,8 +33,12 @@ if(WIN32)
   target_sources(${PROJECT_NAME}_obj PRIVATE
     "SRC/NVDA.h" "SRC/NVDA.cpp" "SRC/SAPI.h" "SRC/SAPI.cpp"
     "Dep/blastspeak.h" "Dep/blastspeak.c" "Dep/fsapi.h" "Dep/fsapi.c" "Dep/nvda_control.h" "Dep/nvda_control.c"
-    "SRC/Jaws.h" "SRC/Jaws.cpp" "SRC/UIA.cpp"
-    "Dep/UIAProvider.h" "Dep/UIAProvider.cpp" "Dep/wasapi.h" "Dep/wasapi.cpp" "SRC/ZDSR.h" "SRC/ZDSR.cpp")
+    "SRC/Jaws.h" "SRC/Jaws.cpp"
+    "Dep/wasapi.h" "Dep/wasapi.cpp" "SRC/ZDSR.h" "SRC/ZDSR.cpp")
+  if(NOT SRAL_DISABLE_UIA)
+    target_sources(${PROJECT_NAME}_obj PRIVATE
+      "SRC/UIA.cpp" "Dep/UIAProvider.h" "Dep/UIAProvider.cpp")
+  endif()
 elseif(APPLE)
   target_sources(${PROJECT_NAME}_obj PRIVATE
     "SRC/AVSpeech.h" "SRC/AVSpeech.mm" "SRC/VoiceOver.h" "SRC/VoiceOver.mm")
@@ -43,6 +51,9 @@ set_property(TARGET ${PROJECT_NAME}_obj
   PROPERTY POSITION_INDEPENDENT_CODE on)
 # TODO: Probably we shouldn't simply suppress these warnings
 target_compile_definitions(${PROJECT_NAME}_obj PRIVATE _CRT_SECURE_NO_WARNINGS)
+if(SRAL_DISABLE_UIA)
+  target_compile_definitions(${PROJECT_NAME}_obj PRIVATE SRAL_NO_UIA)
+endif()
 
 if(BUILD_SHARED_LIBS)
   add_library(${PROJECT_NAME} SHARED
@@ -81,11 +92,13 @@ if (WIN32)
 if (BUILD_SRAL_TEST)
  add_executable(${PROJECT_NAME}_NVDAControleExConsole "Examples/C/NVDAControlExConsole.c" "Dep/nvda_control.c")
 endif()
- set(LIBS "uiautomationcore.lib")
- if(BUILD_SHARED_LIBS)
-  target_link_libraries(${PROJECT_NAME} ${LIBS})
-  endif()
-  target_link_libraries(${PROJECT_NAME}_static ${LIBS})
+ if(NOT SRAL_DISABLE_UIA)
+   set(LIBS "uiautomationcore.lib")
+   if(BUILD_SHARED_LIBS)
+    target_link_libraries(${PROJECT_NAME} ${LIBS})
+   endif()
+   target_link_libraries(${PROJECT_NAME}_static ${LIBS})
+ endif()
 elseif (APPLE)
   enable_language(OBJCXX)
   set(CMAKE_C_COMPILER clang)
