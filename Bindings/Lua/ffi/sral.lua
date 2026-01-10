@@ -324,7 +324,7 @@ end
 
 -- The standard engine methods. These methods will be available per every engine.
 ---@class engine
----@field private index number
+---@field private __index number
 ---@field name string
 ---@field params {[string]: [number|table[]]}
 local engineMethods = {}
@@ -337,7 +337,7 @@ ffi.cdef "bool SRAL_SpeakEx(int engine, const char* text, bool interrupt);"
 ---@param interrupt boolean? A flag indicating whether to interrupt the current speech.
 ---@return boolean true if speaking was successful, false otherwise.
 function engineMethods:speak(text, interrupt)
-	return sraldll.SRAL_SpeakEx(self.index, text, type(interrupt) == "boolean" and interrupt or false)
+	return sraldll.SRAL_SpeakEx(self.__index, text, type(interrupt) == "boolean" and interrupt or false)
 end
 
 ffi.cdef "void* SRAL_SpeakToMemoryEx(int engine, const char* text, unsigned long long* buffer_size, int* channels, int* sample_rate, int* bits_per_sample);"
@@ -354,7 +354,7 @@ function engineMethods:speakToMemory(text)
 	local channels = ffi.new("int[1]")
 	local sampleRate = ffi.new("int[1]")
 	local bitsPerSample = ffi.new("int[1]")
-	local pcmBuffer = sraldll.SRAL_SpeakToMemoryEx(self.index, text, bufferSize, channels, sampleRate,
+	local pcmBuffer = sraldll.SRAL_SpeakToMemoryEx(self.__index, text, bufferSize, channels, sampleRate,
 		bitsPerSample)
 	return pcmBuffer,
 		ffi.tonumber(bufferSize[0]),
@@ -370,7 +370,7 @@ ffi.cdef "bool SRAL_SpeakSsmlEx(int engine, const char* ssml, bool interrupt);"
 ---@param interrupt boolean? A flag indicating whether to interrupt the current speech.
 ---@return boolean true if speaking was successful, false otherwise.
 function engineMethods:speakSSML(text, interrupt)
-	return sraldll.SRAL_SpeakSsmlEx(self.index, text, type(interrupt) == "boolean" and interrupt or false)
+	return sraldll.SRAL_SpeakSsmlEx(self.__index, text, type(interrupt) == "boolean" and interrupt or false)
 end
 
 ffi.cdef "bool SRAL_BrailleEx(int engine, const char* text);"
@@ -379,7 +379,7 @@ ffi.cdef "bool SRAL_BrailleEx(int engine, const char* text);"
 ---@param text string A pointer to the text string to be output in Braille.
 ---@return boolean true if Braille output was successful, false otherwise.
 function engineMethods:braille(text)
-	return sraldll.SRAL_BrailleEx(self.index, text)
+	return sraldll.SRAL_BrailleEx(self.__index, text)
 end
 
 ffi.cdef "bool SRAL_OutputEx(int engine, const char* text, bool interrupt);"
@@ -389,7 +389,7 @@ ffi.cdef "bool SRAL_OutputEx(int engine, const char* text, bool interrupt);"
 ---@param interrupt boolean? A flag indicating whether to interrupt the current speech.
 ---@return boolean true if output was successful, false otherwise.
 function engineMethods:output(text, interrupt)
-	return sraldll.SRAL_OutputEx(self.index, text, type(interrupt) == "boolean" and interrupt or false)
+	return sraldll.SRAL_OutputEx(self.__index, text, type(interrupt) == "boolean" and interrupt or false)
 end
 
 ffi.cdef "bool SRAL_StopSpeechEx(int engine);"
@@ -397,7 +397,7 @@ ffi.cdef "bool SRAL_StopSpeechEx(int engine);"
 ---Stop the current speech with the specified engine.
 ---@return boolean true if stop was successful, false otherwise.	
 function engineMethods:stopSpeech()
-	return sraldll.SRAL_StopSpeechEx(self.index)
+	return sraldll.SRAL_StopSpeechEx(self.__index)
 end
 
 ffi.cdef "bool SRAL_PauseSpeechEx(int engine);"
@@ -405,7 +405,7 @@ ffi.cdef "bool SRAL_PauseSpeechEx(int engine);"
 ---Pause speech if it is active and the current speech engine supports this with the specified engine.
 ---@return boolean true if pause was successful, false otherwise.
 function engineMethods:pauseSpeech()
-	return sraldll.SRAL_PauseSpeechEx(self.index)
+	return sraldll.SRAL_PauseSpeechEx(self.__index)
 end
 
 ffi.cdef "bool SRAL_ResumeSpeechEx(int engine);"
@@ -413,7 +413,7 @@ ffi.cdef "bool SRAL_ResumeSpeechEx(int engine);"
 ---Resume speech if it was active and the current speech engine supports this with the specified engine.
 ---@return boolean true if resume was successful, false otherwise.
 function engineMethods:resumeSpeech()
-	return sraldll.SRAL_ResumeSpeechEx(self.index)
+	return sraldll.SRAL_ResumeSpeechEx(self.__index)
 end
 
 ffi.cdef "bool SRAL_IsSpeakingEx(int engine);"
@@ -421,7 +421,7 @@ ffi.cdef "bool SRAL_IsSpeakingEx(int engine);"
 ---Get status, does this engine speak now with the specified engine.
 ---@return boolean true if the engine is currently speaking, false otherwise.
 function engineMethods:isSpeaking()
-	return sraldll.SRAL_IsSpeakingEx(self.index)
+	return sraldll.SRAL_IsSpeakingEx(self.__index)
 end
 
 ffi.cdef "int SRAL_GetEngineFeatures(int engine);"
@@ -429,7 +429,7 @@ ffi.cdef "int SRAL_GetEngineFeatures(int engine);"
 ---returns supported features for the engine
 ---@return {string : boolean} the table with features in the keys and boolean value if feature is supported
 function engineMethods:features()
-	local rawFeatures = sraldll.SRAL_GetEngineFeatures(self.index)
+	local rawFeatures = sraldll.SRAL_GetEngineFeatures(self.__index)
 	local retval = {}
 	for featureName, feature in pairs(sralFeatures) do
 		retval[featureName] = band(rawFeatures, feature) ~= 0
@@ -516,15 +516,15 @@ ffi.cdef "const char* SRAL_GetEngineName(int engine);"
 -- The indexing of engine. Used in the engine metatable.
 local function engineIndex(self, key)
 	if key == "params" then
-		return initParams(self.index)
+		return initParams(self.__index)
 	elseif key == "name" then
-		return ffi.string(sraldll.SRAL_GetEngineName(self.index))
+		return ffi.string(sraldll.SRAL_GetEngineName(self.__index))
 	end
 	return engineMethods[key]
 end
 
 local function initEngine(engine)
-	local e = setmetatable({ index = engine }, { __name = "sral_engine", __type = "sral_engine", __index = engineIndex })
+	local e = setmetatable({ __index = engine }, { __name = "sral_engine", __type = "sral_engine", __index = engineIndex })
 	return e
 end
 
