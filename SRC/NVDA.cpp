@@ -9,7 +9,11 @@ namespace Sral {
 		if (r == 0) {
 			return true;
 		}
+#ifdef _WIN64
+		lib = LoadLibraryW(L"nvdaControllerClient64.dll");
+#else
 		lib = LoadLibraryW(L"nvdaControllerClient.dll");
+#endif
 		if (lib == nullptr) {
 			return false;
 		}
