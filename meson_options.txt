@@ -1,0 +1,2 @@
+option('build_sral_test', type : 'boolean', value : true, description : 'Build SRAL examples/tests')
+option('sral_disable_uia', type : 'boolean', value : false, description : 'Disable UIA (UI Automation) support')
