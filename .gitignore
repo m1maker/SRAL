@@ -37,3 +37,4 @@ build/
 Release/
 *.pyc
 *.pyd
+.*DS_Store

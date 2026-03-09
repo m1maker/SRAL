@@ -41,7 +41,7 @@ if(WIN32)
   endif()
 elseif(APPLE)
   target_sources(${PROJECT_NAME}_obj PRIVATE
-    "SRC/AVSpeech.h" "SRC/AVSpeech.mm" "SRC/VoiceOver.h" "SRC/VoiceOver.mm")
+    "SRC/AVSpeech.h" "SRC/AVSpeech.mm" "SRC/NSSpeech.h" "SRC/NSSpeech.mm" "SRC/VoiceOver.h" "SRC/VoiceOver.mm")
 else()
   target_sources(${PROJECT_NAME}_obj PRIVATE
      "Dep/utf-8.h" "Dep/utf-8.c" "SRC/SpeechDispatcher.h" "SRC/SpeechDispatcher.cpp")

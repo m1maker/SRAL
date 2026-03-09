@@ -14,6 +14,7 @@
 #include <tlhelp32.h>
 #elif defined(__APPLE__)
 #include "AVSpeech.h"
+#include "NSSpeech.h"
 #include "VoiceOver.h"
 #else
 #include "SpeechDispatcher.h"
@@ -228,6 +229,7 @@ extern "C" SRAL_API bool SRAL_Initialize(int engines_exclude) {
 #elif defined(__APPLE__)
 	g_engines[SRAL_ENGINE_VOICE_OVER] = std::make_unique<Sral::VoiceOver>();
 	g_engines[SRAL_ENGINE_AV_SPEECH] = std::make_unique<Sral::AvSpeech>();
+	g_engines[SRAL_ENGINE_NS_SPEECH] = std::make_unique<Sral::NsSpeech>();
 #else
 	g_engines[SRAL_ENGINE_SPEECH_DISPATCHER] = std::make_unique<Sral::SpeechDispatcher>();
 #endif
@@ -606,6 +608,7 @@ extern "C" SRAL_API const char* SRAL_GetEngineName(int engine) {
 		case SRAL_ENGINE_SPEECH_DISPATCHER: return "Speech Dispatcher";
 		case SRAL_ENGINE_UIA: return "UIA";
 		case SRAL_ENGINE_AV_SPEECH: return "AV Speech";
+		case SRAL_ENGINE_NS_SPEECH: return "NS Speech";
 		case SRAL_ENGINE_NARRATOR: return "Narrator";
 		case SRAL_ENGINE_VOICE_OVER: return "Voice Over";
 		case SRAL_ENGINE_ZDSR: return "ZDSR";
