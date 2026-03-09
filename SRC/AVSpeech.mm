@@ -31,17 +31,23 @@ bool Initialize() {
 bool Uninitialize(){
  return true;
 }
+
 bool Speak(const char* text, bool interrupt){
- if (interrupt && synth.isSpeaking)[synth stopSpeakingAtBoundary:AVSpeechBoundaryImmediate];
- NSString *nstext = [NSString stringWithUTF8String:text];
- AVSpeechUtterance *utterance = [[AVSpeechUtterance alloc] initWithString:nstext];
- utterance.rate = rate;
- utterance.volume = volume;
- utterance.voice = currentVoice;
- this->utterance = utterance;
- [synth speakUtterance:this->utterance];
- return synth.isSpeaking;
+  if (synth == nil) return false;
+  if (interrupt && synth.isSpeaking) {
+    [synth stopSpeakingAtBoundary:AVSpeechBoundaryImmediate];
+  }
+  NSString *nstext = [NSString stringWithUTF8String:text];
+  if (nstext == nil) return false;
+  AVSpeechUtterance *utterance = [[AVSpeechUtterance alloc] initWithString:nstext];
+  utterance.rate = rate;
+  utterance.volume = volume;
+  utterance.voice = currentVoice;
+  this->utterance = utterance;
+  [synth speakUtterance:this->utterance];
+  return true; // because IsSpeaking hasn't changed yet
 }
+
 bool StopSpeech(){
  if (synth.isSpeaking) return [synth stopSpeakingAtBoundary:AVSpeechBoundaryImmediate];
  return false;
