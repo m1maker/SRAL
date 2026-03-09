@@ -41,7 +41,7 @@ if host_os == 'windows'
 
 elif host_os == 'darwin'
   add_languages('objcpp')
-  sral_sources += ['SRC/AVSpeech.mm', 'SRC/VoiceOver.mm']
+  sral_sources += ['SRC/AVSpeech.mm', 'SRC/VoiceOver.mm', 'SRC/NSSpeech.mm']
   sral_deps += dependency('appleframeworks', modules : ['AppKit', 'Foundation', 'AVFoundation'])
 
 else
