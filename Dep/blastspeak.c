@@ -195,13 +195,18 @@ extern "C" {
         OLECHAR* voice_names[] = {L"AllowAudioOutputFormatChangesOnNextSet", L"AudioOutputStream", L"GetVoices", L"Rate", L"Speak", L"Status", L"Voice", L"Volume"};
         OLECHAR* voice_token_names[] = {L"GetAttribute", L"GetDescription"};
         OLECHAR* voice_collection_names[] = {L"Count", L"Item"};
+        OLECHAR* voice_category_names[] = {L"EnumerateTokens", L"SetId"};
+        OLECHAR* voice_category_id = L"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Speech\\Voices";
         OLECHAR* memory_stream_names[] = {L"GetData", L"Format", L"SetData"};
         IDispatch* stream;
+        IDispatch* voice_category = NULL;
         HRESULT hr;
         DISPPARAMS parameters;
         VARIANT return_value;
         UINT puArgErr;
         DISPID voice_collection_dispids[2];
+        DISPID voice_category_dispids[2];
+        CLSID voice_category_clsid;
         LONG voice_count = 0;
 
         instance->allocated_memory = NULL;
@@ -286,72 +291,118 @@ extern "C" {
             }
         }
 
-        hr = instance->voice->lpVtbl->Invoke ( instance->voice, instance->voice_dispids[2], &BS_IID_null, LOCALE_SYSTEM_DEFAULT, DISPATCH_METHOD, &parameters, &return_value, NULL, &puArgErr );
-        if ( FAILED ( hr ) )
-        {
-            instance->default_voice_token->lpVtbl->Release ( instance->default_voice_token );
-            instance->voice->lpVtbl->Release ( instance->voice );
-            CoUninitialize();
-            return 0;
-        }
-
-        if ( return_value.vt != VT_DISPATCH )
-        {
-            VariantClear ( &return_value );
-            instance->default_voice_token->lpVtbl->Release ( instance->default_voice_token );
-            instance->voice->lpVtbl->Release ( instance->voice );
-            CoUninitialize();
-            return 0;
-        }
-
-        instance->voices = return_value.pdispVal;
-
-        for ( puArgErr = 0; puArgErr < 2; ++puArgErr )
-        {
-            hr = instance->voices->lpVtbl->GetIDsOfNames ( instance->voices, &BS_IID_null, &voice_collection_names[puArgErr], 1, LOCALE_SYSTEM_DEFAULT, &voice_collection_dispids[puArgErr] );
-            if ( FAILED ( hr ) )
-            {
-                instance->voices->lpVtbl->Release ( instance->voices );
-                instance->default_voice_token->lpVtbl->Release ( instance->default_voice_token );
-                instance->voice->lpVtbl->Release ( instance->voice );
-                CoUninitialize();
-                return 0;
-            }
-        }
-
-        hr = instance->voices->lpVtbl->Invoke ( instance->voices, voice_collection_dispids[0], &BS_IID_null, LOCALE_SYSTEM_DEFAULT, DISPATCH_PROPERTYGET, &parameters, &return_value, NULL, &puArgErr );
-        if ( FAILED ( hr ) )
-        {
-            instance->voices->lpVtbl->Release ( instance->voices );
-            instance->default_voice_token->lpVtbl->Release ( instance->default_voice_token );
-            instance->voice->lpVtbl->Release ( instance->voice );
-            CoUninitialize();
-            return 0;
-        }
-        if ( return_value.vt == VT_I4 )
-        {
-            voice_count = return_value.lVal;
-        }
-        else
-        {
-            VariantClear ( &return_value );
-        }
-        if ( voice_count <= 0 )
-        {
-            instance->voices->lpVtbl->Release ( instance->voices );
-            instance->default_voice_token->lpVtbl->Release ( instance->default_voice_token );
-            instance->voice->lpVtbl->Release ( instance->voice );
-            CoUninitialize();
-            return 0;
-        }
-        instance->voice_count = ( unsigned int ) voice_count;
-        instance->voice_collection_item_dispid = voice_collection_dispids[1];
+        instance->voices = NULL;
+        instance->voice_count = 1;
+        instance->voice_collection_item_dispid = DISPID_UNKNOWN;
         instance->format = NULL;
         instance->current_voice_token = NULL;
 
+        hr = CLSIDFromProgID ( L"SAPI.SpObjectTokenCategory", &voice_category_clsid );
+        if ( SUCCEEDED ( hr ) )
+        {
+            hr = CoCreateInstance ( &voice_category_clsid, NULL, CLSCTX_INPROC_SERVER, &BS_IID_IDispatch, ( void** ) &voice_category );
+        }
+
+        if ( SUCCEEDED ( hr ) && voice_category != NULL )
+        {
+            VARIANT arguments[2];
+
+            for ( puArgErr = 0; puArgErr < 2; ++puArgErr )
+            {
+                hr = voice_category->lpVtbl->GetIDsOfNames ( voice_category, &BS_IID_null, &voice_category_names[puArgErr], 1, LOCALE_SYSTEM_DEFAULT, &voice_category_dispids[puArgErr] );
+                if ( FAILED ( hr ) )
+                {
+                    break;
+                }
+            }
+
+            if ( SUCCEEDED ( hr ) )
+            {
+                hr = InitVariantFromString ( voice_category_id, &arguments[1] );
+                if ( SUCCEEDED ( hr ) )
+                {
+                    arguments[0].vt = VT_BOOL;
+                    arguments[0].boolVal = VARIANT_FALSE;
+
+                    parameters.rgvarg = arguments;
+                    parameters.cArgs = 2;
+                    parameters.rgdispidNamedArgs = NULL;
+                    parameters.cNamedArgs = 0;
+
+                    hr = voice_category->lpVtbl->Invoke ( voice_category, voice_category_dispids[1], &BS_IID_null, LOCALE_SYSTEM_DEFAULT, DISPATCH_METHOD, &parameters, &return_value, NULL, &puArgErr );
+                    VariantClear ( &arguments[1] );
+                    if ( SUCCEEDED ( hr ) )
+                    {
+                        VariantClear ( &return_value );
+                    }
+                }
+            }
+
+            parameters.rgvarg = NULL;
+            parameters.cArgs = 0;
+            parameters.rgdispidNamedArgs = NULL;
+            parameters.cNamedArgs = 0;
+
+            if ( SUCCEEDED ( hr ) )
+            {
+                hr = voice_category->lpVtbl->Invoke ( voice_category, voice_category_dispids[0], &BS_IID_null, LOCALE_SYSTEM_DEFAULT, DISPATCH_METHOD, &parameters, &return_value, NULL, &puArgErr );
+                if ( SUCCEEDED ( hr ) && return_value.vt == VT_DISPATCH )
+                {
+                    instance->voices = return_value.pdispVal;
+                }
+                else if ( SUCCEEDED ( hr ) )
+                {
+                    VariantClear ( &return_value );
+                }
+            }
+        }
+
+        if ( voice_category != NULL )
+        {
+            voice_category->lpVtbl->Release ( voice_category );
+        }
+
+        if ( instance->voices != NULL )
+        {
+            for ( puArgErr = 0; puArgErr < 2; ++puArgErr )
+            {
+                hr = instance->voices->lpVtbl->GetIDsOfNames ( instance->voices, &BS_IID_null, &voice_collection_names[puArgErr], 1, LOCALE_SYSTEM_DEFAULT, &voice_collection_dispids[puArgErr] );
+                if ( FAILED ( hr ) )
+                {
+                    instance->voices->lpVtbl->Release ( instance->voices );
+                    instance->voices = NULL;
+                    break;
+                }
+            }
+        }
+
+        if ( instance->voices != NULL )
+        {
+            hr = instance->voices->lpVtbl->Invoke ( instance->voices, voice_collection_dispids[0], &BS_IID_null, LOCALE_SYSTEM_DEFAULT, DISPATCH_PROPERTYGET, &parameters, &return_value, NULL, &puArgErr );
+            if ( SUCCEEDED ( hr ) && return_value.vt == VT_I4 && return_value.lVal > 0 )
+            {
+                voice_count = return_value.lVal;
+                instance->voice_count = ( unsigned int ) voice_count;
+                instance->voice_collection_item_dispid = voice_collection_dispids[1];
+                VariantClear ( &return_value );
+            }
+            else
+            {
+                if ( SUCCEEDED ( hr ) )
+                {
+                    VariantClear ( &return_value );
+                }
+                instance->voices->lpVtbl->Release ( instance->voices );
+                instance->voices = NULL;
+            }
+        }
+
         if ( blastspeak_get_stream_format ( instance, 1, &instance->sample_rate, &instance->bits_per_sample, &instance->channels ) == 0 )
         {
-            instance->voices->lpVtbl->Release ( instance->voices );
+            if ( instance->voices )
+            {
+                instance->voices->lpVtbl->Release ( instance->voices );
+            }
             instance->default_voice_token->lpVtbl->Release ( instance->default_voice_token );
             instance->voice->lpVtbl->Release ( instance->voice );
             CoUninitialize();
@@ -367,10 +418,22 @@ extern "C" {
         {
             free ( instance->allocated_memory );
         }
-        instance->voice->lpVtbl->Release ( instance->voice );
-        instance->voices->lpVtbl->Release ( instance->voices );
-        instance->default_voice_token->lpVtbl->Release ( instance->default_voice_token );
-        instance->format->lpVtbl->Release ( instance->format );
+        if ( instance->voice )
+        {
+            instance->voice->lpVtbl->Release ( instance->voice );
+        }
+        if ( instance->voices )
+        {
+            instance->voices->lpVtbl->Release ( instance->voices );
+        }
+        if ( instance->default_voice_token )
+        {
+            instance->default_voice_token->lpVtbl->Release ( instance->default_voice_token );
+        }
+        if ( instance->format )
+        {
+            instance->format->lpVtbl->Release ( instance->format );
+        }
         if ( instance->current_voice_token )
         {
             instance->current_voice_token->lpVtbl->Release ( instance->current_voice_token );
@@ -462,6 +525,16 @@ extern "C" {
         if ( voice_index >= instance->voice_count )
         {
             return NULL;
+        }
+
+        if ( instance->voices == NULL )
+        {
+            if ( voice_index != 0 || instance->default_voice_token == NULL )
+            {
+                return NULL;
+            }
+            instance->default_voice_token->lpVtbl->AddRef ( instance->default_voice_token );
+            return instance->default_voice_token;
         }
 
         parameters.rgvarg = &argument;

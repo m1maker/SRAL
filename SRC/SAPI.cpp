@@ -96,10 +96,12 @@ static std::vector<PCMData> g_dataQueue;
 static std::mutex g_dataQueueMutex;
 static std::condition_variable g_dataQueueCv;
 static std::atomic<bool> g_threadStarted = false;
+static std::atomic<bool> g_isSpeaking = false;
 
 static void sapi_thread() {
 	if (g_player == nullptr) {
 		g_threadStarted.store(false);
+		g_isSpeaking.store(false);
 	}
 	while (g_threadStarted.load()) {
 		PCMData current_data;
@@ -117,6 +119,7 @@ static void sapi_thread() {
 			current_data = g_dataQueue.front();
 			g_dataQueue.erase(g_dataQueue.begin());
 		}
+		g_isSpeaking.store(true);
 
 		if (current_data.data) {
 			auto result = safeCallVal<WasapiPlayer, HRESULT>(g_player.get(), &WasapiPlayer::feed, current_data.data, current_data.size, nullptr);
@@ -124,6 +127,13 @@ static void sapi_thread() {
 
 			if (result.has_value() && SUCCEEDED(*result)) {
 				result = safeCallVal<WasapiPlayer, HRESULT>(g_player.get(), &WasapiPlayer::sync);
+			}
+		}
+
+		{
+			std::unique_lock<std::mutex> lock(g_dataQueueMutex);
+			if (g_dataQueue.empty()) {
+				g_isSpeaking.store(false);
 			}
 		}
 	}
@@ -135,6 +145,7 @@ static void sapi_thread() {
 		}
 	}
 	g_dataQueue.clear();
+	g_isSpeaking.store(false);
 }
 
 namespace Sral {
@@ -193,6 +204,7 @@ namespace Sral {
 		if (g_player) {
 			g_player.reset();
 		}
+		g_isSpeaking.store(false);
 		return true;
 	}
 
@@ -231,6 +243,7 @@ namespace Sral {
 				return false;
 			}
 			g_threadStarted = true;
+			g_isSpeaking.store(false);
 			speechThread = std::thread(sapi_thread);
 			speechThread.detach();
 		}
@@ -251,6 +264,7 @@ namespace Sral {
 			std::unique_lock<std::mutex> lock(g_dataQueueMutex);
 			g_dataQueue.push_back(dat);
 		}
+		g_isSpeaking.store(true);
 		g_dataQueueCv.notify_one();
 		return true;
 	}
@@ -272,7 +286,7 @@ namespace Sral {
 	}
 
 	bool Sapi::IsSpeaking() {
-		return !paused && !g_dataQueue.empty();
+		return !paused && g_isSpeaking.load();
 	}
 
 	bool Sapi::SetParameter(int param, const void* value) {
@@ -356,6 +370,7 @@ namespace Sral {
 		}
 		g_player->stop();
 		this->paused = false;
+		g_isSpeaking.store(false);
 		return true;
 	}
 
@@ -365,6 +380,12 @@ namespace Sral {
 	}
 	bool Sapi::ResumeSpeech() {
 		paused = false;
+		{
+			std::unique_lock<std::mutex> lock(g_dataQueueMutex);
+			if (!g_dataQueue.empty()) {
+				g_isSpeaking.store(true);
+			}
+		}
 		return SUCCEEDED(g_player->resume());
 	}
 
