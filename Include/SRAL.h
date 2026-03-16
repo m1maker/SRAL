@@ -76,14 +76,14 @@ SRAL_ENGINE_SPEECH_DISPATCHER = 1 << 7,
 
 // --- Apple Screen Readers (macOS, iOS, etc.) ---
 
-SRAL_ENGINE_NS_SPEECH = 1 << 8,
-
-
 /** @brief Apple VoiceOver, the built-in screen reader on macOS, iOS, and other Apple platforms. */
 
-SRAL_ENGINE_VOICE_OVER = 1 << 9,
+SRAL_ENGINE_VOICE_OVER = 1 << 8,
 
 // --- Apple Speech Synthesis Engines (macOS, iOS, etc.) ---
+
+SRAL_ENGINE_NS_SPEECH = 1 << 9,
+
 /** @brief AVFoundation Speech Synthesizer (AVSpeechSynthesizer), for text-to-speech on Apple platforms. */
 SRAL_ENGINE_AV_SPEECH = 1 << 10
 	};

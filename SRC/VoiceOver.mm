@@ -42,6 +42,8 @@ namespace Sral {
 #if TARGET_OS_IOS || TARGET_OS_TV
 		return UIAccessibilityIsVoiceOverRunning() == YES ? true : false;
 #elif TARGET_OS_OSX
+		// VoiceOver depends on a running NSApp, so return false if none is running
+		if (NSApp == nil) return false;
 		return [[NSWorkspace sharedWorkspace] isVoiceOverEnabled];
 #endif
 	}

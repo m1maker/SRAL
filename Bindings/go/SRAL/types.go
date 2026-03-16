@@ -21,10 +21,10 @@ const (
 	SAPIEngine
 	// SpeechDispatcherEngine — Speech Dispatcher, a common daemon for Linux systems.
 	SpeechDispatcherEngine
-	// NSSpeechEngine — Apple NSSpeechSynthesizer.
-	NSSpeechEngine
 	// VoiceOverEngine — Apple VoiceOver, the built-in screen reader on Apple platforms.
 	VoiceOverEngine
+	// NSSpeechEngine — Apple NSSpeechSynthesizer.
+	NSSpeechEngine
 	// AVSpeechEngine — AVFoundation Speech Synthesizer (AVSpeechSynthesizer) for Apple platforms.
 	AVSpeechEngine
 	// AllEngines is a bitmask of all supported engines.
