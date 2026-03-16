@@ -47,29 +47,29 @@
     [self.engineLabel setStringValue:
         [NSString stringWithFormat:@"Engine: %s", name ? name : "Unknown"]];
 
+    // Continuously poll engine and speaking status
+    self.speakingTimer = [NSTimer scheduledTimerWithTimeInterval:0.1
+                                                          target:self
+                                                        selector:@selector(updateStatus:)
+                                                        userInfo:nil
+                                                         repeats:YES];
+
     [self.window makeKeyAndOrderFront:nil];
     [NSApp activateIgnoringOtherApps:YES];
 }
 
 - (void)speakClicked:(id)sender {
     SRAL_Speak("Hello, this is a test of the SRAL library.", true);
-    [self.speakingLabel setStringValue:@"Speaking: Yes"];
-
-    // Poll speaking status to update the label
-    [self.speakingTimer invalidate];
-    self.speakingTimer = [NSTimer scheduledTimerWithTimeInterval:0.1
-                                                         target:self
-                                                       selector:@selector(updateSpeakingStatus:)
-                                                       userInfo:nil
-                                                        repeats:YES];
 }
 
-- (void)updateSpeakingStatus:(NSTimer *)timer {
-    if (!SRAL_IsSpeaking()) {
-        [self.speakingLabel setStringValue:@"Speaking: No"];
-        [timer invalidate];
-        self.speakingTimer = nil;
-    }
+- (void)updateStatus:(NSTimer *)timer {
+    int engine = SRAL_GetCurrentEngine();
+    const char *name = SRAL_GetEngineName(engine);
+    [self.engineLabel setStringValue:
+        [NSString stringWithFormat:@"Engine: %s", name ? name : "None"]];
+
+    [self.speakingLabel setStringValue:
+        SRAL_IsSpeaking() ? @"Speaking: Yes" : @"Speaking: No"];
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {
