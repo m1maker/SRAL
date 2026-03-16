@@ -1,6 +1,7 @@
 from enum import IntEnum
 import ctypes
 import os
+import sys
 
 # --- Load the SRAL C Library ---
 try:
@@ -28,7 +29,8 @@ class SRALEngine(IntEnum):
     SAPI = 1 << 6
     SPEECH_DISPATCHER = 1 << 7
     VOICE_OVER = 1 << 8
-    AV_SPEECH = 1 << 9
+    NS_SPEECH = 1 << 9
+    AV_SPEECH = 1 << 10
 
 class SRALFeature(IntEnum):
     """

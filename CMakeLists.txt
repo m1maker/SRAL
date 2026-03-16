@@ -100,6 +100,7 @@ endif()
    target_link_libraries(${PROJECT_NAME}_static ${LIBS})
  endif()
 elseif (APPLE)
+  enable_language(OBJC)
   enable_language(OBJCXX)
   set(CMAKE_C_COMPILER clang)
   set(CMAKE_CXX_COMPILER clang++)
@@ -113,6 +114,14 @@ elseif (APPLE)
 
 if (BUILD_SRAL_TEST)
   target_link_libraries(${PROJECT_NAME}_test
+    "-framework AppKit"
+    "-framework Foundation"
+    "-framework AVFoundation"
+  )
+
+  add_executable(${PROJECT_NAME}_test_cocoa "Examples/ObjC/SRALCocoaExample.m" "Include/SRAL.h")
+  target_link_libraries(${PROJECT_NAME}_test_cocoa
+    ${PROJECT_NAME}_static
     "-framework AppKit"
     "-framework Foundation"
     "-framework AVFoundation"
