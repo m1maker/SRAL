@@ -21,6 +21,7 @@ endif()
 project ("SRAL")
 option (BUILD_SRAL_TEST "Build SRAL examples/tests" ON)
 option (SRAL_DISABLE_UIA "Disable UIA (UI Automation) support" OFF)
+option (SRAL_DISABLE_NSSPEECH "Disable NSSpeech (macOS-only NSSpeechSynthesizer) support" OFF)
 add_library(${PROJECT_NAME}_obj OBJECT)
 target_sources(${PROJECT_NAME}_obj PRIVATE
   "SRC/Encoding.h" "SRC/Encoding.cpp"
@@ -41,7 +42,11 @@ if(WIN32)
   endif()
 elseif(APPLE)
   target_sources(${PROJECT_NAME}_obj PRIVATE
-    "SRC/AVSpeech.h" "SRC/AVSpeech.mm" "SRC/NSSpeech.h" "SRC/NSSpeech.mm" "SRC/VoiceOver.h" "SRC/VoiceOver.mm")
+    "SRC/AVSpeech.h" "SRC/AVSpeech.mm" "SRC/VoiceOver.h" "SRC/VoiceOver.mm")
+  if(NOT SRAL_DISABLE_NSSPEECH)
+    target_sources(${PROJECT_NAME}_obj PRIVATE
+      "SRC/NSSpeech.h" "SRC/NSSpeech.mm")
+  endif()
 else()
   target_sources(${PROJECT_NAME}_obj PRIVATE
      "Dep/utf-8.h" "Dep/utf-8.c" "SRC/SpeechDispatcher.h" "SRC/SpeechDispatcher.cpp")
@@ -53,6 +58,9 @@ set_property(TARGET ${PROJECT_NAME}_obj
 target_compile_definitions(${PROJECT_NAME}_obj PRIVATE _CRT_SECURE_NO_WARNINGS)
 if(SRAL_DISABLE_UIA)
   target_compile_definitions(${PROJECT_NAME}_obj PRIVATE SRAL_NO_UIA)
+endif()
+if(SRAL_DISABLE_NSSPEECH)
+  target_compile_definitions(${PROJECT_NAME}_obj PRIVATE SRAL_NO_NSSPEECH)
 endif()
 
 if(BUILD_SHARED_LIBS)
