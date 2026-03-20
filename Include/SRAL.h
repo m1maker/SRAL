@@ -85,7 +85,10 @@ SRAL_ENGINE_VOICE_OVER = 1 << 8,
 SRAL_ENGINE_NS_SPEECH = 1 << 9,
 
 /** @brief AVFoundation Speech Synthesizer (AVSpeechSynthesizer), for text-to-speech on Apple platforms. */
-SRAL_ENGINE_AV_SPEECH = 1 << 10
+SRAL_ENGINE_AV_SPEECH = 1 << 10,
+
+// --- Android Speech Synthesis Engines ---
+SRAL_ENGINE_ANDROID_TEXT_TO_SPEECH = 1 << 11
 	};
 
 	/**

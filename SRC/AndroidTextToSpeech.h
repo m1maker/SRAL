@@ -14,7 +14,7 @@ namespace Sral {
 		bool SpeakSsml(const char* ssml, bool interrupt)override {
 			return false;
 		}
-		void* SpeakToMemory(const char* text, uint64_t* buffer_size, int* channels, int* sample_rate, int* bits_per_sample)override { return false;}
+		void* SpeakToMemory(const char* text, uint64_t* buffer_size, int* channels, int* sample_rate, int* bits_per_sample)override { return nullptr;}
 		bool SetParameter(int param, const void* value)override;
 		bool GetParameter(int param, void* value) override;
 

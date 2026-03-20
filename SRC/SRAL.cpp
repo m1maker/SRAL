@@ -18,6 +18,8 @@
 #include "NSSpeech.h"
 #endif
 #include "VoiceOver.h"
+#elif defined(__ANDROID__)
+#include "AndroidTextToSpeech.h"
 #else
 #include "SpeechDispatcher.h"
 #endif
@@ -234,6 +236,8 @@ extern "C" SRAL_API bool SRAL_Initialize(int engines_exclude) {
 #ifndef SRAL_NO_NSSPEECH
 	g_engines[SRAL_ENGINE_NS_SPEECH] = std::make_unique<Sral::NsSpeech>();
 #endif
+#elif defined(__ANDROID__)
+	g_engines[SRAL_ENGINE_ANDROID_TEXT_TO_SPEECH] = std::make_unique<Sral::AndroidTextToSpeech>();
 #else
 	g_engines[SRAL_ENGINE_SPEECH_DISPATCHER] = std::make_unique<Sral::SpeechDispatcher>();
 #endif
@@ -326,7 +330,7 @@ static BOOL FindProcess(const wchar_t* name) {
 
 #endif
 static void speech_engine_update() {
-	if (!g_currentEngine || !g_currentEngine->GetActive() || g_currentEngine->GetNumber() == SRAL_ENGINE_SAPI || g_currentEngine->GetNumber() == SRAL_ENGINE_UIA || g_currentEngine->GetNumber() == SRAL_ENGINE_AV_SPEECH) {
+	if (!g_currentEngine || !g_currentEngine->GetActive() || g_currentEngine->GetNumber() == SRAL_ENGINE_SAPI || g_currentEngine->GetNumber() == SRAL_ENGINE_UIA || g_currentEngine->GetNumber() == SRAL_ENGINE_AV_SPEECH || g_currentEngine->GetNumber() == SRAL_ENGINE_ANDROID_TEXT_TO_SPEECH) {
 #if defined(_WIN32) && !defined(SRAL_NO_UIA)
 		if (FindProcess(L"narrator.exe") == TRUE) {
 			g_currentEngine = get_engine(SRAL_ENGINE_UIA);
@@ -616,6 +620,7 @@ extern "C" SRAL_API const char* SRAL_GetEngineName(int engine) {
 		case SRAL_ENGINE_NARRATOR: return "Narrator";
 		case SRAL_ENGINE_VOICE_OVER: return "Voice Over";
 		case SRAL_ENGINE_ZDSR: return "ZDSR";
+		case SRAL_ENGINE_ANDROID_TEXT_TO_SPEECH: return "Android TTS";
 		default: return "Unknown";
 	}
 }
