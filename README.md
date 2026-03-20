@@ -19,13 +19,15 @@ SRAL is a cross-platform library designed to provide a unified interface for out
 
 ## 🛠 Supported Engines & Platforms
 
-SRAL supports Windows, macOS, and Linux.
+SRAL supports Windows, macOS, iOS, Android, and Linux.
 
 | Category | Supported Engines |
 | --- | --- |
 | **Windows Screen Readers** | NVDA, JAWS, ZDSR, Microsoft Narrator |
 | **Windows Frameworks** | Microsoft UI Automation (UIA) |
-| **Apple (macOS)** | VoiceOver, AVFoundation (AVSpeech) |
+| **macOS** | VoiceOver, NSSpeech, AVFoundation (AVSpeech) |
+| **iOS** | VoiceOver, AVFoundation (AVSpeech) |
+| **Android** | Android TextToSpeech |
 | **Linux** | Speech Dispatcher |
 | **General APIs** | Microsoft SAPI (Windows), BRLTTY (Braille) |
 
@@ -121,5 +123,3 @@ bool SRAL_Braille(const char* text);
 bool SRAL_IsSpeaking(void);
 
 ```
-
-
