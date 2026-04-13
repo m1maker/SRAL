@@ -47,6 +47,10 @@ elseif(APPLE)
     target_sources(${PROJECT_NAME}_obj PRIVATE
       "SRC/NSSpeech.h" "SRC/NSSpeech.mm")
   endif()
+elseif(ANDROID)
+  target_sources(${PROJECT_NAME}_obj PRIVATE
+    "SRC/AndroidTextToSpeech.h" "SRC/AndroidTextToSpeech.cpp"
+    "Dep/AndroidContext.h" "Dep/AndroidContext.cpp")
 else()
   target_sources(${PROJECT_NAME}_obj PRIVATE
      "Dep/utf-8.h" "Dep/utf-8.c" "SRC/SpeechDispatcher.h" "SRC/SpeechDispatcher.cpp")
@@ -135,6 +139,11 @@ if (BUILD_SRAL_TEST)
     "-framework AVFoundation"
   )
 endif()
+elseif(ANDROID)
+  if(BUILD_SHARED_LIBS)
+    target_link_libraries(${PROJECT_NAME} log)
+  endif()
+  target_link_libraries(${PROJECT_NAME}_static log)
 else()
   find_package(PkgConfig REQUIRED)
   pkg_check_modules(SpeechD REQUIRED speech-dispatcher)

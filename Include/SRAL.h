@@ -85,7 +85,10 @@ SRAL_ENGINE_VOICE_OVER = 1 << 8,
 SRAL_ENGINE_NS_SPEECH = 1 << 9,
 
 /** @brief AVFoundation Speech Synthesizer (AVSpeechSynthesizer), for text-to-speech on Apple platforms. */
-SRAL_ENGINE_AV_SPEECH = 1 << 10
+SRAL_ENGINE_AV_SPEECH = 1 << 10,
+
+// --- Android Speech Synthesis Engines ---
+SRAL_ENGINE_ANDROID_TEXT_TO_SPEECH = 1 << 11
 	};
 
 	/**
@@ -122,7 +125,21 @@ SRAL_ENGINE_AV_SPEECH = 1 << 10
 		SRAL_PARAM_SAPI_TRIM_THRESHOLD,
 		SRAL_PARAM_ENABLE_SPELLING,
 		SRAL_PARAM_USE_CHARACTER_DESCRIPTIONS,
-		SRAL_PARAM_NVDA_IS_CONTROL_EX
+		SRAL_PARAM_NVDA_IS_CONTROL_EX,
+
+		/**
+		 * @brief (Android only) Set the JNIEnv* used by Android engines.
+		 * Must be set via SRAL_SetEngineParameter before SRAL_Initialize.
+		 * Value is a JNIEnv* cast to void*.
+		 */
+		SRAL_PARAM_ANDROID_JNI_ENV,
+
+		/**
+		 * @brief (Android only) Set the Activity (jobject) used by Android engines.
+		 * Must be set via SRAL_SetEngineParameter before SRAL_Initialize.
+		 * Value is a jobject cast to void*.
+		 */
+		SRAL_PARAM_ANDROID_ACTIVITY
 	};
 
 

@@ -18,6 +18,9 @@
 #include "NSSpeech.h"
 #endif
 #include "VoiceOver.h"
+#elif defined(__ANDROID__)
+#include "AndroidTextToSpeech.h"
+#include "../Dep/AndroidContext.h"
 #else
 #include "SpeechDispatcher.h"
 #endif
@@ -234,6 +237,8 @@ extern "C" SRAL_API bool SRAL_Initialize(int engines_exclude) {
 #ifndef SRAL_NO_NSSPEECH
 	g_engines[SRAL_ENGINE_NS_SPEECH] = std::make_unique<Sral::NsSpeech>();
 #endif
+#elif defined(__ANDROID__)
+	g_engines[SRAL_ENGINE_ANDROID_TEXT_TO_SPEECH] = std::make_unique<Sral::AndroidTextToSpeech>();
 #else
 	g_engines[SRAL_ENGINE_SPEECH_DISPATCHER] = std::make_unique<Sral::SpeechDispatcher>();
 #endif
@@ -262,6 +267,9 @@ extern "C" SRAL_API void SRAL_Uninitialize(void) {
 	}
 #ifdef _WIN32
 	CoUninitialize();
+#endif
+#ifdef __ANDROID__
+	Sral::ClearAndroidContext();
 #endif
 	g_currentEngine = nullptr;
 	g_engines.clear();
@@ -326,7 +334,7 @@ static BOOL FindProcess(const wchar_t* name) {
 
 #endif
 static void speech_engine_update() {
-	if (!g_currentEngine || !g_currentEngine->GetActive() || g_currentEngine->GetNumber() == SRAL_ENGINE_SAPI || g_currentEngine->GetNumber() == SRAL_ENGINE_UIA || g_currentEngine->GetNumber() == SRAL_ENGINE_AV_SPEECH) {
+	if (!g_currentEngine || !g_currentEngine->GetActive() || g_currentEngine->GetNumber() == SRAL_ENGINE_SAPI || g_currentEngine->GetNumber() == SRAL_ENGINE_UIA || g_currentEngine->GetNumber() == SRAL_ENGINE_AV_SPEECH || g_currentEngine->GetNumber() == SRAL_ENGINE_ANDROID_TEXT_TO_SPEECH) {
 #if defined(_WIN32) && !defined(SRAL_NO_UIA)
 		if (FindProcess(L"narrator.exe") == TRUE) {
 			g_currentEngine = get_engine(SRAL_ENGINE_UIA);
@@ -422,6 +430,16 @@ extern "C" SRAL_API int SRAL_GetEngineFeatures(int engine) {
 
 
 extern "C" SRAL_API bool SRAL_SetEngineParameter(int engine, int param, const void* value) {
+#ifdef __ANDROID__
+	// Android platform bootstrap params may be set before SRAL_Initialize,
+	// so they are handled here directly rather than dispatching to an engine.
+	if (param == SRAL_PARAM_ANDROID_JNI_ENV) {
+		return Sral::SetAndroidJNIEnv((JNIEnv*)const_cast<void*>(value));
+	}
+	if (param == SRAL_PARAM_ANDROID_ACTIVITY) {
+		return Sral::SetAndroidActivity((jobject)const_cast<void*>(value));
+	}
+#endif
 	if (engine == 0 && g_currentEngine != nullptr) {
 		return g_currentEngine->SetParameter(param, value);
 	}
@@ -616,6 +634,7 @@ extern "C" SRAL_API const char* SRAL_GetEngineName(int engine) {
 		case SRAL_ENGINE_NARRATOR: return "Narrator";
 		case SRAL_ENGINE_VOICE_OVER: return "Voice Over";
 		case SRAL_ENGINE_ZDSR: return "ZDSR";
+		case SRAL_ENGINE_ANDROID_TEXT_TO_SPEECH: return "Android TTS";
 		default: return "Unknown";
 	}
 }
