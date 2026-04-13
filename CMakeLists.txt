@@ -49,7 +49,8 @@ elseif(APPLE)
   endif()
 elseif(ANDROID)
   target_sources(${PROJECT_NAME}_obj PRIVATE
-    "SRC/AndroidTextToSpeech.h" "SRC/AndroidTextToSpeech.cpp")
+    "SRC/AndroidTextToSpeech.h" "SRC/AndroidTextToSpeech.cpp"
+    "Dep/AndroidContext.h" "Dep/AndroidContext.cpp")
 else()
   target_sources(${PROJECT_NAME}_obj PRIVATE
      "Dep/utf-8.h" "Dep/utf-8.c" "SRC/SpeechDispatcher.h" "SRC/SpeechDispatcher.cpp")

@@ -1,13 +1,13 @@
   #include "AndroidTextToSpeech.h"
-  #include <SDL3/SDL_system.h>  // For SDL_GetAndroidJNIEnv() and SDL_GetAndroidActivity()
+  #include "../Dep/AndroidContext.h"
 
   namespace Sral {
 
   bool AndroidTextToSpeech::Initialize() {
-        env = (JNIEnv*)SDL_GetAndroidJNIEnv();
+        env = GetAndroidJNIEnv();
         if (!env) return false;
 
-        jobject activity = (jobject)SDL_GetAndroidActivity();
+        jobject activity = GetAndroidActivity();
         if (!activity) return false;
 
         speechClass = env->FindClass("org/sral/AndroidTTSHelper");
@@ -33,7 +33,6 @@
         if (!localObj) return false;
         speechObj = env->NewGlobalRef(localObj);
         env->DeleteLocalRef(localObj);
-        env->DeleteLocalRef(activity);
 
         return true;
   }

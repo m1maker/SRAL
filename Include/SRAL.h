@@ -125,7 +125,21 @@ SRAL_ENGINE_ANDROID_TEXT_TO_SPEECH = 1 << 11
 		SRAL_PARAM_SAPI_TRIM_THRESHOLD,
 		SRAL_PARAM_ENABLE_SPELLING,
 		SRAL_PARAM_USE_CHARACTER_DESCRIPTIONS,
-		SRAL_PARAM_NVDA_IS_CONTROL_EX
+		SRAL_PARAM_NVDA_IS_CONTROL_EX,
+
+		/**
+		 * @brief (Android only) Set the JNIEnv* used by Android engines.
+		 * Must be set via SRAL_SetEngineParameter before SRAL_Initialize.
+		 * Value is a JNIEnv* cast to void*.
+		 */
+		SRAL_PARAM_ANDROID_JNI_ENV,
+
+		/**
+		 * @brief (Android only) Set the Activity (jobject) used by Android engines.
+		 * Must be set via SRAL_SetEngineParameter before SRAL_Initialize.
+		 * Value is a jobject cast to void*.
+		 */
+		SRAL_PARAM_ANDROID_ACTIVITY
 	};
 
 

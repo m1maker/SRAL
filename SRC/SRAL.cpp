@@ -20,6 +20,7 @@
 #include "VoiceOver.h"
 #elif defined(__ANDROID__)
 #include "AndroidTextToSpeech.h"
+#include "../Dep/AndroidContext.h"
 #else
 #include "SpeechDispatcher.h"
 #endif
@@ -267,6 +268,9 @@ extern "C" SRAL_API void SRAL_Uninitialize(void) {
 #ifdef _WIN32
 	CoUninitialize();
 #endif
+#ifdef __ANDROID__
+	Sral::ClearAndroidContext();
+#endif
 	g_currentEngine = nullptr;
 	g_engines.clear();
 	g_excludes = SRAL_ENGINE_NONE;
@@ -426,6 +430,16 @@ extern "C" SRAL_API int SRAL_GetEngineFeatures(int engine) {
 
 
 extern "C" SRAL_API bool SRAL_SetEngineParameter(int engine, int param, const void* value) {
+#ifdef __ANDROID__
+	// Android platform bootstrap params may be set before SRAL_Initialize,
+	// so they are handled here directly rather than dispatching to an engine.
+	if (param == SRAL_PARAM_ANDROID_JNI_ENV) {
+		return Sral::SetAndroidJNIEnv((JNIEnv*)const_cast<void*>(value));
+	}
+	if (param == SRAL_PARAM_ANDROID_ACTIVITY) {
+		return Sral::SetAndroidActivity((jobject)const_cast<void*>(value));
+	}
+#endif
 	if (engine == 0 && g_currentEngine != nullptr) {
 		return g_currentEngine->SetParameter(param, value);
 	}
