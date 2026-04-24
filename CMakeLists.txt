@@ -50,6 +50,7 @@ elseif(APPLE)
 elseif(ANDROID)
   target_sources(${PROJECT_NAME}_obj PRIVATE
     "SRC/AndroidTextToSpeech.h" "SRC/AndroidTextToSpeech.cpp"
+    "SRC/AndroidAccessibilityManager.h" "SRC/AndroidAccessibilityManager.cpp"
     "Dep/AndroidContext.h" "Dep/AndroidContext.cpp")
 else()
   target_sources(${PROJECT_NAME}_obj PRIVATE

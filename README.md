@@ -27,7 +27,7 @@ SRAL supports Windows, macOS, iOS, Android, and Linux.
 | **Windows Frameworks** | Microsoft UI Automation (UIA) |
 | **macOS** | VoiceOver, NSSpeech, AVFoundation (AVSpeech) |
 | **iOS** | VoiceOver, AVFoundation (AVSpeech) |
-| **Android** | Android TextToSpeech |
+| **Android** | Android TextToSpeech, Android AccessibilityManager (TalkBack etc.) |
 | **Linux** | Speech Dispatcher |
 | **General APIs** | Microsoft SAPI (Windows), BRLTTY (Braille) |
 

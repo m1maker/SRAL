@@ -88,7 +88,11 @@ SRAL_ENGINE_NS_SPEECH = 1 << 9,
 SRAL_ENGINE_AV_SPEECH = 1 << 10,
 
 // --- Android Speech Synthesis Engines ---
-SRAL_ENGINE_ANDROID_TEXT_TO_SPEECH = 1 << 11
+
+/** @brief Android AccessibilityManager, for driving the active screen reader (most commonly TalkBack) */
+SRAL_ENGINE_ANDROID_ACCESSIBILITY_MANAGER = 1 << 11,
+
+SRAL_ENGINE_ANDROID_TEXT_TO_SPEECH = 1 << 12
 	};
 
 	/**
