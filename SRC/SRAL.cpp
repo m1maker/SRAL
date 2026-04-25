@@ -20,6 +20,7 @@
 #include "VoiceOver.h"
 #elif defined(__ANDROID__)
 #include "AndroidTextToSpeech.h"
+#include "AndroidAccessibilityManager.h"
 #include "../Dep/AndroidContext.h"
 #else
 #include "SpeechDispatcher.h"
@@ -238,6 +239,7 @@ extern "C" SRAL_API bool SRAL_Initialize(int engines_exclude) {
 	g_engines[SRAL_ENGINE_NS_SPEECH] = std::make_unique<Sral::NsSpeech>();
 #endif
 #elif defined(__ANDROID__)
+	g_engines[SRAL_ENGINE_ANDROID_ACCESSIBILITY_MANAGER] = std::make_unique<Sral::AndroidAccessibilityManager>();
 	g_engines[SRAL_ENGINE_ANDROID_TEXT_TO_SPEECH] = std::make_unique<Sral::AndroidTextToSpeech>();
 #else
 	g_engines[SRAL_ENGINE_SPEECH_DISPATCHER] = std::make_unique<Sral::SpeechDispatcher>();
@@ -635,6 +637,7 @@ extern "C" SRAL_API const char* SRAL_GetEngineName(int engine) {
 		case SRAL_ENGINE_VOICE_OVER: return "Voice Over";
 		case SRAL_ENGINE_ZDSR: return "ZDSR";
 		case SRAL_ENGINE_ANDROID_TEXT_TO_SPEECH: return "Android TTS";
+		case SRAL_ENGINE_ANDROID_ACCESSIBILITY_MANAGER: return "Android AccessibilityManager";
 		default: return "Unknown";
 	}
 }
