@@ -1,5 +1,12 @@
 # SRAL (Screen Reader Abstraction Library)
 
+> [!NOTE]
+> Consider using **[prism](https://github.com/ethindp/prism)** instead of SRAL.
+> Its architecture is more correct, it supports more engines (except NSSpeech and BRLTTY, but BRLTTY specifically is not needed when Orca is available, but I don't know about legacy NSSpeech).
+> It also supports the creation of your own custom backends via vtable.
+> For more information, see the link above.
+> Thanks to everyone who has ever contributed to the SRAL project. I'm not doing this anymore because I don't see the point in developing it, at least because of architectural problems and my lack of development experience at that time.
+
 SRAL is a cross-platform library designed to provide a unified interface for outputting speech and Braille via assistive technologies. It abstracts the complexities of various screen readers and speech APIs, allowing developers to implement accessibility features once and have them work across multiple engines and platforms.
 
 ## 🌍 Language Note
